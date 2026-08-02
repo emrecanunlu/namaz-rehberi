@@ -87,11 +87,7 @@ function SlideContent({
   height: number;
   textBottom: number;
 }) {
-  const input = [
-    -(index + 1) * width,
-    -index * width,
-    -(index - 1) * width,
-  ];
+  const input = [-(index + 1) * width, -index * width, -(index - 1) * width];
 
   // Görsel: yavaş kayar + soft zoom (parallax arka plan)
   const imageShift = translateX.interpolate({
@@ -157,7 +153,9 @@ function SlideContent({
   const imageWidth = width * 1.28;
 
   return (
-    <View style={{ width, height, overflow: "hidden", backgroundColor: "#000" }}>
+    <View
+      style={{ width, height, overflow: "hidden", backgroundColor: "#000" }}
+    >
       <Animated.View
         style={{
           position: "absolute",
@@ -447,7 +445,8 @@ export default function OnboardingScreen() {
     () =>
       PanResponder.create({
         onMoveShouldSetPanResponder: (_, gesture) =>
-          Math.abs(gesture.dx) > 8 && Math.abs(gesture.dx) > Math.abs(gesture.dy),
+          Math.abs(gesture.dx) > 8 &&
+          Math.abs(gesture.dx) > Math.abs(gesture.dy),
         onPanResponderGrant: () => {
           animating.current = false;
           translateX.stopAnimation((value) => {
@@ -586,10 +585,7 @@ export default function OnboardingScreen() {
                 />
               </View>
             ) : (
-              <StartControls
-                onBack={goBack}
-                onStart={() => void finish()}
-              />
+              <StartControls onBack={goBack} onStart={() => void finish()} />
             )}
           </View>
         </View>

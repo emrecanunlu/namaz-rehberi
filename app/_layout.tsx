@@ -1,8 +1,8 @@
 import "../global.css";
 import "react-native-gesture-handler";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { View } from "react-native";
-import { Stack } from "expo-router";
+import { Stack, ThemeProvider, DarkTheme, DefaultTheme } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -23,24 +23,47 @@ function RootNavigator() {
   const ready =
     onboardingReady && settingsReady && (fontsLoaded || Boolean(fontError));
 
+  const backgroundColor =
+    resolvedTheme === "dark" ? "#0f1a15" : "#faf8f4";
+
+  const navigationTheme = useMemo(() => {
+    const base = resolvedTheme === "dark" ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      dark: resolvedTheme === "dark",
+      colors: {
+        ...base.colors,
+        background: backgroundColor,
+        card: backgroundColor,
+        border:
+          resolvedTheme === "dark"
+            ? "rgba(42,74,57,0.45)"
+            : "rgba(230,220,200,0.9)",
+        primary: resolvedTheme === "dark" ? "#d4a84b" : "#2a4a39",
+        text: resolvedTheme === "dark" ? "#f3efe6" : "#1a2f25",
+      },
+    };
+  }, [backgroundColor, resolvedTheme]);
+
   useEffect(() => {
     if (!ready) return;
     void SplashScreen.hideAsync();
   }, [ready]);
 
-  // Splash açık kalsın — hazır olmadan Stack render etme (flash yok)
   if (!ready) {
     return <View className="flex-1 bg-forest-900" />;
   }
 
   return (
-    <>
+    <ThemeProvider value={navigationTheme}>
       <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: "fade",
-          animationDuration: 280,
+          contentStyle: { backgroundColor },
+          animation: "slide_from_right",
+          animationDuration: 300,
+          gestureEnabled: true,
         }}
       >
         <Stack.Protected guard={!seenOnboarding}>
@@ -49,9 +72,17 @@ function RootNavigator() {
 
         <Stack.Protected guard={seenOnboarding}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="namaza-basla/[id]"
+            options={{
+              presentation: "fullScreenModal",
+              animation: "slide_from_bottom",
+              gestureEnabled: true,
+            }}
+          />
         </Stack.Protected>
       </Stack>
-    </>
+    </ThemeProvider>
   );
 }
 

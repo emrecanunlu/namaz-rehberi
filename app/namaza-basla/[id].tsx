@@ -1,0 +1,735 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  Image,
+  Pressable,
+  ScrollView,
+  Switch,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  PRAYER_GUIDES,
+  filterStepsBySections,
+  getPrayerName,
+  getSectionLabel,
+  getSectionSummaries,
+  getStepImage,
+  getStepRecitation,
+  resolvePrayerStep,
+  type PrayerSectionKind,
+  type PrayerVoiceId,
+} from "@/data/content";
+import { t } from "@/lib/i18n";
+import { useAppSettings } from "@/lib/settings-context";
+import { fonts } from "@/constants/fonts";
+import { speakPrayerStep, stopPrayerVoice } from "@/lib/prayer-voice";
+
+/** Ses bitince sonraki adıma geçmeden önce gösterilen süre */
+const ADVANCE_MS = 3200;
+
+const SURAH_VOICE_IDS: PrayerVoiceId[] = ["fatiha", "ihlas"];
+
+function splitReadingLines(latin: string) {
+  return latin
+    .split(/(?<=[.!?])\s+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+export default function StartPrayerSessionScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  const { locale, autoImam, setAutoImam } = useAppSettings();
+
+  const prayer = useMemo(
+    () => PRAYER_GUIDES.find((item) => item.id === id),
+    [id],
+  );
+
+  const sectionSummaries = useMemo(
+    () => (prayer ? getSectionSummaries(prayer.steps) : []),
+    [prayer],
+  );
+
+  const [phase, setPhase] = useState<"hub" | "active">("hub");
+  const [activeSection, setActiveSection] = useState<PrayerSectionKind | null>(
+    null,
+  );
+  const [completed, setCompleted] = useState<
+    Partial<Record<PrayerSectionKind, boolean>>
+  >({});
+  const [stepIndex, setStepIndex] = useState(0);
+  const [isAdvancing, setIsAdvancing] = useState(false);
+
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const advanceBarAnimRef = useRef<Animated.CompositeAnimation | null>(null);
+  const stepIndexRef = useRef(0);
+  const progressAnim = useRef(new Animated.Value(0)).current;
+  const advanceBar = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const steps = useMemo(() => {
+    if (!prayer || !activeSection) return [];
+    return filterStepsBySections(prayer.steps, [activeSection]);
+  }, [prayer, activeSection]);
+
+  const clearAdvanceTimer = useCallback(() => {
+    if (advanceTimer.current) {
+      clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
+    advanceBarAnimRef.current?.stop();
+    advanceBarAnimRef.current = null;
+    advanceBar.stopAnimation();
+    advanceBar.setValue(0);
+    setIsAdvancing(false);
+  }, [advanceBar]);
+
+  const exitScreen = useCallback(() => {
+    clearAdvanceTimer();
+    void stopPrayerVoice();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)");
+    }
+  }, [router, clearAdvanceTimer]);
+
+  const returnToHub = useCallback(() => {
+    clearAdvanceTimer();
+    void stopPrayerVoice();
+    setActiveSection(null);
+    setStepIndex(0);
+    stepIndexRef.current = 0;
+    setPhase("hub");
+  }, [clearAdvanceTimer]);
+
+  const finishSection = useCallback(() => {
+    if (activeSection) {
+      setCompleted((prev) => ({ ...prev, [activeSection]: true }));
+    }
+    returnToHub();
+  }, [activeSection, returnToHub]);
+
+  const animateStepIn = useCallback(() => {
+    fadeAnim.setValue(0);
+    slideAnim.setValue(14);
+    scaleAnim.setValue(0.985);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 380,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 420,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 420,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, slideAnim, scaleAnim]);
+
+  const goTo = useCallback(
+    (next: number) => {
+      clearAdvanceTimer();
+      void stopPrayerVoice();
+      stepIndexRef.current = next;
+      setStepIndex(next);
+      animateStepIn();
+    },
+    [clearAdvanceTimer, animateStepIn],
+  );
+
+  const scheduleAdvance = useCallback(
+    (fromIndex: number) => {
+      clearAdvanceTimer();
+      setIsAdvancing(true);
+      advanceBar.setValue(0);
+      advanceBarAnimRef.current = Animated.timing(advanceBar, {
+        toValue: 1,
+        duration: ADVANCE_MS,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      });
+      advanceBarAnimRef.current.start();
+
+      advanceTimer.current = setTimeout(() => {
+        if (stepIndexRef.current !== fromIndex) {
+          clearAdvanceTimer();
+          return;
+        }
+        const atEnd = fromIndex >= steps.length - 1;
+        clearAdvanceTimer();
+        if (atEnd) {
+          finishSection();
+          return;
+        }
+        goTo(fromIndex + 1);
+      }, ADVANCE_MS);
+    },
+    [clearAdvanceTimer, finishSection, goTo, steps.length, advanceBar],
+  );
+
+  const skipCountdown = useCallback(() => {
+    if (!isAdvancing) return;
+    const current = stepIndexRef.current;
+    const atEnd = current >= steps.length - 1;
+    clearAdvanceTimer();
+    if (atEnd) {
+      finishSection();
+      return;
+    }
+    goTo(current + 1);
+  }, [isAdvancing, clearAdvanceTimer, finishSection, goTo, steps.length]);
+
+  useEffect(() => {
+    stepIndexRef.current = stepIndex;
+  }, [stepIndex]);
+
+  useEffect(() => {
+    if (phase !== "active" || steps.length === 0) return;
+    Animated.timing(progressAnim, {
+      toValue: (stepIndex + 1) / steps.length,
+      duration: 420,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [phase, steps.length, stepIndex, progressAnim]);
+
+  useEffect(() => {
+    if (phase !== "active" || !autoImam || steps.length === 0) {
+      void stopPrayerVoice();
+      clearAdvanceTimer();
+      return;
+    }
+
+    const step = steps[stepIndex];
+    if (!step) return;
+
+    let active = true;
+    const current = stepIndex;
+
+    void speakPrayerStep(step, {
+      onDone: () => {
+        if (!active) return;
+        scheduleAdvance(current);
+      },
+    });
+
+    return () => {
+      active = false;
+      clearAdvanceTimer();
+      void stopPrayerVoice();
+    };
+  }, [phase, steps, stepIndex, autoImam, scheduleAdvance, clearAdvanceTimer]);
+
+  useEffect(() => {
+    return () => {
+      clearAdvanceTimer();
+      void stopPrayerVoice();
+    };
+  }, [clearAdvanceTimer]);
+
+  const startSection = useCallback(
+    (section: PrayerSectionKind) => {
+      clearAdvanceTimer();
+      void stopPrayerVoice();
+      setActiveSection(section);
+      stepIndexRef.current = 0;
+      setStepIndex(0);
+      setPhase("active");
+      animateStepIn();
+      if (!autoImam) {
+        void setAutoImam(true);
+      }
+    },
+    [clearAdvanceTimer, animateStepIn, autoImam, setAutoImam],
+  );
+
+  if (!prayer) {
+    return (
+      <View className="flex-1 items-center justify-center bg-forest-950">
+        <Text style={{ fontFamily: fonts.body }} className="text-sand-200">
+          {t("common.notFound")}
+        </Text>
+        <Pressable onPress={exitScreen} className="mt-6 active:opacity-70">
+          <Text
+            style={{ fontFamily: fonts.bodySemi }}
+            className="text-gold-400"
+          >
+            {t("session.close")}
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const name = getPrayerName(prayer.id);
+
+  if (phase === "hub") {
+    const doneCount = sectionSummaries.filter(
+      (item) => completed[item.section],
+    ).length;
+
+    return (
+      <View
+        key={`hub-${locale}`}
+        className="flex-1 bg-forest-950"
+        style={{ paddingTop: insets.top }}
+      >
+        <View className="flex-row items-center px-4 pb-2 pt-1">
+          <Pressable
+            onPress={exitScreen}
+            hitSlop={14}
+            className="h-9 w-9 items-center justify-center active:opacity-50"
+            accessibilityLabel={t("session.close")}
+          >
+            <Ionicons name="close" size={22} color="#f3efe6" />
+          </Pressable>
+          <View className="flex-1 items-center px-2">
+            <Text
+              style={{ fontFamily: fonts.bodyMedium }}
+              className="text-[11px] tracking-[1.5px] text-gold-400/90"
+            >
+              {name}
+            </Text>
+          </View>
+          <View className="w-9" />
+        </View>
+
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="px-5 pb-8 pt-5"
+          showsVerticalScrollIndicator={false}
+        >
+          <Text
+            style={{ fontFamily: fonts.displayBold }}
+            className="text-[28px] leading-9 text-sand-50"
+          >
+            {t("session.sectionPickTitle")}
+          </Text>
+          <Text
+            style={{ fontFamily: fonts.body }}
+            className="mt-2 text-[14px] leading-5 text-sand-200/60"
+          >
+            {t("session.sectionPickHint")}
+          </Text>
+
+          {doneCount > 0 ? (
+            <Text
+              style={{ fontFamily: fonts.body }}
+              className="mt-3 text-[13px] text-gold-400/80"
+            >
+              {doneCount}/{sectionSummaries.length} ·{" "}
+              {t("session.sectionCompleted")}
+            </Text>
+          ) : null}
+
+          <View className="mt-6 gap-3">
+            {sectionSummaries.map((item) => {
+              const isDone = Boolean(completed[item.section]);
+              return (
+                <Pressable
+                  key={item.section}
+                  onPress={() => startSection(item.section)}
+                  className={`border px-4 py-4 active:opacity-75 ${
+                    isDone
+                      ? "border-gold-400/40 bg-gold-400/10"
+                      : "border-sand-200/15 bg-forest-900"
+                  }`}
+                >
+                  <View className="flex-row items-center">
+                    <View
+                      className={`mr-3 h-9 w-9 items-center justify-center ${
+                        isDone ? "bg-gold-400/20" : "bg-forest-800"
+                      }`}
+                    >
+                      <Ionicons
+                        name={isDone ? "checkmark" : "play"}
+                        size={18}
+                        color={isDone ? "#d4a84b" : "#f3efe6"}
+                      />
+                    </View>
+
+                    <View className="flex-1 pr-2">
+                      <Text
+                        style={{ fontFamily: fonts.bodySemi }}
+                        className="text-[16px] text-sand-50"
+                      >
+                        {getSectionLabel(item.section)}
+                      </Text>
+                      <Text
+                        style={{ fontFamily: fonts.body }}
+                        className="mt-0.5 text-[13px] text-sand-200/55"
+                      >
+                        {t("session.sectionRakat", {
+                          count: String(item.rakatCount),
+                        })}
+                        {" · "}
+                        {item.stepCount} {t("session.stepsCount")}
+                      </Text>
+                    </View>
+
+                    <View className="items-end">
+                      {isDone ? (
+                        <Text
+                          style={{ fontFamily: fonts.bodyMedium }}
+                          className="text-[12px] text-gold-400"
+                        >
+                          {t("session.sectionCompleted")}
+                        </Text>
+                      ) : null}
+                      <Text
+                        style={{ fontFamily: fonts.body }}
+                        className={`text-[13px] ${
+                          isDone ? "mt-1 text-sand-200/50" : "text-gold-400"
+                        }`}
+                      >
+                        {isDone
+                          ? t("session.sectionReplay")
+                          : t("session.sectionReady")}
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <View className="mt-8 flex-row items-center justify-between border-t border-sand-200/10 pt-5">
+            <View className="mr-4 flex-1">
+              <Text
+                style={{ fontFamily: fonts.bodySemi }}
+                className="text-[14px] text-sand-100"
+              >
+                {t("session.autoImam")}
+              </Text>
+              <Text
+                style={{ fontFamily: fonts.body }}
+                className="mt-1 text-[12px] leading-4 text-sand-200/50"
+              >
+                {t("session.autoImamHint")}
+              </Text>
+            </View>
+            <Switch
+              value={autoImam}
+              onValueChange={(v) => void setAutoImam(v)}
+              trackColor={{ false: "#24352c", true: "#a8893a" }}
+              thumbColor="#faf8f4"
+            />
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  if (steps.length === 0 || !activeSection) {
+    return (
+      <View className="flex-1 items-center justify-center bg-forest-950">
+        <Text style={{ fontFamily: fonts.body }} className="text-sand-200">
+          {t("common.notFound")}
+        </Text>
+        <Pressable onPress={returnToHub} className="mt-6 active:opacity-70">
+          <Text
+            style={{ fontFamily: fonts.bodySemi }}
+            className="text-gold-400"
+          >
+            {t("session.backToSections")}
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const total = steps.length;
+  const step = steps[stepIndex];
+  const text = resolvePrayerStep(prayer.id, step);
+  const recitation = getStepRecitation(step.voiceId);
+  const isFirst = stepIndex === 0;
+  const isLast = stepIndex === total - 1;
+  const isSurah =
+    !!step.voiceId && SURAH_VOICE_IDS.includes(step.voiceId);
+  const readingLines = recitation
+    ? splitReadingLines(recitation.latin)
+    : [];
+  const imageHeight = Math.min(
+    height * (recitation ? (isSurah ? 0.14 : 0.16) : 0.2),
+    recitation ? 128 : 168,
+  );
+  const sectionLabel = step.rakat
+    ? t("session.sectionLabel", {
+        section: getSectionLabel(step.section),
+        rakat: String(step.rakat),
+      })
+    : t("session.sectionOnly", { section: getSectionLabel(step.section) });
+
+  const progressWidth = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
+  const advanceWidth = advanceBar.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
+
+  return (
+    <View
+      key={locale}
+      className="flex-1 bg-forest-950"
+      style={{ paddingTop: insets.top }}
+    >
+      <View className="flex-row items-center px-4 pb-1 pt-1">
+        <Pressable
+          onPress={returnToHub}
+          hitSlop={14}
+          className="h-9 w-9 items-center justify-center active:opacity-50"
+          accessibilityLabel={t("session.backToSections")}
+        >
+          <Ionicons name="chevron-back" size={22} color="#f3efe6" />
+        </Pressable>
+
+        <View className="flex-1 items-center px-2">
+          <Text
+            style={{ fontFamily: fonts.bodyMedium }}
+            className="text-[11px] tracking-[1.5px] text-gold-400/90"
+          >
+            {name}
+          </Text>
+          <Text
+            style={{ fontFamily: fonts.body }}
+            className="mt-0.5 text-[13px] text-sand-200/70"
+            numberOfLines={1}
+          >
+            {sectionLabel}
+          </Text>
+        </View>
+
+        <Text
+          style={{ fontFamily: fonts.body }}
+          className="min-w-9 text-right tabular-nums text-[12px] text-sand-200/50"
+        >
+          {stepIndex + 1}/{total}
+        </Text>
+      </View>
+
+      <View className="mx-4 mt-1 h-[2px] overflow-hidden rounded-full bg-forest-800">
+        <Animated.View
+          className="h-full rounded-full bg-gold-400/85"
+          style={{ width: progressWidth }}
+        />
+      </View>
+
+      {isAdvancing ? (
+        <Pressable
+          onPress={skipCountdown}
+          className="mx-4 mt-3 active:opacity-80"
+          accessibilityLabel={t("session.skipWait")}
+        >
+          <View className="flex-row items-center justify-between pb-1.5">
+            <Text
+              style={{ fontFamily: fonts.bodyMedium }}
+              className="text-[12px] tracking-[0.4px] text-gold-400/90"
+            >
+              {isLast ? t("session.finishIn") : t("session.nextIn")}
+            </Text>
+            <Text
+              style={{ fontFamily: fonts.body }}
+              className="text-[12px] text-sand-200/45"
+            >
+              {t("session.skipWait")}
+            </Text>
+          </View>
+          <View className="h-[3px] overflow-hidden rounded-full bg-forest-800">
+            <Animated.View
+              className="h-full rounded-full bg-gold-400"
+              style={{ width: advanceWidth }}
+            />
+          </View>
+        </Pressable>
+      ) : (
+        <View className="mx-4 mt-3 flex-row items-center justify-between">
+          <Text
+            style={{ fontFamily: fonts.body }}
+            className="text-[12px] text-sand-200/55"
+          >
+            {t("session.autoImam")}
+          </Text>
+          <Switch
+            value={autoImam}
+            onValueChange={(v) => void setAutoImam(v)}
+            trackColor={{ false: "#24352c", true: "#a8893a" }}
+            thumbColor="#faf8f4"
+            style={{ transform: [{ scaleX: 0.82 }, { scaleY: 0.82 }] }}
+          />
+        </View>
+      )}
+
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="px-5 pb-6 pt-4"
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View
+          style={{
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
+          }}
+        >
+          <Image
+            source={getStepImage(step.poseId)}
+            style={{ height: imageHeight, width: "100%", borderRadius: 2 }}
+            className="opacity-90"
+            resizeMode="cover"
+          />
+
+          <Text
+            style={{ fontFamily: fonts.displayBold }}
+            className="mt-4 text-[22px] leading-7 text-sand-50"
+          >
+            {text.title}
+          </Text>
+
+          {text.detail ? (
+            <Text
+              style={{ fontFamily: fonts.body }}
+              className="mt-1.5 text-[13px] leading-5 text-sand-200/55"
+            >
+              {text.detail}
+            </Text>
+          ) : null}
+
+          {recitation ? (
+            <View className="mt-5">
+              {/* Okunuş — ezber odağı */}
+              <View className="border border-gold-400/25 bg-gold-400/[0.07] px-4 py-4">
+                <Text
+                  style={{ fontFamily: fonts.bodyMedium }}
+                  className="text-[11px] uppercase tracking-[1.6px] text-gold-400"
+                >
+                  {t("session.reading")}
+                </Text>
+                <Text
+                  style={{ fontFamily: fonts.body }}
+                  className="mt-1 text-[12px] leading-4 text-sand-200/50"
+                >
+                  {t("session.readingHint")}
+                </Text>
+
+                <View className="mt-3 gap-2.5">
+                  {readingLines.map((line, index) => (
+                    <Text
+                      key={`${index}-${line.slice(0, 12)}`}
+                      style={{
+                        fontFamily: isSurah
+                          ? fonts.bodySemi
+                          : fonts.bodyMedium,
+                      }}
+                      className={`leading-7 text-sand-50 ${
+                        isSurah ? "text-[19px]" : "text-[17px]"
+                      }`}
+                    >
+                      {line}
+                    </Text>
+                  ))}
+                </View>
+              </View>
+
+              <Text
+                style={{ fontFamily: fonts.displayMedium }}
+                className="mt-5 text-right text-[18px] leading-8 text-gold-400/75"
+              >
+                {recitation.arabic}
+              </Text>
+
+              <Text
+                style={{ fontFamily: fonts.bodyMedium }}
+                className="mt-5 text-[11px] uppercase tracking-[1.5px] text-sand-200/35"
+              >
+                {t("session.meal")}
+              </Text>
+              <Text
+                style={{ fontFamily: fonts.body }}
+                className="mt-1 text-[14px] leading-6 text-sand-200/55"
+              >
+                {recitation.meaning}
+              </Text>
+            </View>
+          ) : null}
+        </Animated.View>
+      </ScrollView>
+
+      <View
+        className="flex-row items-center justify-between border-t border-sand-200/10 px-6"
+        style={{
+          paddingBottom: Math.max(insets.bottom, 12) + 4,
+          paddingTop: 12,
+        }}
+      >
+        <Pressable
+          onPress={() => goTo(Math.max(0, stepIndex - 1))}
+          disabled={isFirst}
+          hitSlop={10}
+          className={`flex-row items-center gap-1 active:opacity-50 ${
+            isFirst ? "opacity-25" : ""
+          }`}
+        >
+          <Ionicons name="chevron-back" size={18} color="#f3efe6" />
+          <Text
+            style={{ fontFamily: fonts.body }}
+            className="text-[14px] text-sand-100/80"
+          >
+            {t("session.prev")}
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => {
+            if (isAdvancing) {
+              skipCountdown();
+              return;
+            }
+            if (isLast) {
+              finishSection();
+              return;
+            }
+            goTo(stepIndex + 1);
+          }}
+          hitSlop={10}
+          className="flex-row items-center gap-1 active:opacity-50"
+        >
+          <Text
+            style={{ fontFamily: fonts.bodySemi }}
+            className="text-[14px] text-gold-400"
+          >
+            {isAdvancing
+              ? t("session.skipWait")
+              : isLast
+                ? t("session.finish")
+                : t("session.next")}
+          </Text>
+          {!isLast && !isAdvancing ? (
+            <Ionicons name="chevron-forward" size={18} color="#d4a84b" />
+          ) : null}
+        </Pressable>
+      </View>
+    </View>
+  );
+}

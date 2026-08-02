@@ -6,4 +6,5 @@ export const IMAGES = {
   homeHero: require("../assets/images/home-hero.jpg"),
   dualarBanner: require("../assets/images/dualar-banner.jpg"),
   namazBanner: require("../assets/images/namaz-banner.jpg"),
+  duaCard: require("../assets/images/duas/card.png"),
 } as const;

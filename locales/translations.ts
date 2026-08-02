@@ -47,7 +47,7 @@ const tr = {
     },
   },
   home: {
-    subtitle: "Bugünün duası ve adım adım namaz rehberi",
+    subtitle: "Bugünün duası, namaz vakitleri ve adım adım rehber",
     todaysDua: "Bugünün duası",
     allDuas: "Tüm dualar",
     quickStart: "Hızlı başla",
@@ -55,17 +55,202 @@ const tr = {
     howToPrayHint: "Sabah’tan yatsıya adım adım rehber",
     fajrGuide: "Sabah namazı rehberi",
     fajrHint: "2 rekat farz — tek tek adımlar",
+    prayerTimes: "Namaz vakitleri",
+    nextPrayer: "Sıradaki vakit",
+    untilPrayer: "kalan süre",
+    tomorrowFajr: "Yarın imsak",
+    cityLabel: "İl",
+    hoursShort: "sa",
+    minutesShort: "dk",
+    secondsShort: "sn",
+    startPrayer: "Namaza başla",
+    startPrayerHint: "{{prayer}} — adım adım namaz oturumu",
+    startPrayerCta: "Başla",
   },
-  prayer: {
-    intro:
-      "Diğer uygulamalardan farkı: vakit değil, kılınış. Her namazı adım adım takip et.",
-    guideTitle: "Namaz Nasıl Kılınır",
+  session: {
+    stepOf: "{{current}} / {{total}}",
+    next: "Sonraki",
+    prev: "Önceki",
+    finish: "Bitir",
+    close: "Kapat",
+    autoImam: "Sesli kıldırıcı",
+    autoImamHint: "Hoca gibi sesli yönlendirir; adım bitince geçer",
+    expandHint: "Tam metin ve meal için adıma dokun",
+    stepsCount: "adım",
+    sectionLabel: "{{section}} · {{rakat}}. rekat",
+    sectionOnly: "{{section}}",
+    sectionPickTitle: "Bölümler",
+    sectionPickHint: "Bir bölüme dokun; sadece o kısmın adımlarıyla kıldırıcı açılır.",
+    sectionCompleted: "Tamamlandı",
+    sectionReady: "Başla",
+    sectionReplay: "Tekrar kıl",
+    sectionRakat: "{{count}} rekat",
+    backToSections: "Bölümlere dön",
+    nextIn: "Sonraki adım",
+    finishIn: "Bölüm bitiyor",
+    skipWait: "Hemen geç",
+    readingHint: "Okunuşu takip et — ezber için buraya bak",
+    section: {
+      sunnah: "İlk sünnet",
+      fard: "Farz",
+      lastSunnah: "Son sünnet",
+      witr: "Vitir",
+    },
+    cues: {
+      niyet: "Niyet et",
+      tekbir: "Allahu ekber",
+      subhaneke: "Sübhaneke oku",
+      kiyamSure: "İhlas suresini oku",
+      kiyamFatiha: "Fatiha oku",
+      ruku: "Rükuya git",
+      kavme: "Doğrul",
+      rabbena: "Rabbena lekel hamd",
+      secde: "Secdeye git",
+      secde2: "İkinci secdeye git",
+      oturma: "Otur",
+      teshehhudFirst: "Ettehiyyatü oku",
+      teshehhudLast: "Ettehiyyatü oku",
+      salavat: "Salavat oku",
+      rabbenaAtina: "Rabbena duasını oku",
+      selam: "Selam ver",
+      kunutTekbir: "Elleri kaldır, tekbir al",
+      kunut: "Kunut duasını oku",
+    },
+    meal: "Meal",
+    reading: "Okunuş",
+    texts: {
+      niyet: {
+        title: "Niyet",
+        meaning: "Allah rızası için namaz kılmaya niyet ettim.",
+      },
+      tekbir: {
+        title: "Tekbir",
+        meaning: "Allah en büyüktür.",
+      },
+      subhaneke: {
+        title: "Sübhaneke",
+        meaning:
+          "Allah’ım! Seni hamdinle birlikte tenzih ederim. Senin adın mübarektir, şanın yücedir. Senden başka ilah yoktur.",
+      },
+      fatiha: {
+        title: "Fatiha Suresi",
+        meaning:
+          "Rahman ve Rahim olan Allah’ın adıyla. Hamd, âlemlerin Rabbi Allah’adır. O Rahman’dır, Rahim’dir. Din gününün sahibidir. Yalnız sana ibadet eder, yalnız senden yardım dileriz. Bizi doğru yola ilet; nimet verdiklerinin yoluna; gazaba uğrayanların ve sapmışların yoluna değil.",
+      },
+      ihlas: {
+        title: "İhlas Suresi",
+        meaning:
+          "Rahman ve Rahim olan Allah’ın adıyla. De ki: O Allah birdir. Allah Samed’dir (her şey O’na muhtaçtır, O hiçbir şeye muhtaç değildir). O doğurmamış ve doğmamıştır. Hiçbir şey O’na denk değildir.",
+      },
+      ruku: {
+        title: "Rüku tesbihi",
+        meaning: "Yüce Rabbimi tüm noksanlıklardan tenzih ederim. (Üç kez)",
+      },
+      semiallah: {
+        title: "Kavme",
+        meaning: "Allah, kendisine hamd edeni işitir.",
+      },
+      rabbena: {
+        title: "Hamd",
+        meaning: "Rabbimiz! Hamd sanadır.",
+      },
+      secde: {
+        title: "Secde tesbihi",
+        meaning: "En yüce Rabbimi tüm noksanlıklardan tenzih ederim. (Üç kez)",
+      },
+      ettehiyyatu: {
+        title: "Ettehiyyatü",
+        meaning:
+          "Dil, beden ve mal ile yapılan bütün övgüler Allah’adır. Ey Peygamber! Allah’ın selamı, rahmeti ve bereketi senin üzerine olsun. Selam bizim ve Allah’ın salih kulları üzerine olsun. Şahitlik ederim ki Allah’tan başka ilah yoktur; yine şahitlik ederim ki Muhammed O’nun kulu ve elçisidir.",
+      },
+      salavat: {
+        title: "Salavat",
+        meaning:
+          "Allah’ım! Muhammed’e ve Muhammed’in ailesine salat eyle; İbrahim’e ve İbrahim’in ailesine salat ettiğin gibi. Şüphesiz sen övülmeye layıksın, şanındır. Allah’ım! Muhammed’e ve Muhammed’in ailesine bereket ver; İbrahim’e ve İbrahim’in ailesine bereket verdiğin gibi. Şüphesiz sen övülmeye layıksın, şanındır.",
+      },
+      rabbenaAtina: {
+        title: "Rabbena duası",
+        meaning:
+          "Rabbimiz! Bize dünyada iyilik ver, ahirette de iyilik ver ve bizi ateş azabından koru.",
+      },
+      kunut: {
+        title: "Kunut duası",
+        meaning:
+          "Allah’ım! Senden yardım ister, bağışlanma dileriz; sana hayırla övgüde bulunuruz. Seni inkâr etmeyiz; sana isyan edeni bırakır ve ondan uzaklaşırız. Allah’ım! Yalnız sana ibadet eder, senin için namaz kılar ve secde ederiz. Sana yönelir, sana koşarız. Rahmetini umar, azabından korkarız. Senin azabın kâfirlere ulaşır.",
+      },
+      selam: {
+        title: "Selam",
+        meaning: "Allah’ın selamı ve rahmeti üzerinize olsun.",
+      },
+    },
+    poses: {
+      niyet: { title: "Niyet" },
+      tekbir: {
+        title: "Tekbir",
+        titleWithRakat: "{{rakat}}. rekat — tekbir",
+        detail:
+          "Elleri kulak hizasına kaldır. Allahu Ekber diyerek devam et; elleri bağla.",
+      },
+      kiyam: {
+        title: "Kıyam",
+        titleWithRakat: "{{rakat}}. rekat — kıyam",
+        detailSure:
+          "Ayakta Sübhaneke (ilk rekat), Euzü-Besmele, Fatiha ve bir sure oku.",
+        detailFatiha:
+          "Ayakta Fatiha oku (Hanefi’de bu rekatta sure şart değil).",
+      },
+      ruku: {
+        title: "Rüku",
+        titleWithRakat: "{{rakat}}. rekat — rüku",
+        detail:
+          "Tekbir ile belden eğil, elleri dizlere koy. Üç kez Sübhane Rabbiyel Azîm de.",
+      },
+      kavme: {
+        title: "Kavme",
+        titleWithRakat: "{{rakat}}. rekat — kavme",
+        detail:
+          "Doğrulurken Semiallahu limen hamideh, doğrulunca Rabbena lekel hamd de.",
+      },
+      secde: {
+        title: "Secde",
+        titleWithRakat: "{{rakat}}. rekat — secde",
+        detail:
+          "Alın, burun, avuçlar, dizler ve ayak parmakları yere değsin. Üç kez Sübhane Rabbiyel A'lâ.",
+      },
+      oturma: {
+        title: "İki secde arası",
+        titleWithRakat: "{{rakat}}. rekat — oturuş",
+        detail: "Tekbir ile otur. Kısa sükûnet; istersen Allahümmeğfirli de.",
+      },
+      teshehhud: {
+        title: "Teşehhüd",
+        titleWithRakat: "{{rakat}}. rekat — teşehhüd",
+        detailFirst: "Ettehiyyatü oku; ardından ayağa kalk.",
+        detailLast:
+          "Ettehiyyatü, Allahümme salli, Allahümme barik ve Rabbena dualarını oku.",
+      },
+      kunut: {
+        title: "Kunut",
+        titleWithRakat: "{{rakat}}. rekat — Kunut",
+        detail:
+          "Elleri kaldırıp tekbirden sonra Kunut duasını oku; ardından rükuya geç.",
+      },
+      selam: {
+        title: "Selam",
+        titleWithRakat: "Selam",
+        detail:
+          "Önce sağa, sonra sola Esselamu aleykum ve rahmetullah diyerek bitir.",
+      },
+    },
   },
-  duas: {
-    headerTitle: "Günlük Dualar",
-    todayLabel: "Bugün · {{current}}/{{total}}",
-    allTitle: "Tüm günlük dualar",
-    allHint: "Her gün sıradaki dua otomatik seçilir. Yarın yeni bir dua gelir.",
+  prayerTimes: {
+    fajr: "İmsak",
+    sunrise: "Güneş",
+    dhuhr: "Öğle",
+    asr: "İkindi",
+    maghrib: "Akşam",
+    isha: "Yatsı",
+    methodHint: "Diyanet Türkiye hesaplaması",
   },
   settings: {
     title: "Ayarlar",
@@ -77,78 +262,161 @@ const tr = {
     language: "Dil",
     languageTr: "Türkçe",
     languageEn: "English",
+    location: "Konum",
+    city: "İl",
+    citySearch: "İl ara…",
+    useLocation: "Konumumu kullan",
+    cityManual: "Elle seçildi",
+    cityAuto: "Konumdan",
+    locationDenied: "Konum izni yok. Varsayılan veya seçtiğin il kullanılıyor.",
     about: "Hakkında",
     aboutText:
-      "Namaz Rehberi — adım adım kılınış ve her gün farklı dua. Vakit uygulaması değil.",
+      "Namaz Rehberi — adım adım kılınış, günlük dua ve il bazlı namaz vakitleri.",
+  },
+  prayer: {
+    intro:
+      "Diğer uygulamalardan farkı: kılınış + il bazlı vakitler. Her namazı adım adım takip et.",
+    guideTitle: "Namaz Nasıl Kılınır",
+  },
+  duas: {
+    headerTitle: "Günlük Dualar",
+    todayLabel: "Bugün · {{current}}/{{total}}",
+    allTitle: "Tüm günlük dualar",
+    allHint: "Her gün sıradaki dua otomatik seçilir. Yarın yeni bir dua gelir.",
+    listen: "Dinle",
+    stopListen: "Durdur",
   },
   prayers: {
     sabah: {
       name: "Sabah Namazı",
-      summary: "2 rekat farz. Erkekler için sünnet 2 rekat da vardır.",
-      steps: {
-        "0": { title: "Niyet", detail: "Kalbden sabah namazının farzını kılmaya niyet et. Kıbleye dön." },
-        "1": { title: "İftitah tekbiri", detail: "Elleri kulak hizasına kaldırıp tekbir al." },
-        "2": { title: "Kıyam", detail: "Elleri bağla. Sübhaneke, Euzü-Besmele, Fatiha ve bir sure oku." },
-        "3": { title: "Rüku", detail: "Tekbir ile rükua eğil. Üç kez Sübhane Rabbiyel Azim de." },
-        "4": { title: "Kalkış", detail: "Doğrulurken Semiallahu limen hamideh, ardından Rabbena lekel hamd de." },
-        "5": { title: "Secde", detail: "Tekbir ile secdeye git. Üç kez Sübhane Rabbiyel Ala de. Otur, tekrar secde." },
-        "6": { title: "2. rekat", detail: "Ayağa kalk. Fatiha + sure, rüku, secdeler. Son oturuşta Ettehiyyatu, Salli-Barik, Rabbena duaları." },
-        "7": { title: "Selam", detail: "Sağa ve sola selam vererek namazı bitir." },
+      summary: "2 sünnet + 2 farz (Diyanet)",
+      niyet: {
+        sunnah: "Sabah namazının sünnetini kılmaya niyet et. Kıbleye dön.",
+        fard: "Sabah namazının farzını kılmaya niyet et. Kıbleye dön.",
       },
     },
     ogle: {
       name: "Öğle Namazı",
-      summary: "4 rekat farz. Öncesinde 4, sonrasında 2 rekat sünnet vardır.",
-      steps: {
-        "0": { title: "Niyet ve tekbir", detail: "Öğle farzına niyet et. İftitah tekbiri al." },
-        "1": { title: "1. ve 2. rekat", detail: "Her rekatta Fatiha + sure. 2. rekat sonunda oturup Ettehiyyatu oku, ayağa kalk." },
-        "2": { title: "3. ve 4. rekat", detail: "Bu rekatlarda yalnız Fatiha yeterlidir (Hanefi). Rüku ve secdeleri tamamla." },
-        "3": { title: "Son oturuş ve selam", detail: "Ettehiyyatu, Salli-Barik, Rabbena duaları. Sağa-sola selam." },
+      summary: "4 ilk sünnet + 4 farz + 2 son sünnet (Diyanet)",
+      niyet: {
+        sunnah: "Öğle namazının ilk sünnetini kılmaya niyet et. Kıbleye dön.",
+        fard: "Öğle namazının farzını kılmaya niyet et. Kıbleye dön.",
+        lastSunnah:
+          "Öğle namazının son sünnetini kılmaya niyet et. Kıbleye dön.",
       },
     },
     ikindi: {
       name: "İkindi Namazı",
-      summary: "4 rekat farz. Öncesinde 4 rekat sünnet vardır.",
-      steps: {
-        "0": { title: "Niyet", detail: "İkindi farzına niyet et ve tekbir al." },
-        "1": { title: "İlk iki rekat", detail: "Fatiha + sure. İkinci rekatta ilk oturuş (Ettehiyyatu)." },
-        "2": { title: "Son iki rekat", detail: "Fatiha ile tamamla. Son oturuşta duaları oku ve selam ver." },
+      summary: "4 sünnet + 4 farz (Diyanet)",
+      niyet: {
+        sunnah: "İkindi namazının sünnetini kılmaya niyet et. Kıbleye dön.",
+        fard: "İkindi namazının farzını kılmaya niyet et. Kıbleye dön.",
       },
     },
     aksam: {
       name: "Akşam Namazı",
-      summary: "3 rekat farz. Sonrasında 2 rekat sünnet vardır.",
-      steps: {
-        "0": { title: "Niyet ve tekbir", detail: "Akşam farzına niyet et. İftitah tekbiri al." },
-        "1": { title: "1. ve 2. rekat", detail: "Fatiha + sure. 2. rekat sonunda otur, Ettehiyyatu oku, kalk." },
-        "2": { title: "3. rekat", detail: "Yalnız Fatiha. Rüku, secdeler. Son oturuşta tüm dualar ve selam." },
+      summary: "3 farz + 2 son sünnet (Diyanet)",
+      niyet: {
+        fard: "Akşam namazının farzını kılmaya niyet et. Kıbleye dön.",
+        lastSunnah:
+          "Akşam namazının son sünnetini kılmaya niyet et. Kıbleye dön.",
       },
     },
     yatsi: {
       name: "Yatsı Namazı",
-      summary: "4 rekat farz. Öncesi 4, sonrası 2 sünnet; ayrıca 3 rekat vitir vardır.",
-      steps: {
-        "0": { title: "Niyet", detail: "Yatsı farzına niyet et ve tekbir al." },
-        "1": { title: "Dört rekat", detail: "İlk iki rekatta Fatiha + sure, orta oturuş. Son iki rekatta Fatiha. Dualar ve selam." },
-        "2": { title: "Vitir (önerilir)", detail: "3 rekat vitir: 3. rekatta Fatiha + sure sonrası Kunut duası okunur." },
+      summary: "4 sünnet + 4 farz + 2 son sünnet + 3 vitir (Diyanet)",
+      niyet: {
+        sunnah: "Yatsı namazının ilk sünnetini kılmaya niyet et. Kıbleye dön.",
+        fard: "Yatsı namazının farzını kılmaya niyet et. Kıbleye dön.",
+        lastSunnah:
+          "Yatsı namazının son sünnetini kılmaya niyet et. Kıbleye dön.",
+        witr: "Vitir namazını kılmaya niyet et. Kıbleye dön.",
       },
     },
   },
   duaItems: {
-    "1": { title: "Sabah duası", meaning: "Sabaha erdik; mülk Allah'ındır. Her işimiz O'na emanet.", occasion: "Sabah uyanınca" },
-    "2": { title: "Korunma duası", meaning: "Allah'ın ismiyle; O'nun ismiyle hiçbir şey zarar veremez.", occasion: "Güne başlarken" },
-    "3": { title: "İstiğfar", meaning: "Yüce Allah'tan bağışlanma dilerim.", occasion: "Gün içinde" },
-    "4": { title: "Şükür duası", meaning: "Âlemlerin Rabbi Allah'a hamd olsun.", occasion: "Nimet görünce" },
-    "5": { title: "Kolaylık duası", meaning: "Rabbim, göğsümü aç ve işimi kolaylaştır.", occasion: "Zorluk anında" },
-    "6": { title: "Hidayet duası", meaning: "Bizi doğru yola ilet.", occasion: "Her namazda" },
-    "7": { title: "Aile duası", meaning: "Rabbimiz, eşlerimizi ve çocuklarımızı göz aydınlığı eyle.", occasion: "Aile için" },
-    "8": { title: "İlim duası", meaning: "Rabbim, ilmimi artır.", occasion: "Öğrenirken" },
-    "9": { title: "Sıkıntı duası", meaning: "Senden başka ilah yok. Seni tenzih ederim; ben zalimlerden oldum. (Yunus aleyhisselam)", occasion: "Darlıkta" },
-    "10": { title: "Akşam duası", meaning: "Akşama erdik; mülk Allah'ındır.", occasion: "Akşam olunca" },
-    "11": { title: "Uyku duası", meaning: "Allah'ım, Senin isminle ölür ve dirilirim.", occasion: "Yatmadan önce" },
-    "12": { title: "Tövbe duası", meaning: "Rabbimiz, kendimize zulmettik. Affetmez ve merhamet etmezsen hüsrana uğrarız.", occasion: "Tövbe için" },
-    "13": { title: "Rızık duası", meaning: "Allah'ım, faydalı ilim ve temiz rızık isterim.", occasion: "İş / geçim" },
-    "14": { title: "Sabır duası", meaning: "Rabbimiz, üzerimize sabır yağdır.", occasion: "Sabır gerektiğinde" },
+    "1": {
+      title: "Sabah duası",
+      meaning:
+        "Sabaha erdik, mülk Allah'ındır. Hamd Allah'adır. Allah'tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O'nundur, hamd O'nadır; O her şeye kadirdir. Rabbim, bu günün ve sonrasının hayrını isterim; şerrinden Sana sığınırım. Tembellikten, kötü ihtiyarlıktan, cehennem ve kabir azabından Sana sığınırım.",
+      occasion: "Sabah uyanınca",
+    },
+    "2": {
+      title: "Korunma duası",
+      meaning:
+        "Yerde ve gökte O'nun ismiyle hiçbir şeyin zarar veremeyeceği Allah'ın adıyla. O işitendir, bilendir.",
+      occasion: "Güne başlarken",
+    },
+    "3": {
+      title: "İstiğfar",
+      meaning:
+        "Kendisinden başka ilah olmayan, diri ve kayyum olan Yüce Allah'tan bağışlanma diler ve O'na tövbe ederim.",
+      occasion: "Gün içinde",
+    },
+    "4": {
+      title: "Şükür duası",
+      meaning:
+        "Allah'ım, bende veya yarattıklarından herhangi birinde sabaha eren her nimet Sendendir; yalnız Sensin, ortağın yoktur. Hamd de şükür de Sanadır.",
+      occasion: "Nimet görünce",
+    },
+    "5": {
+      title: "Kolaylık duası",
+      meaning:
+        "Rabbim, göğsümü aç, işimi kolaylaştır; dilimdeki düğümü çöz ki sözümü anlasınlar.",
+      occasion: "Zorluk anında",
+    },
+    "6": {
+      title: "Hidayet duası",
+      meaning:
+        "Bizi doğru yola ilet; nimet verdiklerinin yoluna, gazaba uğrayanların ve sapmışların yoluna değil.",
+      occasion: "Her namazda",
+    },
+    "7": {
+      title: "Aile duası",
+      meaning:
+        "Rabbimiz, eşlerimizi ve çocuklarımızı göz aydınlığı eyle; bizi takva sahiplerine önder kıl.",
+      occasion: "Aile için",
+    },
+    "8": {
+      title: "İlim duası",
+      meaning: "Rabbim, ilmimi artır.",
+      occasion: "Öğrenirken",
+    },
+    "9": {
+      title: "Sıkıntı duası",
+      meaning:
+        "Senden başka ilah yoktur. Seni tenzih ederim; ben zalimlerden oldum. (Yunus aleyhisselam)",
+      occasion: "Darlıkta",
+    },
+    "10": {
+      title: "Akşam duası",
+      meaning:
+        "Akşama erdik, mülk Allah'ındır. Hamd Allah'adır. Allah'tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O'nundur, hamd O'nadır; O her şeye kadirdir. Rabbim, bu gecenin ve sonrasının hayrını isterim; şerrinden Sana sığınırım. Tembellikten, kötü ihtiyarlıktan, cehennem ve kabir azabından Sana sığınırım.",
+      occasion: "Akşam olunca",
+    },
+    "11": {
+      title: "Uyku duası",
+      meaning: "Allah'ım, Senin isminle ölür ve dirilirim.",
+      occasion: "Yatmadan önce",
+    },
+    "12": {
+      title: "Tövbe duası",
+      meaning:
+        "Rabbimiz, kendimize zulmettik. Bizi bağışlamaz ve bize merhamet etmezsen hüsrana uğrayanlardan oluruz.",
+      occasion: "Tövbe için",
+    },
+    "13": {
+      title: "Rızık duası",
+      meaning:
+        "Allah'ım, Senden faydalı ilim, temiz rızık ve kabul edilen amel isterim.",
+      occasion: "İş / geçim",
+    },
+    "14": {
+      title: "Sabır duası",
+      meaning:
+        "Rabbimiz, üzerimize sabır yağdır ve bizi Müslüman olarak vefat ettir.",
+      occasion: "Sabır gerektiğinde",
+    },
   },
 } as const;
 
@@ -203,7 +471,7 @@ const en: DeepStringify<typeof tr> = {
     },
   },
   home: {
-    subtitle: "Today’s dua and a step-by-step prayer guide",
+    subtitle: "Today’s dua, prayer times, and a step-by-step guide",
     todaysDua: "Today’s dua",
     allDuas: "All duas",
     quickStart: "Quick start",
@@ -211,17 +479,200 @@ const en: DeepStringify<typeof tr> = {
     howToPrayHint: "Step-by-step from Fajr to Isha",
     fajrGuide: "Fajr prayer guide",
     fajrHint: "2 fard rakahs — one step at a time",
+    prayerTimes: "Prayer times",
+    nextPrayer: "Next prayer",
+    untilPrayer: "remaining",
+    tomorrowFajr: "Tomorrow Fajr",
+    cityLabel: "City",
+    hoursShort: "h",
+    minutesShort: "m",
+    secondsShort: "s",
+    startPrayer: "Start prayer",
+    startPrayerHint: "{{prayer}} — step-by-step prayer session",
+    startPrayerCta: "Start",
   },
-  prayer: {
-    intro:
-      "Unlike other apps: not times, but how to pray. Follow each prayer step by step.",
-    guideTitle: "How to Pray",
+  session: {
+    stepOf: "{{current}} / {{total}}",
+    next: "Next",
+    prev: "Previous",
+    finish: "Finish",
+    close: "Close",
+    autoImam: "Voice guide",
+    autoImamHint: "Guides you aloud like an imam; advances when a step ends",
+    expandHint: "Tap a step for full text and meaning",
+    stepsCount: "steps",
+    sectionLabel: "{{section}} · rakah {{rakat}}",
+    sectionOnly: "{{section}}",
+    sectionPickTitle: "Parts",
+    sectionPickHint: "Tap a part to open the guide with only those steps.",
+    sectionCompleted: "Completed",
+    sectionReady: "Start",
+    sectionReplay: "Pray again",
+    sectionRakat: "{{count}} rakahs",
+    backToSections: "Back to parts",
+    nextIn: "Next step",
+    finishIn: "Ending this part",
+    skipWait: "Skip wait",
+    readingHint: "Follow the reading — look here to memorize",
+    section: {
+      sunnah: "First sunnah",
+      fard: "Fard",
+      lastSunnah: "Last sunnah",
+      witr: "Witr",
+    },
+    cues: {
+      niyet: "Make your intention",
+      tekbir: "Allahu Akbar",
+      subhaneke: "Recite Subhanaka",
+      kiyamSure: "Recite Surah Al-Ikhlas",
+      kiyamFatiha: "Recite Al-Fatiha",
+      ruku: "Go to ruku",
+      kavme: "Rise",
+      rabbena: "Rabbana lakal hamd",
+      secde: "Go to sujud",
+      secde2: "Go to the second sujud",
+      oturma: "Sit",
+      teshehhudFirst: "Recite Tashahhud",
+      teshehhudLast: "Recite Tashahhud",
+      salavat: "Recite the salawat",
+      rabbenaAtina: "Recite the Rabbana dua",
+      selam: "Give salam",
+      kunutTekbir: "Raise your hands and say the takbir",
+      kunut: "Recite the Qunut dua",
+    },
+    meal: "Meaning",
+    reading: "Transliteration",
+    texts: {
+      niyet: {
+        title: "Intention",
+        meaning: "I intend to pray for the sake of Allah.",
+      },
+      tekbir: {
+        title: "Takbir",
+        meaning: "Allah is the Greatest.",
+      },
+      subhaneke: {
+        title: "Subhanaka",
+        meaning:
+          "O Allah, glory and praise be to You. Blessed is Your name, exalted is Your majesty. There is no god but You.",
+      },
+      fatiha: {
+        title: "Surah Al-Fatiha",
+        meaning:
+          "In the name of Allah, the Most Gracious, the Most Merciful. All praise is for Allah, Lord of the worlds. The Most Gracious, the Most Merciful. Master of the Day of Judgment. You alone we worship, and You alone we ask for help. Guide us on the straight path — the path of those You have blessed, not of those who earn anger, nor of those who go astray.",
+      },
+      ihlas: {
+        title: "Surah Al-Ikhlas",
+        meaning:
+          "In the name of Allah, the Most Gracious, the Most Merciful. Say: He is Allah, One. Allah, the Eternal Refuge. He neither begets nor is born, and there is none comparable to Him.",
+      },
+      ruku: {
+        title: "Ruku tasbih",
+        meaning: "Glory be to my Lord, the Magnificent. (Three times)",
+      },
+      semiallah: {
+        title: "Qawmah",
+        meaning: "Allah hears those who praise Him.",
+      },
+      rabbena: {
+        title: "Praise",
+        meaning: "Our Lord, to You belongs all praise.",
+      },
+      secde: {
+        title: "Sujud tasbih",
+        meaning: "Glory be to my Lord, the Most High. (Three times)",
+      },
+      ettehiyyatu: {
+        title: "Tashahhud",
+        meaning:
+          "All greetings, prayers and good things are for Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah. I bear witness that there is no god but Allah, and I bear witness that Muhammad is His servant and Messenger.",
+      },
+      salavat: {
+        title: "Salawat",
+        meaning:
+          "O Allah, send prayers upon Muhammad and the family of Muhammad, as You sent prayers upon Ibrahim and the family of Ibrahim. You are Praiseworthy, Glorious. O Allah, bless Muhammad and the family of Muhammad, as You blessed Ibrahim and the family of Ibrahim. You are Praiseworthy, Glorious.",
+      },
+      rabbenaAtina: {
+        title: "Rabbana dua",
+        meaning:
+          "Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.",
+      },
+      kunut: {
+        title: "Qunut dua",
+        meaning:
+          "O Allah, we seek Your help and forgiveness, and we praise You with good. We do not deny You; we leave and forsake whoever disobeys You. O Allah, You alone we worship; for You we pray and prostrate; to You we strive. We hope for Your mercy and fear Your punishment. Your punishment reaches the disbelievers.",
+      },
+      selam: {
+        title: "Salam",
+        meaning: "Peace and the mercy of Allah be upon you.",
+      },
+    },
+    poses: {
+      niyet: { title: "Intention" },
+      tekbir: {
+        title: "Takbir",
+        titleWithRakat: "Rakah {{rakat}} — takbir",
+        detail:
+          "Raise hands to ear level. Say Allahu Akbar and fold your hands.",
+      },
+      kiyam: {
+        title: "Standing",
+        titleWithRakat: "Rakah {{rakat}} — standing",
+        detailSure:
+          "Standing: Subhanaka (first rakah), Ta’awwudh-Basmala, Al-Fatiha and a surah.",
+        detailFatiha:
+          "Standing: recite Al-Fatiha (no surah required in this rakah in Hanafi).",
+      },
+      ruku: {
+        title: "Ruku",
+        titleWithRakat: "Rakah {{rakat}} — ruku",
+        detail:
+          "Bow with takbir, hands on knees. Say Subhana Rabbiyal Azim three times.",
+      },
+      kavme: {
+        title: "Qawmah",
+        titleWithRakat: "Rakah {{rakat}} — qawmah",
+        detail:
+          "Rise saying Sami’allahu liman hamidah, then Rabbana lakal hamd.",
+      },
+      secde: {
+        title: "Sujud",
+        titleWithRakat: "Rakah {{rakat}} — sujud",
+        detail:
+          "Forehead, nose, palms, knees and toes on the ground. Say Subhana Rabbiyal A’la three times.",
+      },
+      oturma: {
+        title: "Between sujuds",
+        titleWithRakat: "Rakah {{rakat}} — sitting",
+        detail: "Sit briefly with takbir. You may say Allahummaghfir li.",
+      },
+      teshehhud: {
+        title: "Tashahhud",
+        titleWithRakat: "Rakah {{rakat}} — tashahhud",
+        detailFirst: "Recite Tashahhud, then stand.",
+        detailLast: "Recite Tashahhud, Salawat and the Rabbena duas.",
+      },
+      kunut: {
+        title: "Qunut",
+        titleWithRakat: "Rakah {{rakat}} — Qunut",
+        detail:
+          "After raising hands with takbir, recite Qunut, then go to ruku.",
+      },
+      selam: {
+        title: "Salam",
+        titleWithRakat: "Salam",
+        detail: "Turn right then left saying Essalamu alaykum wa rahmatullah.",
+      },
+    },
   },
-  duas: {
-    headerTitle: "Daily Duas",
-    todayLabel: "Today · {{current}}/{{total}}",
-    allTitle: "All daily duas",
-    allHint: "Each day picks the next dua automatically. Tomorrow brings a new one.",
+  prayerTimes: {
+    fajr: "Fajr",
+    sunrise: "Sunrise",
+    dhuhr: "Dhuhr",
+    asr: "Asr",
+    maghrib: "Maghrib",
+    isha: "Isha",
+    methodHint: "Turkey Diyanet calculation",
   },
   settings: {
     title: "Settings",
@@ -233,78 +684,159 @@ const en: DeepStringify<typeof tr> = {
     language: "Language",
     languageTr: "Türkçe",
     languageEn: "English",
+    location: "Location",
+    city: "City",
+    citySearch: "Search city…",
+    useLocation: "Use my location",
+    cityManual: "Chosen manually",
+    cityAuto: "From location",
+    locationDenied:
+      "Location permission denied. Using the default or selected city.",
     about: "About",
     aboutText:
-      "Prayer Guide — step-by-step prayer and a different dua each day. Not a prayer-time app.",
+      "Prayer Guide — step-by-step prayer, daily dua, and city-based prayer times.",
+  },
+  prayer: {
+    intro:
+      "Unlike other apps: how to pray plus city-based times. Follow each prayer step by step.",
+    guideTitle: "How to Pray",
+  },
+  duas: {
+    headerTitle: "Daily Duas",
+    todayLabel: "Today · {{current}}/{{total}}",
+    allTitle: "All daily duas",
+    allHint:
+      "Each day picks the next dua automatically. Tomorrow brings a new one.",
+    listen: "Listen",
+    stopListen: "Stop",
   },
   prayers: {
     sabah: {
       name: "Fajr Prayer",
-      summary: "2 fard rakahs. There are also 2 sunnah rakahs for men.",
-      steps: {
-        "0": { title: "Intention", detail: "Make the intention for Fajr fard in your heart. Face the Qibla." },
-        "1": { title: "Opening takbir", detail: "Raise your hands to ear level and say the takbir." },
-        "2": { title: "Standing", detail: "Fold your hands. Recite Subhanaka, Ta’awwudh-Basmala, Al-Fatiha and a surah." },
-        "3": { title: "Ruku", detail: "Bow with takbir. Say Subhana Rabbiyal Azim three times." },
-        "4": { title: "Rising", detail: "As you rise say Sami’allahu liman hamidah, then Rabbana lakal hamd." },
-        "5": { title: "Sujud", detail: "Go to prostration with takbir. Say Subhana Rabbiyal A’la three times. Sit, then prostrate again." },
-        "6": { title: "2nd rakah", detail: "Stand. Al-Fatiha + surah, ruku, sujud. In the final sitting: Tashahhud, Salawat, Rabbena duas." },
-        "7": { title: "Salam", detail: "End the prayer by turning right then left with salam." },
+      summary: "2 sunnah + 2 fard (Diyanet)",
+      niyet: {
+        sunnah: "Intend the sunnah of Fajr. Face the Qibla.",
+        fard: "Intend the fard of Fajr. Face the Qibla.",
       },
     },
     ogle: {
       name: "Dhuhr Prayer",
-      summary: "4 fard rakahs. 4 sunnah before and 2 after.",
-      steps: {
-        "0": { title: "Intention and takbir", detail: "Intend Dhuhr fard. Say the opening takbir." },
-        "1": { title: "1st and 2nd rakahs", detail: "Al-Fatiha + surah each. Sit after the 2nd for Tashahhud, then stand." },
-        "2": { title: "3rd and 4th rakahs", detail: "Al-Fatiha alone is enough (Hanafi). Complete ruku and sujud." },
-        "3": { title: "Final sitting and salam", detail: "Tashahhud, Salawat, Rabbena duas. Salam right and left." },
+      summary: "4 first sunnah + 4 fard + 2 last sunnah (Diyanet)",
+      niyet: {
+        sunnah: "Intend the first sunnah of Dhuhr. Face the Qibla.",
+        fard: "Intend the fard of Dhuhr. Face the Qibla.",
+        lastSunnah: "Intend the last sunnah of Dhuhr. Face the Qibla.",
       },
     },
     ikindi: {
       name: "Asr Prayer",
-      summary: "4 fard rakahs. 4 sunnah before.",
-      steps: {
-        "0": { title: "Intention", detail: "Intend Asr fard and say the takbir." },
-        "1": { title: "First two rakahs", detail: "Al-Fatiha + surah. First sitting after the second rakah (Tashahhud)." },
-        "2": { title: "Last two rakahs", detail: "Complete with Al-Fatiha. Recite the final duas and give salam." },
+      summary: "4 sunnah + 4 fard (Diyanet)",
+      niyet: {
+        sunnah: "Intend the sunnah of Asr. Face the Qibla.",
+        fard: "Intend the fard of Asr. Face the Qibla.",
       },
     },
     aksam: {
       name: "Maghrib Prayer",
-      summary: "3 fard rakahs. 2 sunnah after.",
-      steps: {
-        "0": { title: "Intention and takbir", detail: "Intend Maghrib fard. Say the opening takbir." },
-        "1": { title: "1st and 2nd rakahs", detail: "Al-Fatiha + surah. Sit after the 2nd, recite Tashahhud, then stand." },
-        "2": { title: "3rd rakah", detail: "Al-Fatiha only. Ruku, sujud. Final sitting with all duas and salam." },
+      summary: "3 fard + 2 last sunnah (Diyanet)",
+      niyet: {
+        fard: "Intend the fard of Maghrib. Face the Qibla.",
+        lastSunnah: "Intend the last sunnah of Maghrib. Face the Qibla.",
       },
     },
     yatsi: {
       name: "Isha Prayer",
-      summary: "4 fard rakahs. 4 sunnah before, 2 after; plus 3 Witr.",
-      steps: {
-        "0": { title: "Intention", detail: "Intend Isha fard and say the takbir." },
-        "1": { title: "Four rakahs", detail: "Al-Fatiha + surah in the first two, middle sitting. Al-Fatiha in the last two. Duas and salam." },
-        "2": { title: "Witr (recommended)", detail: "3 Witr rakahs: after Al-Fatiha + surah in the 3rd, recite the Qunut dua." },
+      summary: "4 sunnah + 4 fard + 2 last sunnah + 3 Witr (Diyanet)",
+      niyet: {
+        sunnah: "Intend the first sunnah of Isha. Face the Qibla.",
+        fard: "Intend the fard of Isha. Face the Qibla.",
+        lastSunnah: "Intend the last sunnah of Isha. Face the Qibla.",
+        witr: "Intend the Witr prayer. Face the Qibla.",
       },
     },
   },
   duaItems: {
-    "1": { title: "Morning dua", meaning: "We have entered the morning; dominion belongs to Allah. We entrust all our affairs to Him.", occasion: "Upon waking" },
-    "2": { title: "Protection dua", meaning: "In the name of Allah; nothing can harm with His name.", occasion: "Starting the day" },
-    "3": { title: "Istighfar", meaning: "I seek forgiveness from Allah, the Most Great.", occasion: "During the day" },
-    "4": { title: "Gratitude dua", meaning: "All praise is for Allah, Lord of the worlds.", occasion: "When blessed" },
-    "5": { title: "Ease dua", meaning: "My Lord, expand my chest and make my affair easy.", occasion: "In difficulty" },
-    "6": { title: "Guidance dua", meaning: "Guide us to the straight path.", occasion: "In every prayer" },
-    "7": { title: "Family dua", meaning: "Our Lord, grant us comfort in our spouses and offspring.", occasion: "For family" },
-    "8": { title: "Knowledge dua", meaning: "My Lord, increase me in knowledge.", occasion: "While learning" },
-    "9": { title: "Distress dua", meaning: "There is no god but You; glory be to You. I was among the wrongdoers. (Prophet Yunus)", occasion: "In hardship" },
-    "10": { title: "Evening dua", meaning: "We have entered the evening; dominion belongs to Allah.", occasion: "At evening" },
-    "11": { title: "Sleep dua", meaning: "O Allah, in Your name I die and I live.", occasion: "Before sleep" },
-    "12": { title: "Repentance dua", meaning: "Our Lord, we have wronged ourselves. If You do not forgive us and have mercy, we will be among the losers.", occasion: "For repentance" },
-    "13": { title: "Provision dua", meaning: "O Allah, I ask You for beneficial knowledge and pure provision.", occasion: "Work / livelihood" },
-    "14": { title: "Patience dua", meaning: "Our Lord, pour upon us patience.", occasion: "When patience is needed" },
+    "1": {
+      title: "Morning dua",
+      meaning:
+        "We have entered the morning and dominion belongs to Allah. All praise is for Allah. There is no god but Allah alone, with no partner. To Him belong dominion and praise, and He is over all things competent. My Lord, I ask You for the good of this day and of what follows it, and I seek refuge in You from the evil of this day and of what follows it. My Lord, I seek refuge in You from laziness and from the evil of old age, and from the punishment of the Fire and the punishment of the grave.",
+      occasion: "Upon waking",
+    },
+    "2": {
+      title: "Protection dua",
+      meaning:
+        "In the name of Allah, with Whose name nothing on earth or in heaven can cause harm, and He is the All-Hearing, the All-Knowing.",
+      occasion: "Starting the day",
+    },
+    "3": {
+      title: "Istighfar",
+      meaning:
+        "I seek forgiveness from Allah, the Most Great — there is no god but He, the Ever-Living, the Sustainer — and I repent to Him.",
+      occasion: "During the day",
+    },
+    "4": {
+      title: "Gratitude dua",
+      meaning:
+        "O Allah, whatever blessing has come to me or to any of Your creation this morning is from You alone, with no partner. To You belong all praise and all thanks.",
+      occasion: "When blessed",
+    },
+    "5": {
+      title: "Ease dua",
+      meaning:
+        "My Lord, expand my chest for me, make my affair easy, and untie the knot from my tongue so they may understand my speech.",
+      occasion: "In difficulty",
+    },
+    "6": {
+      title: "Guidance dua",
+      meaning:
+        "Guide us to the straight path — the path of those You have blessed, not of those who earned anger, nor of those who went astray.",
+      occasion: "In every prayer",
+    },
+    "7": {
+      title: "Family dua",
+      meaning:
+        "Our Lord, grant us comfort in our spouses and offspring, and make us leaders for the righteous.",
+      occasion: "For family",
+    },
+    "8": {
+      title: "Knowledge dua",
+      meaning: "My Lord, increase me in knowledge.",
+      occasion: "While learning",
+    },
+    "9": {
+      title: "Distress dua",
+      meaning:
+        "There is no god but You; glory be to You. I was among the wrongdoers. (Prophet Yunus)",
+      occasion: "In hardship",
+    },
+    "10": {
+      title: "Evening dua",
+      meaning:
+        "We have entered the evening and dominion belongs to Allah. All praise is for Allah. There is no god but Allah alone, with no partner. To Him belong dominion and praise, and He is over all things competent. My Lord, I ask You for the good of this night and of what follows it, and I seek refuge in You from its evil and from what follows it. My Lord, I seek refuge in You from laziness and from the evil of old age, and from the punishment of the Fire and the punishment of the grave.",
+      occasion: "At evening",
+    },
+    "11": {
+      title: "Sleep dua",
+      meaning: "O Allah, in Your name I die and I live.",
+      occasion: "Before sleep",
+    },
+    "12": {
+      title: "Repentance dua",
+      meaning:
+        "Our Lord, we have wronged ourselves. If You do not forgive us and have mercy on us, we will surely be among the losers.",
+      occasion: "For repentance",
+    },
+    "13": {
+      title: "Provision dua",
+      meaning:
+        "O Allah, I ask You for beneficial knowledge, pure provision, and accepted deeds.",
+      occasion: "Work / livelihood",
+    },
+    "14": {
+      title: "Patience dua",
+      meaning: "Our Lord, pour upon us patience and let us die as Muslims.",
+      occasion: "When patience is needed",
+    },
   },
 };
 

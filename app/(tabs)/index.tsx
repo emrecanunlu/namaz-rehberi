@@ -1,174 +1,663 @@
-import { useEffect, useRef } from "react";
-import { Link } from "expo-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, router } from "expo-router";
 import {
   Animated,
   Easing,
   ImageBackground,
-  ScrollView,
   Text,
   View,
   Pressable,
+  StatusBar,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IMAGES } from "@/constants/images";
 import { getDuaText, getTodaysDua } from "@/data/content";
+import { cityDisplayName } from "@/data/cities-tr";
 import { formatDate, t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { fonts } from "@/constants/fonts";
+import { ArabicListenButton } from "@/components/arabic-listen-button";
+import {
+  calculatePrayerTimes,
+  formatTime,
+  getActiveGuideId,
+  getNextPrayer,
+  getRemainingParts,
+  pad2,
+  PRAYER_SLOT_ORDER,
+  type PrayerSlotId,
+} from "@/lib/prayer-times";
+import { getPrayerName } from "@/data/content";
 
 const ease = Easing.bezier(0.22, 1, 0.36, 1);
+const tickEase = Easing.bezier(0.33, 1, 0.68, 1);
+/** Collapsed bar (safe area hariç) — iki satır için */
+const COLLAPSED_CONTENT = 64;
+/** Expanded hero (safe area hariç) — countdown + alt dissolve payı */
+const EXPANDED_CONTENT = 248;
+
+function AnimatedDigit({ digit }: { digit: string }) {
+  const anim = useRef(new Animated.Value(1)).current;
+  const prev = useRef(digit);
+
+  useEffect(() => {
+    if (prev.current === digit) return;
+    prev.current = digit;
+    anim.setValue(0);
+    Animated.timing(anim, {
+      toValue: 1,
+      duration: 280,
+      easing: tickEase,
+      useNativeDriver: true,
+    }).start();
+  }, [digit, anim]);
+
+  return (
+    <View style={{ height: 46, overflow: "hidden", justifyContent: "center" }}>
+      <Animated.Text
+        style={{
+          fontFamily: fonts.displayBold,
+          fontSize: 38,
+          lineHeight: 42,
+          color: "#f3efe6",
+          textAlign: "center",
+          opacity: anim,
+          transform: [
+            {
+              translateY: anim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [12, 0],
+              }),
+            },
+          ],
+        }}
+      >
+        {digit}
+      </Animated.Text>
+    </View>
+  );
+}
+
+function CountdownUnit({ value, label }: { value: string; label: string }) {
+  return (
+    <View style={{ minWidth: 64, alignItems: "center" }}>
+      <View style={{ flexDirection: "row" }}>
+        {value.split("").map((digit, i) => (
+          <AnimatedDigit key={i} digit={digit} />
+        ))}
+      </View>
+      <Text
+        style={{
+          fontFamily: fonts.body,
+          marginTop: 4,
+          fontSize: 11,
+          letterSpacing: 2,
+          textTransform: "uppercase",
+          color: "rgba(243,239,230,0.78)",
+        }}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+}
 
 export default function HomeScreen() {
-  const { locale } = useAppSettings();
+  const insets = useSafeAreaInsets();
+  const { locale, city, resolvedTheme } = useAppSettings();
   const dua = getTodaysDua();
   const duaText = getDuaText(dua.id);
   const dateLabel = formatDate(new Date(), locale);
+  const cityName = cityDisplayName(city, locale);
+  const scrollY = useRef(new Animated.Value(0)).current;
   const fade = useRef(new Animated.Value(0)).current;
-  const slide = useRef(new Animated.Value(20)).current;
+  const [now, setNow] = useState(() => new Date());
+
+  const expandedHeight = insets.top + EXPANDED_CONTENT;
+  const collapseRange = EXPANDED_CONTENT - COLLAPSED_CONTENT;
+
+  const times = useMemo(() => calculatePrayerTimes(city), [city]);
+  const tomorrowTimes = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return calculatePrayerTimes(city, d);
+  }, [city]);
+
+  const next = useMemo(
+    () => getNextPrayer(times, now, tomorrowTimes.fajr),
+    [times, tomorrowTimes.fajr, now],
+  );
+
+  const remaining = useMemo(
+    () => (next ? getRemainingParts(next.at, now) : null),
+    [next, now],
+  );
+
+  const guideId = useMemo(
+    () => getActiveGuideId(times, now, next),
+    [times, now, next],
+  );
+  const guideName = getPrayerName(guideId);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     fade.setValue(0);
-    slide.setValue(20);
-    Animated.parallel([
-      Animated.timing(fade, {
-        toValue: 1,
-        duration: 520,
-        easing: ease,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slide, {
-        toValue: 0,
-        duration: 520,
-        easing: ease,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [fade, slide, locale]);
+    scrollY.setValue(0);
+    Animated.timing(fade, {
+      toValue: 1,
+      duration: 480,
+      easing: ease,
+      useNativeDriver: true,
+    }).start();
+  }, [fade, scrollY, locale, city.id]);
+
+  // Hero yukarı kayar; toolbar ayrı sabit katmanda
+  const headerTranslate = scrollY.interpolate({
+    inputRange: [0, collapseRange],
+    outputRange: [0, -collapseRange],
+    extrapolate: "clamp",
+  });
+
+  const flexibleOpacity = scrollY.interpolate({
+    inputRange: [0, collapseRange * 0.45, collapseRange],
+    outputRange: [1, 0.35, 0],
+    extrapolate: "clamp",
+  });
+
+  const compactOpacity = scrollY.interpolate({
+    inputRange: [collapseRange * 0.55, collapseRange],
+    outputRange: [0, 1],
+    extrapolate: "clamp",
+  });
+
+  // Expanded’da tek satır optik ortada; collapsed’da iki satır blok
+  const titleBlockShift = scrollY.interpolate({
+    inputRange: [collapseRange * 0.55, collapseRange],
+    outputRange: [7, 0],
+    extrapolate: "clamp",
+  });
+
+  const compactSlide = scrollY.interpolate({
+    inputRange: [collapseRange * 0.55, collapseRange],
+    outputRange: [-4, 0],
+    extrapolate: "clamp",
+  });
+
+  const barBgOpacity = scrollY.interpolate({
+    inputRange: [0, collapseRange * 0.7, collapseRange],
+    outputRange: [0, 0.45, 0.88],
+    extrapolate: "clamp",
+  });
+
+  const nextLabel = next
+    ? next.isTomorrow
+      ? t("home.tomorrowFajr")
+      : t(`prayerTimes.${next.id}` as `prayerTimes.${PrayerSlotId}`)
+    : "";
+
+  const pageBg = resolvedTheme === "dark" ? "#0f1a15" : "#faf8f4";
+  const pageBgFade =
+    resolvedTheme === "dark"
+      ? (["rgba(15,26,21,0)", "rgba(15,26,21,0.35)", "#0f1a15"] as const)
+      : (["rgba(250,248,244,0)", "rgba(250,248,244,0.35)", "#faf8f4"] as const);
 
   return (
-    <ScrollView
-      key={locale}
-      className="flex-1 bg-sand-50 dark:bg-forest-950"
-      contentContainerClassName="pb-10"
-    >
-      <Animated.View style={{ opacity: fade }}>
+    <View className="flex-1" style={{ backgroundColor: pageBg }}>
+      <StatusBar barStyle="light-content" />
+
+      {/* Collapsing hero */}
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: expandedHeight,
+          zIndex: 10,
+          overflow: "hidden",
+          transform: [{ translateY: headerTranslate }],
+        }}
+      >
         <ImageBackground
           source={IMAGES.homeHero}
-          className="overflow-hidden"
+          style={{ flex: 1 }}
           resizeMode="cover"
         >
-          <View className="bg-forest-950/70 px-5 pb-14 pt-6">
-            <Text
-              style={{ fontFamily: fonts.bodyMedium }}
-              className="text-sm uppercase tracking-widest text-sand-200/80"
+          <LinearGradient
+            colors={[
+              "rgba(15,26,21,0.52)",
+              "rgba(15,26,21,0.7)",
+              "rgba(15,26,21,0.82)",
+            ]}
+            locations={[0, 0.5, 1]}
+            style={{
+              flex: 1,
+              paddingTop: insets.top + COLLAPSED_CONTENT,
+            }}
+          >
+            <LinearGradient
+              pointerEvents="none"
+              colors={[...pageBgFade]}
+              locations={[0, 0.55, 1]}
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 44,
+              }}
+            />
+
+            <Animated.View
+              style={{
+                flex: 1,
+                paddingHorizontal: 20,
+                paddingTop: 4,
+                paddingBottom: 48,
+                justifyContent: "flex-start",
+                opacity: flexibleOpacity,
+              }}
             >
-              {t("appName")}
-            </Text>
-            <Text
-              style={{ fontFamily: fonts.displayBold }}
-              className="mt-2 text-[34px] leading-10 text-sand-50"
-            >
-              {dateLabel}
-            </Text>
-            <Text
-              style={{ fontFamily: fonts.body }}
-              className="mt-2 text-base text-sand-200"
-            >
-              {t("home.subtitle")}
-            </Text>
-          </View>
+              {next && remaining ? (
+                <View>
+                  <Text
+                    style={{
+                      fontFamily: fonts.body,
+                      fontSize: 13,
+                      color: "rgba(243,239,230,0.75)",
+                    }}
+                  >
+                    {t("home.nextPrayer")}
+                  </Text>
+                  <View
+                    style={{
+                      marginTop: 2,
+                      flexDirection: "row",
+                      alignItems: "baseline",
+                      gap: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: fonts.displayBold,
+                        fontSize: 26,
+                        color: "#f3efe6",
+                      }}
+                    >
+                      {nextLabel}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: fonts.body,
+                        fontSize: 15,
+                        color: "#d4a84b",
+                      }}
+                    >
+                      {formatTime(next.at, locale)}
+                    </Text>
+                  </View>
+                  <Text
+                    style={{
+                      fontFamily: fonts.body,
+                      marginTop: 10,
+                      fontSize: 11,
+                      letterSpacing: 2,
+                      textTransform: "uppercase",
+                      color: "rgba(243,239,230,0.72)",
+                    }}
+                  >
+                    {t("home.untilPrayer")}
+                  </Text>
+                  <View
+                    style={{
+                      marginTop: 6,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      paddingHorizontal: 2,
+                    }}
+                  >
+                    <CountdownUnit
+                      value={pad2(remaining.hours)}
+                      label={t("home.hoursShort")}
+                    />
+                    <Text
+                      style={{
+                        fontFamily: fonts.displayBold,
+                        fontSize: 26,
+                        color: "rgba(243,239,230,0.35)",
+                        paddingBottom: 16,
+                      }}
+                    >
+                      :
+                    </Text>
+                    <CountdownUnit
+                      value={pad2(remaining.minutes)}
+                      label={t("home.minutesShort")}
+                    />
+                    <Text
+                      style={{
+                        fontFamily: fonts.displayBold,
+                        fontSize: 26,
+                        color: "rgba(243,239,230,0.35)",
+                        paddingBottom: 16,
+                      }}
+                    >
+                      :
+                    </Text>
+                    <CountdownUnit
+                      value={pad2(remaining.seconds)}
+                      label={t("home.secondsShort")}
+                    />
+                  </View>
+                </View>
+              ) : null}
+            </Animated.View>
+          </LinearGradient>
         </ImageBackground>
       </Animated.View>
 
-      <Animated.View
-        style={{ opacity: fade, transform: [{ translateY: slide }] }}
-        className="-mt-5 mx-4 overflow-hidden rounded-2xl border border-sand-200 bg-sand-100 px-5 py-5 dark:border-forest-700 dark:bg-forest-900"
+      {/* Sabit app bar — counter-translate yok */}
+      <View
+        pointerEvents="box-none"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 30,
+          paddingTop: insets.top,
+        }}
       >
-        <Text
-          style={{ fontFamily: fonts.bodySemi }}
-          className="text-xs uppercase tracking-wider text-gold-500"
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(15,26,21,0.92)",
+            opacity: barBgOpacity,
+          }}
+        />
+        <View
+          style={{
+            height: COLLAPSED_CONTENT,
+            paddingHorizontal: 18,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
         >
-          {t("home.todaysDua")} · {duaText.occasion}
-        </Text>
-        <Text
-          style={{ fontFamily: fonts.displayBold }}
-          className="mt-2 text-[26px] text-forest-900 dark:text-sand-50"
-        >
-          {duaText.title}
-        </Text>
-        <Text
-          style={{ fontFamily: fonts.displayMedium }}
-          className="mt-4 text-right text-2xl leading-10 text-forest-700 dark:text-sand-100"
-        >
-          {dua.arabic}
-        </Text>
-        <Text
-          style={{ fontFamily: fonts.body }}
-          className="mt-3 text-base italic text-forest-500 dark:text-sand-200"
-        >
-          {dua.latin}
-        </Text>
-        <Text
-          style={{ fontFamily: fonts.body }}
-          className="mt-3 text-base leading-6 text-forest-900 dark:text-sand-100"
-        >
-          {duaText.meaning}
-        </Text>
-
-        <Link href="/dualar" asChild>
-          <Pressable className="mt-5 self-start rounded-full bg-forest-700 px-4 py-2 active:opacity-80 dark:bg-gold-500">
-            <Text
-              style={{ fontFamily: fonts.bodySemi }}
-              className="text-sand-50 dark:text-forest-950"
+          <View
+            style={{
+              flex: 1,
+              paddingRight: 12,
+              justifyContent: "center",
+              overflow: "hidden",
+            }}
+          >
+            <Animated.View
+              style={{ transform: [{ translateY: titleBlockShift }] }}
             >
-              {t("home.allDuas")}
+              <Text
+                style={{
+                  fontFamily: fonts.bodyMedium,
+                  fontSize: 14,
+                  lineHeight: 18,
+                  letterSpacing: 0.15,
+                  color: "#ebe6dc",
+                }}
+                numberOfLines={1}
+              >
+                {dateLabel}
+              </Text>
+              <Animated.Text
+                style={{
+                  marginTop: 2,
+                  fontFamily: fonts.body,
+                  fontSize: 11,
+                  lineHeight: 14,
+                  color: "#d4a84b",
+                  opacity: compactOpacity,
+                  transform: [{ translateY: compactSlide }],
+                }}
+                numberOfLines={1}
+              >
+                {next && remaining
+                  ? `${nextLabel} · ${formatTime(next.at, locale)} · ${pad2(remaining.hours)}:${pad2(remaining.minutes)}:${pad2(remaining.seconds)}`
+                  : " "}
+              </Animated.Text>
+            </Animated.View>
+          </View>
+
+          <Pressable
+            onPress={() => router.push("/ayarlar")}
+            hitSlop={10}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
+              paddingVertical: 6,
+              paddingLeft: 4,
+            }}
+          >
+            <Ionicons name="location-outline" size={14} color="#d4a84b" />
+            <Text
+              style={{
+                fontFamily: fonts.bodyMedium,
+                fontSize: 13,
+                color: "#ebe6dc",
+                maxWidth: 110,
+              }}
+              numberOfLines={1}
+            >
+              {cityName}
             </Text>
           </Pressable>
-        </Link>
-      </Animated.View>
+        </View>
+      </View>
 
-      <Animated.View
-        style={{ opacity: fade, transform: [{ translateY: slide }] }}
-        className="mx-4 mt-6"
+      <Animated.ScrollView
+        key={`${locale}-${city.id}`}
+        className="flex-1"
+        contentContainerStyle={{
+          paddingTop: expandedHeight,
+          paddingBottom: 48,
+        }}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
+        )}
+        showsVerticalScrollIndicator={false}
       >
-        <Text
-          style={{ fontFamily: fonts.displayBold }}
-          className="mb-3 text-[22px] text-forest-900 dark:text-sand-50"
-        >
-          {t("home.quickStart")}
-        </Text>
-        <Link href="/namaz" asChild>
-          <Pressable className="mb-3 rounded-2xl border border-sand-200 bg-white px-5 py-4 active:bg-sand-100 dark:border-forest-700 dark:bg-forest-900 dark:active:bg-forest-700">
+        <Animated.View style={{ opacity: fade }}>
+          {/* Namaz vakitleri — tipografik grid */}
+          <View className="mx-5 mt-5">
+            <View className="mb-5 flex-row items-baseline justify-between">
+              <Text
+                style={{ fontFamily: fonts.bodySemi }}
+                className="text-[12px] uppercase tracking-[2px] text-gold-500"
+              >
+                {t("home.prayerTimes")}
+              </Text>
+              <Text
+                style={{ fontFamily: fonts.body }}
+                className="text-[11px] text-forest-500/70 dark:text-sand-200/45"
+              >
+                {cityName}
+              </Text>
+            </View>
+
+            <View>
+              {[0, 1].map((row) => (
+                <View
+                  key={row}
+                  className={`flex-row justify-between ${row === 0 ? "mb-5" : ""}`}
+                >
+                  {PRAYER_SLOT_ORDER.slice(row * 3, row * 3 + 3).map(
+                    (slot, col) => {
+                      const isNext = next?.id === slot && !next.isTomorrow;
+                      const isPast =
+                        times[slot].getTime() <= now.getTime() && !isNext;
+                      const align =
+                        col === 0 ? "flex-start" : col === 1 ? "center" : "flex-end";
+                      const textAlign =
+                        col === 0 ? "left" : col === 1 ? "center" : "right";
+
+                      return (
+                        <View
+                          key={slot}
+                          style={{ flex: 1, alignItems: align }}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: fonts.body,
+                              textAlign,
+                            }}
+                            className={`text-[11px] tracking-[0.6px] ${
+                              isNext
+                                ? "text-gold-500"
+                                : isPast
+                                  ? "text-forest-500/45 dark:text-sand-200/30"
+                                  : "text-forest-500 dark:text-sand-200/55"
+                            }`}
+                          >
+                            {t(
+                              `prayerTimes.${slot}` as `prayerTimes.${PrayerSlotId}`,
+                            )}
+                          </Text>
+                          <Text
+                            style={{
+                              fontFamily: isNext
+                                ? fonts.displayBold
+                                : fonts.displayMedium,
+                              textAlign,
+                            }}
+                            className={`mt-1 text-[22px] tabular-nums ${
+                              isNext
+                                ? "text-gold-500"
+                                : isPast
+                                  ? "text-forest-500/45 dark:text-sand-200/30"
+                                  : "text-forest-900 dark:text-sand-50"
+                            }`}
+                          >
+                            {formatTime(times[slot], locale)}
+                          </Text>
+                        </View>
+                      );
+                    },
+                  )}
+                </View>
+              ))}
+            </View>
+
+            {next?.isTomorrow ? (
+              <View className="mt-5 flex-row items-baseline justify-between">
+                <Text
+                  style={{ fontFamily: fonts.body }}
+                  className="text-[12px] text-forest-500 dark:text-sand-200/55"
+                >
+                  {t("home.tomorrowFajr")}
+                </Text>
+                <Text
+                  style={{ fontFamily: fonts.displayMedium }}
+                  className="text-[18px] tabular-nums text-gold-500"
+                >
+                  {formatTime(next.at, locale)}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* Namaza başla — sıradaki / aktif vakit rehberi */}
+          <Pressable
+            onPress={() => router.push(`/namaza-basla/${guideId}`)}
+            className="mx-5 mt-8 active:opacity-80"
+          >
             <Text
               style={{ fontFamily: fonts.bodySemi }}
-              className="text-base text-forest-900 dark:text-sand-50"
+              className="text-[12px] uppercase tracking-[2px] text-gold-500"
             >
-              {t("home.howToPray")}
+              {t("home.startPrayer")}
+            </Text>
+            <Text
+              style={{ fontFamily: fonts.displayBold }}
+              className="mt-2 text-[26px] text-forest-900 dark:text-sand-50"
+            >
+              {guideName}
             </Text>
             <Text
               style={{ fontFamily: fonts.body }}
-              className="mt-1 text-sm text-forest-500 dark:text-sand-200"
+              className="mt-1 text-[14px] leading-5 text-forest-500 dark:text-sand-200/70"
             >
-              {t("home.howToPrayHint")}
+              {t("home.startPrayerHint", { prayer: guideName })}
             </Text>
+            <View className="mt-4 self-start border-b border-forest-700 pb-0.5 dark:border-gold-400">
+              <Text
+                style={{ fontFamily: fonts.bodySemi }}
+                className="text-[14px] text-forest-800 dark:text-gold-400"
+              >
+                {t("home.startPrayerCta")} →
+              </Text>
+            </View>
           </Pressable>
-        </Link>
-        <Link href="/namaz/sabah" asChild>
-          <Pressable className="rounded-2xl border border-sand-200 bg-white px-5 py-4 active:bg-sand-100 dark:border-forest-700 dark:bg-forest-900 dark:active:bg-forest-700">
+
+          <View className="mx-5 mt-10">
             <Text
               style={{ fontFamily: fonts.bodySemi }}
-              className="text-base text-forest-900 dark:text-sand-50"
+              className="text-[12px] uppercase tracking-[2px] text-gold-500"
             >
-              {t("home.fajrGuide")}
+              {t("home.todaysDua")} · {duaText.occasion}
+            </Text>
+            <Text
+              style={{ fontFamily: fonts.displayBold }}
+              className="mt-2 text-[28px] text-forest-900 dark:text-sand-50"
+            >
+              {duaText.title}
+            </Text>
+            <Text
+              style={{ fontFamily: fonts.displayMedium }}
+              className="mt-5 text-right text-[26px] leading-10 text-forest-800 dark:text-sand-100"
+            >
+              {dua.arabic}
+            </Text>
+            <ArabicListenButton arabic={dua.arabic} duaId={dua.id} />
+            <Text
+              style={{ fontFamily: fonts.body }}
+              className="mt-3 text-[15px] italic leading-6 text-forest-500 dark:text-sand-200"
+            >
+              {dua.latin}
             </Text>
             <Text
               style={{ fontFamily: fonts.body }}
-              className="mt-1 text-sm text-forest-500 dark:text-sand-200"
+              className="mt-3 text-[15px] leading-6 text-forest-800 dark:text-sand-100"
             >
-              {t("home.fajrHint")}
+              {duaText.meaning}
             </Text>
-          </Pressable>
-        </Link>
-      </Animated.View>
-    </ScrollView>
+
+            <Link href="/dualar" asChild>
+              <Pressable className="mt-5 self-start border-b border-forest-700 pb-0.5 active:opacity-60 dark:border-gold-400">
+                <Text
+                  style={{ fontFamily: fonts.bodySemi }}
+                  className="text-[14px] text-forest-800 dark:text-gold-400"
+                >
+                  {t("home.allDuas")} →
+                </Text>
+              </Pressable>
+            </Link>
+          </View>
+        </Animated.View>
+      </Animated.ScrollView>
+    </View>
   );
 }

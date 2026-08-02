@@ -1,55 +1,104 @@
 import { Tabs } from "expo-router";
-import { Text, useColorScheme } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import type { ComponentProps } from "react";
+import { Easing, type ColorValue } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { fonts } from "@/constants/fonts";
+import { softNavTheme } from "@/constants/nav-theme";
 
-function TabIcon({ label, focused }: { label: string; focused: boolean }) {
+const TAB_BAR_CONTENT = 52;
+const TAB_ICON_SIZE = 20;
+
+type IconName = ComponentProps<typeof Ionicons>["name"];
+
+function TabIcon({
+  focused,
+  color,
+  active,
+  inactive,
+}: {
+  focused: boolean;
+  color: ColorValue;
+  active: IconName;
+  inactive: IconName;
+}) {
   return (
-    <Text
-      className={`text-[10px] font-semibold ${
-        focused
-          ? "text-forest-700 dark:text-gold-400"
-          : "text-forest-500/50 dark:text-sand-200/40"
-      }`}
-    >
-      {label}
-    </Text>
+    <Ionicons
+      name={focused ? active : inactive}
+      size={TAB_ICON_SIZE}
+      color={color}
+    />
   );
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
   const { locale, resolvedTheme } = useAppSettings();
-  const scheme = useColorScheme();
-  const dark = resolvedTheme === "dark" || scheme === "dark";
+  const dark = resolvedTheme === "dark";
+  const nav = softNavTheme(dark);
+  const bottomInset = Math.max(insets.bottom, 8);
 
   return (
     <Tabs
-      key={locale}
+      key={`${locale}-${resolvedTheme}`}
+      // Lazy detach + varsayılan beyaz sahne = geçişte flaş
+      detachInactiveScreens={false}
+      safeAreaInsets={{ bottom: 0 }}
       screenOptions={{
-        headerStyle: { backgroundColor: dark ? "#0f1a15" : "#1a2f25" },
-        headerTintColor: "#f3efe6",
-        headerTitleStyle: {
-          fontFamily: fonts.bodySemi,
-          fontWeight: "600",
+        headerStyle: nav.headerStyle,
+        headerTintColor: nav.headerTintColor,
+        headerTitleStyle: nav.headerTitleStyle,
+        headerShadowVisible: nav.headerShadowVisible,
+        // Tabs sahne arka planı (beyaz flaşın ana çözümü)
+        sceneStyle: {
+          backgroundColor: nav.contentBackground,
         },
-        tabBarLabelStyle: { fontFamily: fonts.bodyMedium, fontSize: 11 },
+        // Tabs: "none" | "fade" | "shift" (slide_from_right yok)
+        animation: "shift",
+        transitionSpec: {
+          animation: "timing",
+          config: {
+            duration: 240,
+            easing: Easing.out(Easing.cubic),
+          },
+        },
+        tabBarLabelStyle: {
+          fontFamily: fonts.bodyMedium,
+          fontSize: 10,
+          marginTop: 0,
+        },
+        tabBarIconStyle: {
+          marginTop: 0,
+        },
         tabBarStyle: {
-          backgroundColor: dark ? "#0f1a15" : "#faf8f4",
-          borderTopColor: dark ? "#2a4a39" : "#e6dcc8",
-          height: 64,
-          paddingBottom: 8,
-          paddingTop: 8,
+          backgroundColor: nav.tabBarBackground,
+          borderTopColor: nav.tabBarBorder,
+          borderTopWidth: 1,
+          height: TAB_BAR_CONTENT + bottomInset,
+          paddingTop: 4,
+          paddingBottom: bottomInset,
+          elevation: 0,
+          shadowOpacity: 0,
         },
-        tabBarActiveTintColor: dark ? "#d4a84b" : "#2a4a39",
-        tabBarInactiveTintColor: dark ? "#c2d7cb80" : "#3d6b5280",
+        tabBarActiveTintColor: nav.tabBarActive,
+        tabBarInactiveTintColor: nav.tabBarInactive,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: t("tabs.today"),
-          tabBarIcon: ({ focused }) => <TabIcon label="◉" focused={focused} />,
+          headerShown: false,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon
+              focused={focused}
+              color={color}
+              active="sunny"
+              inactive="sunny-outline"
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -57,7 +106,14 @@ export default function TabsLayout() {
         options={{
           title: t("tabs.prayer"),
           headerShown: false,
-          tabBarIcon: ({ focused }) => <TabIcon label="▣" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon
+              focused={focused}
+              color={color}
+              active="book"
+              inactive="book-outline"
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -65,7 +121,14 @@ export default function TabsLayout() {
         options={{
           title: t("tabs.duas"),
           headerTitle: t("duas.headerTitle"),
-          tabBarIcon: ({ focused }) => <TabIcon label="✦" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon
+              focused={focused}
+              color={color}
+              active="heart"
+              inactive="heart-outline"
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -73,7 +136,14 @@ export default function TabsLayout() {
         options={{
           title: t("tabs.settings"),
           headerTitle: t("settings.title"),
-          tabBarIcon: ({ focused }) => <TabIcon label="⚙" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon
+              focused={focused}
+              color={color}
+              active="settings"
+              inactive="settings-outline"
+            />
+          ),
         }}
       />
     </Tabs>
