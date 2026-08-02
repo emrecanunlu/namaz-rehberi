@@ -14,9 +14,16 @@
       "backgroundColor": "#1a2f25"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "İlinize göre namaz vakitlerini göstermek için konumunuza ihtiyaç duyuyoruz."
+      }
     },
     "android": {
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#1a2f25",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -34,13 +41,20 @@
       "expo-localization",
       "expo-font",
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "İlinize göre namaz vakitlerini göstermek için konumunuza ihtiyaç duyuyoruz."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#1a2f25",
           "image": "./assets/splash-icon.png",
           "imageWidth": 180
         }
-      ]
+      ],
+      "expo-audio"
     ]
   }
 }
