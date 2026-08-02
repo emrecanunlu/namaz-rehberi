@@ -2,6 +2,7 @@ import "../global.css";
 import "react-native-gesture-handler";
 import { useEffect, useMemo } from "react";
 import { View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Stack, ThemeProvider, DarkTheme, DefaultTheme } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
@@ -12,6 +13,7 @@ import {
 } from "@/lib/onboarding-context";
 import { AppSettingsProvider, useAppSettings } from "@/lib/settings-context";
 import { fontAssets } from "@/constants/fonts";
+import { pageBackground } from "@/constants/theme";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -23,8 +25,7 @@ function RootNavigator() {
   const ready =
     onboardingReady && settingsReady && (fontsLoaded || Boolean(fontError));
 
-  const backgroundColor =
-    resolvedTheme === "dark" ? "#0f1a15" : "#faf8f4";
+  const backgroundColor = pageBackground(resolvedTheme === "dark");
 
   const navigationTheme = useMemo(() => {
     const base = resolvedTheme === "dark" ? DarkTheme : DefaultTheme;
@@ -88,10 +89,12 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <AppSettingsProvider>
-      <OnboardingProvider>
-        <RootNavigator />
-      </OnboardingProvider>
-    </AppSettingsProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppSettingsProvider>
+        <OnboardingProvider>
+          <RootNavigator />
+        </OnboardingProvider>
+      </AppSettingsProvider>
+    </GestureHandlerRootView>
   );
 }

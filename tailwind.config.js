@@ -29,9 +29,9 @@ module.exports = {
           950: "#0f1a15",
         },
         sand: {
-          50: "#faf8f4",
-          100: "#f3efe6",
-          200: "#e6dcc8",
+          50: "#f3efe6",
+          100: "#ebe4d4",
+          200: "#ddd2bc",
           500: "#c4a574",
         },
         gold: {

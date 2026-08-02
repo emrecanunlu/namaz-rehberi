@@ -1,20 +1,16 @@
-import { useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { useState } from "react";
+import { Pressable, Switch, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/lib/i18n";
 import {
   useAppSettings,
   type ThemePreference,
 } from "@/lib/settings-context";
 import type { Locale } from "@/locales/translations";
-import { TURKEY_CITIES, cityDisplayName } from "@/data/cities-tr";
+import { cityDisplayName } from "@/data/cities-tr";
 import { fonts } from "@/constants/fonts";
+import { SliverTabScreen } from "@/components/sliver-tab-screen";
+import { CityPickerSheet } from "@/components/city-picker-sheet";
 
 function OptionChip({
   label,
@@ -28,14 +24,15 @@ function OptionChip({
   return (
     <Pressable
       onPress={onPress}
-      className={`mr-2 mb-2 rounded-full px-4 py-2 ${
+      className={`mb-2 mr-2 px-4 py-2 ${
         selected
           ? "bg-forest-700 dark:bg-gold-400"
           : "bg-sand-100 dark:bg-forest-900"
       }`}
     >
       <Text
-        className={`text-sm font-semibold ${
+        style={{ fontFamily: fonts.bodySemi }}
+        className={`text-sm ${
           selected
             ? "text-sand-50 dark:text-forest-950"
             : "text-forest-700 dark:text-sand-200"
@@ -53,15 +50,11 @@ export default function SettingsScreen() {
     themePreference,
     setLocale,
     setThemePreference,
-    cityId,
-    citySource,
-    locationGranted,
-    setCityManual,
-    refreshLocation,
+    city,
     autoImam,
     setAutoImam,
   } = useAppSettings();
-  const [query, setQuery] = useState("");
+  const [citySheetOpen, setCitySheetOpen] = useState(false);
 
   const themes: { value: ThemePreference; label: string }[] = [
     { value: "system", label: t("settings.themeSystem") },
@@ -74,144 +67,129 @@ export default function SettingsScreen() {
     { value: "en", label: t("settings.languageEn") },
   ];
 
-  const filteredCities = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase("tr-TR");
-    if (!q) return TURKEY_CITIES;
-    return TURKEY_CITIES.filter(
-      (c) =>
-        c.nameTr.toLocaleLowerCase("tr-TR").includes(q) ||
-        c.nameEn.toLowerCase().includes(q),
-    );
-  }, [query]);
+  const cityName = cityDisplayName(city, locale);
 
   return (
-    <ScrollView
-      key={locale}
-      className="flex-1 bg-sand-50 dark:bg-forest-950"
-      contentContainerClassName="px-4 py-5 pb-10"
-      keyboardShouldPersistTaps="handled"
-    >
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-forest-500 dark:text-sand-200">
-        {t("settings.appearance")}
-      </Text>
-      <Text className="mb-3 text-lg font-bold text-forest-900 dark:text-sand-50">
-        {t("settings.theme")}
-      </Text>
-      <View className="mb-8 flex-row flex-wrap">
-        {themes.map((item) => (
-          <OptionChip
-            key={item.value}
-            label={item.label}
-            selected={themePreference === item.value}
-            onPress={() => void setThemePreference(item.value)}
-          />
-        ))}
-      </View>
-
-      <Text className="mb-3 text-lg font-bold text-forest-900 dark:text-sand-50">
-        {t("settings.language")}
-      </Text>
-      <View className="mb-8 flex-row flex-wrap">
-        {languages.map((item) => (
-          <OptionChip
-            key={item.value}
-            label={item.label}
-            selected={locale === item.value}
-            onPress={() => void setLocale(item.value)}
-          />
-        ))}
-      </View>
-
-      <View className="mb-8 flex-row items-center justify-between">
-        <View className="mr-4 flex-1">
-          <Text className="text-lg font-bold text-forest-900 dark:text-sand-50">
-            {t("session.autoImam")}
-          </Text>
-          <Text
-            style={{ fontFamily: fonts.body }}
-            className="mt-1 text-sm text-forest-500 dark:text-sand-200"
-          >
-            {t("session.autoImamHint")}
-          </Text>
-        </View>
-        <Switch
-          value={autoImam}
-          onValueChange={(v) => void setAutoImam(v)}
-          trackColor={{ false: "#cfc6b6", true: "#d4a84b" }}
-          thumbColor="#faf8f4"
-        />
-      </View>
-
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-forest-500 dark:text-sand-200">
-        {t("settings.location")}
-      </Text>
-      <Text className="mb-2 text-lg font-bold text-forest-900 dark:text-sand-50">
-        {t("settings.city")}
-      </Text>
-      <Text
-        style={{ fontFamily: fonts.body }}
-        className="mb-3 text-sm text-forest-500 dark:text-sand-200"
-      >
-        {citySource === "manual"
-          ? t("settings.cityManual")
-          : t("settings.cityAuto")}
-        {locationGranted === false ? ` · ${t("settings.locationDenied")}` : ""}
-      </Text>
-
-      <Pressable
-        onPress={() => void refreshLocation()}
-        className="mb-3 self-start rounded-full bg-forest-700 px-4 py-2 active:opacity-80 dark:bg-gold-400"
+    <>
+      <SliverTabScreen
+        eyebrow={t("tabs.settings")}
+        title={t("settings.title")}
+        subtitle={t("settings.aboutText")}
+        compactSubtitle={t("tabs.settings")}
+        expandedContent={168}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
+        keyboardShouldPersistTaps="handled"
       >
         <Text
-          style={{ fontFamily: fonts.bodySemi }}
-          className="text-sm text-sand-50 dark:text-forest-950"
+          style={{ fontFamily: fonts.bodyMedium }}
+          className="mb-2 text-[11px] uppercase tracking-[1.6px] text-forest-500 dark:text-gold-400/80"
         >
-          {t("settings.useLocation")}
+          {t("settings.appearance")}
         </Text>
-      </Pressable>
+        <Text
+          style={{ fontFamily: fonts.displayBold }}
+          className="mb-3 text-xl text-forest-900 dark:text-sand-50"
+        >
+          {t("settings.theme")}
+        </Text>
+        <View className="mb-8 flex-row flex-wrap">
+          {themes.map((item) => (
+            <OptionChip
+              key={item.value}
+              label={item.label}
+              selected={themePreference === item.value}
+              onPress={() => void setThemePreference(item.value)}
+            />
+          ))}
+        </View>
 
-      <TextInput
-        value={query}
-        onChangeText={setQuery}
-        placeholder={t("settings.citySearch")}
-        placeholderTextColor="#8a9a90"
-        className="mb-3 rounded-xl border border-sand-200 bg-white px-4 py-3 text-base text-forest-900 dark:border-forest-700 dark:bg-forest-900 dark:text-sand-50"
+        <Text
+          style={{ fontFamily: fonts.displayBold }}
+          className="mb-3 text-xl text-forest-900 dark:text-sand-50"
+        >
+          {t("settings.language")}
+        </Text>
+        <View className="mb-8 flex-row flex-wrap">
+          {languages.map((item) => (
+            <OptionChip
+              key={item.value}
+              label={item.label}
+              selected={locale === item.value}
+              onPress={() => void setLocale(item.value)}
+            />
+          ))}
+        </View>
+
+        <View className="mb-8 flex-row items-center justify-between border border-sand-200/80 bg-sand-50 px-4 py-4 dark:border-forest-700 dark:bg-forest-900">
+          <View className="mr-4 flex-1">
+            <Text
+              style={{ fontFamily: fonts.bodySemi }}
+              className="text-base text-forest-900 dark:text-sand-50"
+            >
+              {t("session.autoImam")}
+            </Text>
+            <Text
+              style={{ fontFamily: fonts.body }}
+              className="mt-1 text-sm text-forest-500 dark:text-sand-200/70"
+            >
+              {t("session.autoImamHint")}
+            </Text>
+          </View>
+          <Switch
+            value={autoImam}
+            onValueChange={(v) => void setAutoImam(v)}
+            trackColor={{ false: "#cfc6b6", true: "#d4a84b" }}
+            thumbColor="#faf8f4"
+          />
+        </View>
+
+        <Text
+          style={{ fontFamily: fonts.bodyMedium }}
+          className="mb-2 text-[11px] uppercase tracking-[1.6px] text-forest-500 dark:text-gold-400/80"
+        >
+          {t("settings.location")}
+        </Text>
+        <Text
+          style={{ fontFamily: fonts.displayBold }}
+          className="mb-3 text-xl text-forest-900 dark:text-sand-50"
+        >
+          {t("settings.city")}
+        </Text>
+
+        <Pressable
+          onPress={() => setCitySheetOpen(true)}
+          className="mb-8 flex-row items-center border border-sand-200/80 bg-sand-50 px-4 py-4 active:opacity-80 dark:border-forest-700 dark:bg-forest-900"
+        >
+          <View className="mr-3 h-10 w-10 items-center justify-center bg-forest-100 dark:bg-forest-800">
+            <Ionicons name="location-outline" size={20} color="#d4a84b" />
+          </View>
+          <Text
+            style={{ fontFamily: fonts.bodySemi }}
+            className="flex-1 text-base text-forest-900 dark:text-sand-50"
+          >
+            {cityName}
+          </Text>
+          <Ionicons name="chevron-up" size={18} color="#d4a84b" />
+        </Pressable>
+
+        <Text
+          style={{ fontFamily: fonts.displayBold }}
+          className="mb-2 text-xl text-forest-900 dark:text-sand-50"
+        >
+          {t("settings.about")}
+        </Text>
+        <Text
+          style={{ fontFamily: fonts.body }}
+          className="text-sm leading-6 text-forest-500 dark:text-sand-200/70"
+        >
+          {t("settings.aboutText")}
+        </Text>
+      </SliverTabScreen>
+
+      <CityPickerSheet
+        visible={citySheetOpen}
+        onClose={() => setCitySheetOpen(false)}
       />
-
-      <View className="mb-8 max-h-64 overflow-hidden rounded-2xl border border-sand-200 dark:border-forest-700">
-        <ScrollView nestedScrollEnabled keyboardShouldPersistTaps="handled">
-          {filteredCities.map((c) => {
-            const selected = c.id === cityId;
-            return (
-              <Pressable
-                key={c.id}
-                onPress={() => void setCityManual(c.id)}
-                className={`border-b border-sand-100 px-4 py-3 dark:border-forest-800 ${
-                  selected ? "bg-sand-100 dark:bg-forest-800" : "bg-white dark:bg-forest-900"
-                }`}
-              >
-                <Text
-                  style={{ fontFamily: selected ? fonts.bodySemi : fonts.body }}
-                  className={
-                    selected
-                      ? "text-forest-900 dark:text-gold-400"
-                      : "text-forest-700 dark:text-sand-100"
-                  }
-                >
-                  {cityDisplayName(c, locale)}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-      </View>
-
-      <Text className="mb-2 text-lg font-bold text-forest-900 dark:text-sand-50">
-        {t("settings.about")}
-      </Text>
-      <Text className="text-sm leading-6 text-forest-500 dark:text-sand-200">
-        {t("settings.aboutText")}
-      </Text>
-    </ScrollView>
+    </>
   );
 }

@@ -107,93 +107,98 @@ export const DAILY_DUAS: DailyDua[] = [
   {
     id: "1",
     arabic:
-      "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ",
+      "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ.",
     latin:
-      "Asbahna ve asbehal mülkü lillah, velhamdü lillah, la ilahe illallahü vahdehu la şerike leh, lehül mülkü ve lehül hamdü ve hüve ala külli şey'in kadir. Rabbi es'elüke hayra ma fi hazel yevmi ve hayra ma ba'dehu, ve euzu bike min şerri ma fi hazel yevmi ve şerri ma ba'dehu. Rabbi euzu bike minel keseli ve sui'l-kiber. Rabbi euzu bike min azabin fin-nari ve azabin fil-kabr",
+      "Asbahnâ ve asbahal-mülkü lillâh, vel-hamdü lillâh, lâ ilâhe illallâhü vahdehû lâ şerîke leh, lehül-mülkü ve lehül-hamdü ve hüve alâ külli şey’in kadîr. Rabbi es’elüke hayra mâ fî hâzel-yevmi ve hayra mâ ba’dehû, ve eûzü bike min şerri mâ fî hâzel-yevmi ve şerri mâ ba’dehû. Rabbi eûzü bike minel-keseli ve sû’il-kiber. Rabbi eûzü bike min azâbin fin-nâri ve azâbin fil-kabr.",
   },
   {
     id: "2",
     arabic:
-      "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+      "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ.",
     latin:
-      "Bismillahillezi la yedurru me'asmihi şey'ün fil-ardi ve la fis-sema'i ve hüves-semi'ul-alim",
+      "Bismillâhillezî lâ yedurru me’asmihî şey’ün fil-ardı ve lâ fis-semâ’i ve hüves-semî’ul-alîm.",
   },
   {
     id: "3",
     arabic:
-      "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ",
+      "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ.",
     latin:
-      "Estağfirullaha'l-azimellezi la ilahe illa hüvel-hayyül-kayyumu ve etubu ileyh",
+      "Estağfirullâhel-azîmellezî lâ ilâhe illâ hüvel-hayyül-kayyûmu ve etûbu ileyh.",
   },
   {
     id: "4",
     arabic:
-      "اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ",
+      "اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ.",
     latin:
-      "Allahümme ma asbeha bi min ni'metin ev bi ehadin min halkıke fe minke vahdeke la şerike lek fe lekel-hamdü ve lekeş-şükr",
+      "Allâhümme mâ asbeha bî min ni’metin ev bi ehadin min halkıke fe minke vahdeke lâ şerîke lek, fe lekel-hamdü ve lekeş-şükr.",
   },
   {
     id: "5",
     arabic:
-      "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي وَاحْلُلْ عُقْدَةً مِنْ لِسَانِي يَفْقَهُوا قَوْلِي",
+      "قَالَ رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي وَاحْلُلْ عُقْدَةً مِنْ لِسَانِي يَفْقَهُوا قَوْلِي.",
     latin:
-      "Rabbişrah li sadri ve yessir li emri vahlül ukdeten min lisani yefkahu kavli",
+      "Kâle: Rabbişrah lî sadrî, ve yessir lî emrî, vahlül ukdeten min lisânî yefkahû kavlî.",
   },
   {
     id: "6",
     arabic:
-      "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
+      "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ.",
     latin:
-      "Ihdinas sıratal müstakîm, sıratallezine en'amte aleyhim gayril magdubi aleyhim ve lad-dallin",
+      "Ihdinas-sırâtal-müstakîm, sırâtellezîne en’amte aleyhim gayril-magdûbi aleyhim ve led-dâllîn.",
   },
   {
     id: "7",
     arabic:
-      "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا",
+      "وَالَّذِينَ يَقُولُونَ رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا.",
     latin:
-      "Rabbena heb lena min ezvacina ve zürriyyatina kurrate a'yunin vec'alna lil-müttekin imama",
+      "Vellezîne yekûlûne: Rabbenâ heb lenâ min ezvâcinâ ve zürriyyâtinâ kurrate a’yunin vec’alnâ lil-mütteqîne imâmâ.",
   },
   {
     id: "8",
-    arabic: "رَبِّ زِدْنِي عِلْمًا",
-    latin: "Rabbi zidni ilma",
+    arabic:
+      "فَتَعَالَى اللَّهُ الْمَلِكُ الْحَقُّ وَلَا تَعْجَلْ بِالْقُرْآنِ مِنْ قَبْلِ أَنْ يُقْضَى إِلَيْكَ وَحْيُهُ وَقُلْ رَبِّ زِدْنِي عِلْمًا.",
+    latin:
+      "Feteâlâllâhü’l-melikü’l-hakk. Ve lâ ta’cel bil-Kur’âni min kabli en yukdâ ileyke vahyuhû, ve kul: Rabbi zidnî ilmâ.",
   },
   {
     id: "9",
     arabic:
-      "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
-    latin: "La ilahe illa ente sübhaneke inni küntü minez-zalimin",
+      "وَذَا النُّونِ إِذْ ذَهَبَ مُغَاضِبًا فَظَنَّ أَنْ لَنْ نَقْدِرَ عَلَيْهِ فَنَادَى فِي الظُّلُمَاتِ أَنْ لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ.",
+    latin:
+      "Ve zen-nûni iz zehebe mugâdıben fe zanne en len nakdira aleyhi fe nâdâ fiz-zulümâti en lâ ilâhe illâ ente sübhâneke innî küntü minez-zâlimîn.",
   },
   {
     id: "10",
     arabic:
-      "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ",
+      "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ.",
     latin:
-      "Amsayna ve amsel mülkü lillah, velhamdü lillah, la ilahe illallahü vahdehu la şerike leh, lehül mülkü ve lehül hamdü ve hüve ala külli şey'in kadir. Rabbi es'elüke hayra ma fi hazihil-leyleti ve hayra ma ba'deha, ve euzu bike min şerri ma fi hazihil-leyleti ve şerri ma ba'deha. Rabbi euzu bike minel keseli ve sui'l-kiber. Rabbi euzu bike min azabin fin-nari ve azabin fil-kabr",
+      "Amsaynâ ve amsel-mülkü lillâh, vel-hamdü lillâh, lâ ilâhe illallâhü vahdehû lâ şerîke leh, lehül-mülkü ve lehül-hamdü ve hüve alâ külli şey’in kadîr. Rabbi es’elüke hayra mâ fî hâzihil-leyleti ve hayra mâ ba’dehâ, ve eûzü bike min şerri mâ fî hâzihil-leyleti ve şerri mâ ba’dehâ. Rabbi eûzü bike minel-keseli ve sû’il-kiber. Rabbi eûzü bike min azâbin fin-nâri ve azâbin fil-kabr.",
   },
   {
     id: "11",
-    arabic: "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
-    latin: "Bismike Allahümme emutu ve ahya",
+    arabic: "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا.",
+    latin: "Bismike Allâhümme emûtu ve ahyâ.",
   },
   {
     id: "12",
     arabic:
-      "رَبَّنَا ظَلَمْنَا أَنْفُسَنَا وَإِنْ لَمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ",
+      "قَالَا رَبَّنَا ظَلَمْنَا أَنْفُسَنَا وَإِنْ لَمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ.",
     latin:
-      "Rabbena zalemna enfusena ve in lem tagfir lena ve terhamna lenekunenne minel-hasirin",
+      "Kâlâ: Rabbenâ zalemnâ enfusenâ ve in lem tagfir lenâ ve terhamnâ lenekûnenne minel-hâsirîn.",
   },
   {
     id: "13",
     arabic:
-      "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلًا مُتَقَبَّلًا",
+      "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلًا مُتَقَبَّلًا.",
     latin:
-      "Allahümme inni es'elüke ilman nafian ve rızkan tayyiben ve amelen mütekabbelen",
+      "Allâhümme innî es’elüke ilmen nâfi’an ve rızkan tayyiben ve amelen mütekabbelâ.",
   },
   {
     id: "14",
-    arabic: "رَبَّنَا أَفْرِغْ عَلَيْنَا صَبْرًا وَتَوَفَّنَا مُسْلِمِينَ",
-    latin: "Rabbena efrig aleyna sabran ve teveffena müslimin",
+    arabic:
+      "وَمَا تَنْقِمُ مِنَّا إِلَّا أَنْ آمَنَّا بِآيَاتِ رَبِّنَا لَمَّا جَاءَتْنَا رَبَّنَا أَفْرِغْ عَلَيْنَا صَبْرًا وَتَوَفَّنَا مُسْلِمِينَ.",
+    latin:
+      "Ve mâ tenkimu minnâ illâ en âmennâ bi âyâti rabbinâ lemmâ câetnâ. Rabbenâ efrig aleynâ sabran ve teveffenâ müslimîn.",
   },
 ];
 
@@ -299,10 +304,7 @@ export function filterStepsBySections(
 export function getSectionSummaries(steps: PrayerStep[]) {
   return getAvailableSections(steps).map((section) => {
     const sectionSteps = filterStepsBySections(steps, [section]);
-    const rakatCount = Math.max(
-      0,
-      ...sectionSteps.map((s) => s.rakat ?? 0),
-    );
+    const rakatCount = Math.max(0, ...sectionSteps.map((s) => s.rakat ?? 0));
     return {
       section,
       stepCount: sectionSteps.length,

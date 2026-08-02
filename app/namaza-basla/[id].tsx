@@ -5,6 +5,7 @@ import {
   Image,
   Pressable,
   ScrollView,
+  StatusBar,
   Switch,
   Text,
   View,
@@ -28,6 +29,8 @@ import {
 import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { fonts } from "@/constants/fonts";
+import { pageBackground } from "@/constants/theme";
+import { PoseImageLightbox } from "@/components/pose-image-lightbox";
 import { speakPrayerStep, stopPrayerVoice } from "@/lib/prayer-voice";
 
 /** Ses bitince sonraki adıma geçmeden önce gösterilen süre */
@@ -47,7 +50,16 @@ export default function StartPrayerSessionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const { locale, autoImam, setAutoImam } = useAppSettings();
+  const { locale, autoImam, setAutoImam, resolvedTheme } = useAppSettings();
+  const dark = resolvedTheme === "dark";
+  const pageBg = pageBackground(dark);
+  const iconPrimary = dark ? "#f3efe6" : "#1a2f25";
+  const playIcon = dark ? "#d4a84b" : "#2a4a39";
+  const playIconBg = dark ? "#24352c" : "#e0ebe4";
+  const switchTrack = dark
+    ? { false: "#24352c", true: "#a8893a" }
+    : { false: "#d4cbb6", true: "#b8892e" };
+  const switchThumb = dark ? "#faf8f4" : "#f3efe6";
 
   const prayer = useMemo(
     () => PRAYER_GUIDES.find((item) => item.id === id),
@@ -68,6 +80,7 @@ export default function StartPrayerSessionScreen() {
   >({});
   const [stepIndex, setStepIndex] = useState(0);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [poseLightboxOpen, setPoseLightboxOpen] = useState(false);
 
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const advanceBarAnimRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -266,14 +279,21 @@ export default function StartPrayerSessionScreen() {
 
   if (!prayer) {
     return (
-      <View className="flex-1 items-center justify-center bg-forest-950">
-        <Text style={{ fontFamily: fonts.body }} className="text-sand-200">
+      <View
+        className="flex-1 items-center justify-center"
+        style={{ backgroundColor: pageBg }}
+      >
+        <StatusBar barStyle={dark ? "light-content" : "dark-content"} />
+        <Text
+          style={{ fontFamily: fonts.body }}
+          className="text-forest-500 dark:text-sand-200"
+        >
           {t("common.notFound")}
         </Text>
         <Pressable onPress={exitScreen} className="mt-6 active:opacity-70">
           <Text
             style={{ fontFamily: fonts.bodySemi }}
-            className="text-gold-400"
+            className="text-gold-500 dark:text-gold-400"
           >
             {t("session.close")}
           </Text>
@@ -291,10 +311,11 @@ export default function StartPrayerSessionScreen() {
 
     return (
       <View
-        key={`hub-${locale}`}
-        className="flex-1 bg-forest-950"
-        style={{ paddingTop: insets.top }}
+        key={`hub-${locale}-${resolvedTheme}`}
+        className="flex-1"
+        style={{ paddingTop: insets.top, backgroundColor: pageBg }}
       >
+        <StatusBar barStyle={dark ? "light-content" : "dark-content"} />
         <View className="flex-row items-center px-4 pb-2 pt-1">
           <Pressable
             onPress={exitScreen}
@@ -302,12 +323,12 @@ export default function StartPrayerSessionScreen() {
             className="h-9 w-9 items-center justify-center active:opacity-50"
             accessibilityLabel={t("session.close")}
           >
-            <Ionicons name="close" size={22} color="#f3efe6" />
+            <Ionicons name="close" size={22} color={iconPrimary} />
           </Pressable>
           <View className="flex-1 items-center px-2">
             <Text
               style={{ fontFamily: fonts.bodyMedium }}
-              className="text-[11px] tracking-[1.5px] text-gold-400/90"
+              className="text-[11px] tracking-[1.5px] text-gold-500 dark:text-gold-400/90"
             >
               {name}
             </Text>
@@ -322,13 +343,13 @@ export default function StartPrayerSessionScreen() {
         >
           <Text
             style={{ fontFamily: fonts.displayBold }}
-            className="text-[28px] leading-9 text-sand-50"
+            className="text-[28px] leading-9 text-forest-900 dark:text-sand-50"
           >
             {t("session.sectionPickTitle")}
           </Text>
           <Text
             style={{ fontFamily: fonts.body }}
-            className="mt-2 text-[14px] leading-5 text-sand-200/60"
+            className="mt-2 text-[14px] leading-5 text-forest-500 dark:text-sand-200/60"
           >
             {t("session.sectionPickHint")}
           </Text>
@@ -336,7 +357,7 @@ export default function StartPrayerSessionScreen() {
           {doneCount > 0 ? (
             <Text
               style={{ fontFamily: fonts.body }}
-              className="mt-3 text-[13px] text-gold-400/80"
+              className="mt-3 text-[13px] text-gold-500/90 dark:text-gold-400/80"
             >
               {doneCount}/{sectionSummaries.length} ·{" "}
               {t("session.sectionCompleted")}
@@ -353,32 +374,35 @@ export default function StartPrayerSessionScreen() {
                   className={`border px-4 py-4 active:opacity-75 ${
                     isDone
                       ? "border-gold-400/40 bg-gold-400/10"
-                      : "border-sand-200/15 bg-forest-900"
+                      : "border-sand-200 bg-sand-100 dark:border-sand-200/15 dark:bg-forest-900"
                   }`}
                 >
                   <View className="flex-row items-center">
                     <View
-                      className={`mr-3 h-9 w-9 items-center justify-center ${
-                        isDone ? "bg-gold-400/20" : "bg-forest-800"
-                      }`}
+                      className="mr-3 h-9 w-9 items-center justify-center"
+                      style={{
+                        backgroundColor: isDone
+                          ? "rgba(212,168,75,0.2)"
+                          : playIconBg,
+                      }}
                     >
                       <Ionicons
                         name={isDone ? "checkmark" : "play"}
                         size={18}
-                        color={isDone ? "#d4a84b" : "#f3efe6"}
+                        color={isDone ? "#d4a84b" : playIcon}
                       />
                     </View>
 
                     <View className="flex-1 pr-2">
                       <Text
                         style={{ fontFamily: fonts.bodySemi }}
-                        className="text-[16px] text-sand-50"
+                        className="text-[16px] text-forest-900 dark:text-sand-50"
                       >
                         {getSectionLabel(item.section)}
                       </Text>
                       <Text
                         style={{ fontFamily: fonts.body }}
-                        className="mt-0.5 text-[13px] text-sand-200/55"
+                        className="mt-0.5 text-[13px] text-forest-500 dark:text-sand-200/55"
                       >
                         {t("session.sectionRakat", {
                           count: String(item.rakatCount),
@@ -392,7 +416,7 @@ export default function StartPrayerSessionScreen() {
                       {isDone ? (
                         <Text
                           style={{ fontFamily: fonts.bodyMedium }}
-                          className="text-[12px] text-gold-400"
+                          className="text-[12px] text-gold-500 dark:text-gold-400"
                         >
                           {t("session.sectionCompleted")}
                         </Text>
@@ -400,7 +424,9 @@ export default function StartPrayerSessionScreen() {
                       <Text
                         style={{ fontFamily: fonts.body }}
                         className={`text-[13px] ${
-                          isDone ? "mt-1 text-sand-200/50" : "text-gold-400"
+                          isDone
+                            ? "mt-1 text-forest-400 dark:text-sand-200/50"
+                            : "text-gold-500 dark:text-gold-400"
                         }`}
                       >
                         {isDone
@@ -414,17 +440,17 @@ export default function StartPrayerSessionScreen() {
             })}
           </View>
 
-          <View className="mt-8 flex-row items-center justify-between border-t border-sand-200/10 pt-5">
+          <View className="mt-8 flex-row items-center justify-between border-t border-sand-200/70 pt-5 dark:border-sand-200/10">
             <View className="mr-4 flex-1">
               <Text
                 style={{ fontFamily: fonts.bodySemi }}
-                className="text-[14px] text-sand-100"
+                className="text-[14px] text-forest-800 dark:text-sand-100"
               >
                 {t("session.autoImam")}
               </Text>
               <Text
                 style={{ fontFamily: fonts.body }}
-                className="mt-1 text-[12px] leading-4 text-sand-200/50"
+                className="mt-1 text-[12px] leading-4 text-forest-500 dark:text-sand-200/50"
               >
                 {t("session.autoImamHint")}
               </Text>
@@ -432,8 +458,8 @@ export default function StartPrayerSessionScreen() {
             <Switch
               value={autoImam}
               onValueChange={(v) => void setAutoImam(v)}
-              trackColor={{ false: "#24352c", true: "#a8893a" }}
-              thumbColor="#faf8f4"
+              trackColor={switchTrack}
+              thumbColor={switchThumb}
             />
           </View>
         </ScrollView>
@@ -443,14 +469,21 @@ export default function StartPrayerSessionScreen() {
 
   if (steps.length === 0 || !activeSection) {
     return (
-      <View className="flex-1 items-center justify-center bg-forest-950">
-        <Text style={{ fontFamily: fonts.body }} className="text-sand-200">
+      <View
+        className="flex-1 items-center justify-center"
+        style={{ backgroundColor: pageBg }}
+      >
+        <StatusBar barStyle={dark ? "light-content" : "dark-content"} />
+        <Text
+          style={{ fontFamily: fonts.body }}
+          className="text-forest-500 dark:text-sand-200"
+        >
           {t("common.notFound")}
         </Text>
         <Pressable onPress={returnToHub} className="mt-6 active:opacity-70">
           <Text
             style={{ fontFamily: fonts.bodySemi }}
-            className="text-gold-400"
+            className="text-gold-500 dark:text-gold-400"
           >
             {t("session.backToSections")}
           </Text>
@@ -465,14 +498,11 @@ export default function StartPrayerSessionScreen() {
   const recitation = getStepRecitation(step.voiceId);
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === total - 1;
-  const isSurah =
-    !!step.voiceId && SURAH_VOICE_IDS.includes(step.voiceId);
-  const readingLines = recitation
-    ? splitReadingLines(recitation.latin)
-    : [];
+  const isSurah = !!step.voiceId && SURAH_VOICE_IDS.includes(step.voiceId);
+  const readingLines = recitation ? splitReadingLines(recitation.latin) : [];
   const imageHeight = Math.min(
-    height * (recitation ? (isSurah ? 0.14 : 0.16) : 0.2),
-    recitation ? 128 : 168,
+    height * (recitation ? (isSurah ? 0.22 : 0.26) : 0.32),
+    recitation ? 220 : 280,
   );
   const sectionLabel = step.rakat
     ? t("session.sectionLabel", {
@@ -491,245 +521,260 @@ export default function StartPrayerSessionScreen() {
   });
 
   return (
-    <View
-      key={locale}
-      className="flex-1 bg-forest-950"
-      style={{ paddingTop: insets.top }}
-    >
-      <View className="flex-row items-center px-4 pb-1 pt-1">
-        <Pressable
-          onPress={returnToHub}
-          hitSlop={14}
-          className="h-9 w-9 items-center justify-center active:opacity-50"
-          accessibilityLabel={t("session.backToSections")}
-        >
-          <Ionicons name="chevron-back" size={22} color="#f3efe6" />
-        </Pressable>
-
-        <View className="flex-1 items-center px-2">
-          <Text
-            style={{ fontFamily: fonts.bodyMedium }}
-            className="text-[11px] tracking-[1.5px] text-gold-400/90"
+    <>
+      <View
+        key={`${locale}-${resolvedTheme}`}
+        className="flex-1"
+        style={{ paddingTop: insets.top, backgroundColor: pageBg }}
+      >
+        <StatusBar barStyle={dark ? "light-content" : "dark-content"} />
+        <View className="flex-row items-center px-4 pb-1 pt-1">
+          <Pressable
+            onPress={returnToHub}
+            hitSlop={14}
+            className="h-9 w-9 items-center justify-center active:opacity-50"
+            accessibilityLabel={t("session.backToSections")}
           >
-            {name}
-          </Text>
-          <Text
-            style={{ fontFamily: fonts.body }}
-            className="mt-0.5 text-[13px] text-sand-200/70"
-            numberOfLines={1}
-          >
-            {sectionLabel}
-          </Text>
-        </View>
+            <Ionicons name="chevron-back" size={22} color={iconPrimary} />
+          </Pressable>
 
-        <Text
-          style={{ fontFamily: fonts.body }}
-          className="min-w-9 text-right tabular-nums text-[12px] text-sand-200/50"
-        >
-          {stepIndex + 1}/{total}
-        </Text>
-      </View>
-
-      <View className="mx-4 mt-1 h-[2px] overflow-hidden rounded-full bg-forest-800">
-        <Animated.View
-          className="h-full rounded-full bg-gold-400/85"
-          style={{ width: progressWidth }}
-        />
-      </View>
-
-      {isAdvancing ? (
-        <Pressable
-          onPress={skipCountdown}
-          className="mx-4 mt-3 active:opacity-80"
-          accessibilityLabel={t("session.skipWait")}
-        >
-          <View className="flex-row items-center justify-between pb-1.5">
+          <View className="flex-1 items-center px-2">
             <Text
               style={{ fontFamily: fonts.bodyMedium }}
-              className="text-[12px] tracking-[0.4px] text-gold-400/90"
+              className="text-[11px] tracking-[1.5px] text-gold-500 dark:text-gold-400/90"
             >
-              {isLast ? t("session.finishIn") : t("session.nextIn")}
+              {name}
             </Text>
             <Text
               style={{ fontFamily: fonts.body }}
-              className="text-[12px] text-sand-200/45"
+              className="mt-0.5 text-[13px] text-forest-500 dark:text-sand-200/70"
+              numberOfLines={1}
             >
-              {t("session.skipWait")}
+              {sectionLabel}
             </Text>
           </View>
-          <View className="h-[3px] overflow-hidden rounded-full bg-forest-800">
-            <Animated.View
-              className="h-full rounded-full bg-gold-400"
-              style={{ width: advanceWidth }}
-            />
-          </View>
-        </Pressable>
-      ) : (
-        <View className="mx-4 mt-3 flex-row items-center justify-between">
+
           <Text
             style={{ fontFamily: fonts.body }}
-            className="text-[12px] text-sand-200/55"
+            className="min-w-9 text-right tabular-nums text-[12px] text-forest-400 dark:text-sand-200/50"
           >
-            {t("session.autoImam")}
+            {stepIndex + 1}/{total}
           </Text>
-          <Switch
-            value={autoImam}
-            onValueChange={(v) => void setAutoImam(v)}
-            trackColor={{ false: "#24352c", true: "#a8893a" }}
-            thumbColor="#faf8f4"
-            style={{ transform: [{ scaleX: 0.82 }, { scaleY: 0.82 }] }}
+        </View>
+
+        <View className="mx-4 mt-1 h-[2px] overflow-hidden rounded-full bg-forest-200 dark:bg-forest-800">
+          <Animated.View
+            className="h-full rounded-full bg-gold-400/85"
+            style={{ width: progressWidth }}
           />
         </View>
-      )}
 
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="px-5 pb-6 pt-4"
-        showsVerticalScrollIndicator={false}
-      >
-        <Animated.View
-          style={{
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
-          }}
-        >
-          <Image
-            source={getStepImage(step.poseId)}
-            style={{ height: imageHeight, width: "100%", borderRadius: 2 }}
-            className="opacity-90"
-            resizeMode="cover"
-          />
-
-          <Text
-            style={{ fontFamily: fonts.displayBold }}
-            className="mt-4 text-[22px] leading-7 text-sand-50"
+        {isAdvancing ? (
+          <Pressable
+            onPress={skipCountdown}
+            className="mx-4 mt-3 active:opacity-80"
+            accessibilityLabel={t("session.skipWait")}
           >
-            {text.title}
-          </Text>
-
-          {text.detail ? (
-            <Text
-              style={{ fontFamily: fonts.body }}
-              className="mt-1.5 text-[13px] leading-5 text-sand-200/55"
-            >
-              {text.detail}
-            </Text>
-          ) : null}
-
-          {recitation ? (
-            <View className="mt-5">
-              {/* Okunuş — ezber odağı */}
-              <View className="border border-gold-400/25 bg-gold-400/[0.07] px-4 py-4">
-                <Text
-                  style={{ fontFamily: fonts.bodyMedium }}
-                  className="text-[11px] uppercase tracking-[1.6px] text-gold-400"
-                >
-                  {t("session.reading")}
-                </Text>
-                <Text
-                  style={{ fontFamily: fonts.body }}
-                  className="mt-1 text-[12px] leading-4 text-sand-200/50"
-                >
-                  {t("session.readingHint")}
-                </Text>
-
-                <View className="mt-3 gap-2.5">
-                  {readingLines.map((line, index) => (
-                    <Text
-                      key={`${index}-${line.slice(0, 12)}`}
-                      style={{
-                        fontFamily: isSurah
-                          ? fonts.bodySemi
-                          : fonts.bodyMedium,
-                      }}
-                      className={`leading-7 text-sand-50 ${
-                        isSurah ? "text-[19px]" : "text-[17px]"
-                      }`}
-                    >
-                      {line}
-                    </Text>
-                  ))}
-                </View>
-              </View>
-
-              <Text
-                style={{ fontFamily: fonts.displayMedium }}
-                className="mt-5 text-right text-[18px] leading-8 text-gold-400/75"
-              >
-                {recitation.arabic}
-              </Text>
-
+            <View className="flex-row items-center justify-between pb-1.5">
               <Text
                 style={{ fontFamily: fonts.bodyMedium }}
-                className="mt-5 text-[11px] uppercase tracking-[1.5px] text-sand-200/35"
+                className="text-[12px] tracking-[0.4px] text-gold-500 dark:text-gold-400/90"
               >
-                {t("session.meal")}
+                {isLast ? t("session.finishIn") : t("session.nextIn")}
               </Text>
               <Text
                 style={{ fontFamily: fonts.body }}
-                className="mt-1 text-[14px] leading-6 text-sand-200/55"
+                className="text-[12px] text-forest-400 dark:text-sand-200/45"
               >
-                {recitation.meaning}
+                {t("session.skipWait")}
               </Text>
             </View>
-          ) : null}
-        </Animated.View>
-      </ScrollView>
+            <View className="h-[3px] overflow-hidden rounded-full bg-forest-200 dark:bg-forest-800">
+              <Animated.View
+                className="h-full rounded-full bg-gold-400"
+                style={{ width: advanceWidth }}
+              />
+            </View>
+          </Pressable>
+        ) : (
+          <View className="mx-4 mt-3 flex-row items-center justify-between">
+            <Text
+              style={{ fontFamily: fonts.body }}
+              className="text-[12px] text-forest-500 dark:text-sand-200/55"
+            >
+              {t("session.autoImam")}
+            </Text>
+            <Switch
+              value={autoImam}
+              onValueChange={(v) => void setAutoImam(v)}
+              trackColor={switchTrack}
+              thumbColor={switchThumb}
+              style={{ transform: [{ scaleX: 0.82 }, { scaleY: 0.82 }] }}
+            />
+          </View>
+        )}
 
-      <View
-        className="flex-row items-center justify-between border-t border-sand-200/10 px-6"
-        style={{
-          paddingBottom: Math.max(insets.bottom, 12) + 4,
-          paddingTop: 12,
-        }}
-      >
-        <Pressable
-          onPress={() => goTo(Math.max(0, stepIndex - 1))}
-          disabled={isFirst}
-          hitSlop={10}
-          className={`flex-row items-center gap-1 active:opacity-50 ${
-            isFirst ? "opacity-25" : ""
-          }`}
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="px-5 pb-6 pt-4"
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="chevron-back" size={18} color="#f3efe6" />
-          <Text
-            style={{ fontFamily: fonts.body }}
-            className="text-[14px] text-sand-100/80"
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
+            }}
           >
-            {t("session.prev")}
-          </Text>
-        </Pressable>
+            <Pressable
+              onPress={() => setPoseLightboxOpen(true)}
+              accessibilityRole="imagebutton"
+              accessibilityLabel={t("session.poseTapHint")}
+              className="overflow-hidden bg-sand-100 dark:bg-forest-900"
+              style={{ height: imageHeight, width: "100%", borderRadius: 2 }}
+            >
+              <Image
+                source={getStepImage(step.poseId)}
+                style={{ height: "100%", width: "100%" }}
+                resizeMode="contain"
+              />
+            </Pressable>
 
-        <Pressable
-          onPress={() => {
-            if (isAdvancing) {
-              skipCountdown();
-              return;
-            }
-            if (isLast) {
-              finishSection();
-              return;
-            }
-            goTo(stepIndex + 1);
+            <Text
+              style={{ fontFamily: fonts.displayBold }}
+              className="mt-4 text-[22px] leading-7 text-forest-900 dark:text-sand-50"
+            >
+              {text.title}
+            </Text>
+
+            {text.detail ? (
+              <Text
+                style={{ fontFamily: fonts.body }}
+                className="mt-1.5 text-[13px] leading-5 text-forest-500 dark:text-sand-200/55"
+              >
+                {text.detail}
+              </Text>
+            ) : null}
+
+            {recitation ? (
+              <View className="mt-5">
+                <View className="border border-gold-400/30 bg-gold-400/[0.08] px-4 py-4 dark:border-gold-400/25 dark:bg-gold-400/[0.07]">
+                  <Text
+                    style={{ fontFamily: fonts.bodyMedium }}
+                    className="text-[11px] uppercase tracking-[1.6px] text-gold-500 dark:text-gold-400"
+                  >
+                    {t("session.reading")}
+                  </Text>
+                  <Text
+                    style={{ fontFamily: fonts.body }}
+                    className="mt-1 text-[12px] leading-4 text-forest-500 dark:text-sand-200/50"
+                  >
+                    {t("session.readingHint")}
+                  </Text>
+
+                  <View className="mt-3 gap-2.5">
+                    {readingLines.map((line, index) => (
+                      <Text
+                        key={`${index}-${line.slice(0, 12)}`}
+                        style={{
+                          fontFamily: isSurah
+                            ? fonts.bodySemi
+                            : fonts.bodyMedium,
+                        }}
+                        className={`leading-7 text-forest-900 dark:text-sand-50 ${
+                          isSurah ? "text-[19px]" : "text-[17px]"
+                        }`}
+                      >
+                        {line}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+
+                <Text
+                  style={{ fontFamily: fonts.displayMedium }}
+                  className="mt-5 text-right text-[18px] leading-8 text-gold-500/90 dark:text-gold-400/75"
+                >
+                  {recitation.arabic}
+                </Text>
+
+                <Text
+                  style={{ fontFamily: fonts.bodyMedium }}
+                  className="mt-5 text-[11px] uppercase tracking-[1.5px] text-forest-400 dark:text-sand-200/35"
+                >
+                  {t("session.meal")}
+                </Text>
+                <Text
+                  style={{ fontFamily: fonts.body }}
+                  className="mt-1 text-[14px] leading-6 text-forest-500 dark:text-sand-200/55"
+                >
+                  {recitation.meaning}
+                </Text>
+              </View>
+            ) : null}
+          </Animated.View>
+        </ScrollView>
+
+        <View
+          className="flex-row items-center justify-between border-t border-sand-200/70 px-6 dark:border-sand-200/10"
+          style={{
+            paddingBottom: Math.max(insets.bottom, 12) + 4,
+            paddingTop: 12,
           }}
-          hitSlop={10}
-          className="flex-row items-center gap-1 active:opacity-50"
         >
-          <Text
-            style={{ fontFamily: fonts.bodySemi }}
-            className="text-[14px] text-gold-400"
+          <Pressable
+            onPress={() => goTo(Math.max(0, stepIndex - 1))}
+            disabled={isFirst}
+            hitSlop={10}
+            className={`flex-row items-center gap-1 active:opacity-50 ${
+              isFirst ? "opacity-25" : ""
+            }`}
           >
-            {isAdvancing
-              ? t("session.skipWait")
-              : isLast
-                ? t("session.finish")
-                : t("session.next")}
-          </Text>
-          {!isLast && !isAdvancing ? (
-            <Ionicons name="chevron-forward" size={18} color="#d4a84b" />
-          ) : null}
-        </Pressable>
+            <Ionicons name="chevron-back" size={18} color={iconPrimary} />
+            <Text
+              style={{ fontFamily: fonts.body }}
+              className="text-[14px] text-forest-800/80 dark:text-sand-100/80"
+            >
+              {t("session.prev")}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              if (isAdvancing) {
+                skipCountdown();
+                return;
+              }
+              if (isLast) {
+                finishSection();
+                return;
+              }
+              goTo(stepIndex + 1);
+            }}
+            hitSlop={10}
+            className="flex-row items-center gap-1 active:opacity-50"
+          >
+            <Text
+              style={{ fontFamily: fonts.bodySemi }}
+              className="text-[14px] text-gold-500 dark:text-gold-400"
+            >
+              {isAdvancing
+                ? t("session.skipWait")
+                : isLast
+                  ? t("session.finish")
+                  : t("session.next")}
+            </Text>
+            {!isLast && !isAdvancing ? (
+              <Ionicons name="chevron-forward" size={18} color="#d4a84b" />
+            ) : null}
+          </Pressable>
+        </View>
       </View>
-    </View>
+      <PoseImageLightbox
+        visible={poseLightboxOpen}
+        source={getStepImage(step.poseId)}
+        title={text.title}
+        onClose={() => setPoseLightboxOpen(false)}
+      />
+    </>
   );
 }

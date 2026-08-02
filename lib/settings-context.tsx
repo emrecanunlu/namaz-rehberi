@@ -143,7 +143,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     if (!ready) return;
     setColorScheme(themePreference === "system" ? "system" : themePreference);
     void SystemUI.setBackgroundColorAsync(
-      resolvedTheme === "dark" ? "#0f1a15" : "#faf8f4",
+      resolvedTheme === "dark" ? "#0f1a15" : "#ebe4d4",
     );
   }, [ready, themePreference, resolvedTheme, setColorScheme]);
 

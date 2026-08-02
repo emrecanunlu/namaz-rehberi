@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import type { AudioSource } from "expo-audio";
 import { fonts } from "@/constants/fonts";
 import { getDuaAudio } from "@/data/dua-audio";
 import { t } from "@/lib/i18n";
@@ -11,14 +12,24 @@ type Props = {
   arabic: string;
   /** Kayıtlı ses için dua id (örn. "1") */
   duaId?: string;
+  /** Doğrudan ses kaynağı (namaz adımları vb.) */
+  audio?: AudioSource | null;
   /** Koyu banner üzerinde (dualar hero) */
   light?: boolean;
+  className?: string;
 };
 
-export function ArabicListenButton({ arabic, duaId, light = false }: Props) {
+export function ArabicListenButton({
+  arabic,
+  duaId,
+  audio,
+  light = false,
+  className,
+}: Props) {
   const { resolvedTheme } = useAppSettings();
   const [playing, setPlaying] = useState(false);
   const dark = resolvedTheme === "dark";
+  const resolvedAudio = audio ?? (duaId ? getDuaAudio(duaId) : undefined);
 
   useEffect(() => {
     return () => {
@@ -29,7 +40,7 @@ export function ArabicListenButton({ arabic, duaId, light = false }: Props) {
   useEffect(() => {
     void stopSpeaking();
     setPlaying(false);
-  }, [arabic, duaId]);
+  }, [arabic, duaId, audio]);
 
   const onPress = async () => {
     if (playing) {
@@ -38,8 +49,10 @@ export function ArabicListenButton({ arabic, duaId, light = false }: Props) {
       return;
     }
 
+    if (!resolvedAudio) return;
+
     await speakDua(arabic, {
-      audio: duaId ? getDuaAudio(duaId) : undefined,
+      audio: resolvedAudio,
       onStart: () => setPlaying(true),
       onDone: () => setPlaying(false),
       onStopped: () => setPlaying(false),
@@ -47,13 +60,12 @@ export function ArabicListenButton({ arabic, duaId, light = false }: Props) {
     });
   };
 
+  if (!resolvedAudio) return null;
+
   const iconColor = light || dark ? "#d4a84b" : "#1f3a2e";
   const labelColor = light
     ? "text-sand-100"
     : "text-forest-800 dark:text-gold-400";
-  const borderColor = light
-    ? "border-sand-100/35"
-    : "border-forest-700/40 dark:border-gold-400/50";
 
   return (
     <Pressable
@@ -61,7 +73,11 @@ export function ArabicListenButton({ arabic, duaId, light = false }: Props) {
       hitSlop={6}
       accessibilityRole="button"
       accessibilityLabel={playing ? t("duas.stopListen") : t("duas.listen")}
-      className={`mt-4 flex-row items-center self-start border-b pb-0.5 active:opacity-60 ${borderColor}`}
+      className={`mt-4 flex-row items-center self-start active:opacity-60 ${
+        light
+          ? ""
+          : "border-b border-forest-700/40 pb-0.5 dark:border-gold-400/50"
+      } ${className ?? ""}`}
     >
       <View className="mr-1.5">
         <Ionicons

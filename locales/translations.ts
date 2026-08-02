@@ -76,11 +76,14 @@ const tr = {
     autoImam: "Sesli kıldırıcı",
     autoImamHint: "Hoca gibi sesli yönlendirir; adım bitince geçer",
     expandHint: "Tam metin ve meal için adıma dokun",
+    poseTapHint: "Fotoğrafa dokun — büyüt",
+    poseCloseHint: "Kapatmak için dokun",
     stepsCount: "adım",
     sectionLabel: "{{section}} · {{rakat}}. rekat",
     sectionOnly: "{{section}}",
     sectionPickTitle: "Bölümler",
-    sectionPickHint: "Bir bölüme dokun; sadece o kısmın adımlarıyla kıldırıcı açılır.",
+    sectionPickHint:
+      "Bir bölüme dokun; sadece o kısmın adımlarıyla kıldırıcı açılır.",
     sectionCompleted: "Tamamlandı",
     sectionReady: "Başla",
     sectionReplay: "Tekrar kıl",
@@ -277,12 +280,20 @@ const tr = {
     intro:
       "Diğer uygulamalardan farkı: kılınış + il bazlı vakitler. Her namazı adım adım takip et.",
     guideTitle: "Namaz Nasıl Kılınır",
+    startSession: "Otomatik namaz kıldırıcı",
+    startSessionHint: "{{prayer}} — sesli adım adım kıldırıcıya geç",
+    startThis: "Bu namazı kıldır",
+    openGuide: "Rehberi aç",
   },
   duas: {
     headerTitle: "Günlük Dualar",
     todayLabel: "Bugün · {{current}}/{{total}}",
     allTitle: "Tüm günlük dualar",
     allHint: "Her gün sıradaki dua otomatik seçilir. Yarın yeni bir dua gelir.",
+    expandHint: "Detay için duaya dokun",
+    arabicLabel: "Arapça",
+    readingLabel: "Okunuş",
+    meaningLabel: "Meal",
     listen: "Dinle",
     stopListen: "Durdur",
   },
@@ -338,84 +349,86 @@ const tr = {
     "1": {
       title: "Sabah duası",
       meaning:
-        "Sabaha erdik, mülk Allah'ındır. Hamd Allah'adır. Allah'tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O'nundur, hamd O'nadır; O her şeye kadirdir. Rabbim, bu günün ve sonrasının hayrını isterim; şerrinden Sana sığınırım. Tembellikten, kötü ihtiyarlıktan, cehennem ve kabir azabından Sana sığınırım.",
+        "Sabaha erdik ve mülk Allah’ındır. Hamd Allah’adır. Allah’tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O’nundur, hamd O’nadır ve O her şeye kadirdir. Rabbim! Bu günün hayrını ve sonrasının hayrını Senden isterim; bu günün şerrinden ve sonrasının şerrinden Sana sığınırım. Rabbim! Tembellikten ve kötü ihtiyarlıktan Sana sığınırım. Rabbim! Cehennem azabından ve kabir azabından Sana sığınırım.",
       occasion: "Sabah uyanınca",
     },
     "2": {
       title: "Korunma duası",
       meaning:
-        "Yerde ve gökte O'nun ismiyle hiçbir şeyin zarar veremeyeceği Allah'ın adıyla. O işitendir, bilendir.",
+        "Yerde ve gökte O’nun ismi anıldığında hiçbir şeyin zarar veremeyeceği Allah’ın adıyla. O işitendir, bilendir.",
       occasion: "Güne başlarken",
     },
     "3": {
       title: "İstiğfar",
       meaning:
-        "Kendisinden başka ilah olmayan, diri ve kayyum olan Yüce Allah'tan bağışlanma diler ve O'na tövbe ederim.",
+        "Kendisinden başka ilah olmayan, diri ve kayyum olan yüce Allah’tan bağışlanma dilerim ve O’na tövbe ederim.",
       occasion: "Gün içinde",
     },
     "4": {
       title: "Şükür duası",
       meaning:
-        "Allah'ım, bende veya yarattıklarından herhangi birinde sabaha eren her nimet Sendendir; yalnız Sensin, ortağın yoktur. Hamd de şükür de Sanadır.",
+        "Allah’ım! Bende veya yarattıklarından herhangi birinde bu sabah bulunan her nimet Sendendir; yalnız Sensin, ortağın yoktur. Öyleyse hamd de şükür de Sanadır.",
       occasion: "Nimet görünce",
     },
     "5": {
       title: "Kolaylık duası",
       meaning:
-        "Rabbim, göğsümü aç, işimi kolaylaştır; dilimdeki düğümü çöz ki sözümü anlasınlar.",
-      occasion: "Zorluk anında",
+        "Musa dedi ki: “Rabbim! Göğsümü genişlet, işimi kolaylaştır; dilimin düğümünü çöz ki sözümü iyi anlasınlar.” (Tâhâ 20/25–28)",
+      occasion: "Zorluk anında · Tâhâ 25–28",
     },
     "6": {
       title: "Hidayet duası",
       meaning:
-        "Bizi doğru yola ilet; nimet verdiklerinin yoluna, gazaba uğrayanların ve sapmışların yoluna değil.",
-      occasion: "Her namazda",
+        "Bizi dosdoğru yola ilet; nimet verdiklerinin yoluna — gazaba uğrayanların ve sapmışların yoluna değil. (Fâtiha 1/6–7)",
+      occasion: "Her namazda · Fâtiha 6–7",
     },
     "7": {
       title: "Aile duası",
       meaning:
-        "Rabbimiz, eşlerimizi ve çocuklarımızı göz aydınlığı eyle; bizi takva sahiplerine önder kıl.",
-      occasion: "Aile için",
+        "Onlar derler ki: “Rabbimiz! Eşlerimizi ve çocuklarımızı bize göz aydınlığı kıl; bizi takva sahiplerine önder eyle.” (Furkân 25/74)",
+      occasion: "Aile için · Furkân 74",
     },
     "8": {
       title: "İlim duası",
-      meaning: "Rabbim, ilmimi artır.",
-      occasion: "Öğrenirken",
+      meaning:
+        "Gerçek hükümdar olan Allah yücedir. Kur’an sana vahyedilirken vahiy tamamlanmadan acele etme; de ki: “Rabbim! ilmimi artır.” (Tâhâ 20/114)",
+      occasion: "Öğrenirken · Tâhâ 114",
     },
     "9": {
       title: "Sıkıntı duası",
       meaning:
-        "Senden başka ilah yoktur. Seni tenzih ederim; ben zalimlerden oldum. (Yunus aleyhisselam)",
-      occasion: "Darlıkta",
+        "Zünnûn’u (Yunus’u) da an; öfkelenerek gitmiş, kendisini sıkmayacağımızı sanmıştı. Sonra karanlıklar içinde seslendi: “Senden başka ilah yoktur. Seni tenzih ederim; gerçekten ben zalimlerden oldum.” (Enbiyâ 21/87)",
+      occasion: "Darlıkta · Enbiyâ 87",
     },
     "10": {
       title: "Akşam duası",
       meaning:
-        "Akşama erdik, mülk Allah'ındır. Hamd Allah'adır. Allah'tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O'nundur, hamd O'nadır; O her şeye kadirdir. Rabbim, bu gecenin ve sonrasının hayrını isterim; şerrinden Sana sığınırım. Tembellikten, kötü ihtiyarlıktan, cehennem ve kabir azabından Sana sığınırım.",
+        "Akşama erdik ve mülk Allah’ındır. Hamd Allah’adır. Allah’tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O’nundur, hamd O’nadır ve O her şeye kadirdir. Rabbim! Bu gecenin hayrını ve sonrasının hayrını Senden isterim; bu gecenin şerrinden ve sonrasının şerrinden Sana sığınırım. Rabbim! Tembellikten ve kötü ihtiyarlıktan Sana sığınırım. Rabbim! Cehennem azabından ve kabir azabından Sana sığınırım.",
       occasion: "Akşam olunca",
     },
     "11": {
       title: "Uyku duası",
-      meaning: "Allah'ım, Senin isminle ölür ve dirilirim.",
+      meaning:
+        "Allah’ım! Senin isminle ölür (uyur) ve Senin isminle dirilirim (uyanırım).",
       occasion: "Yatmadan önce",
     },
     "12": {
       title: "Tövbe duası",
       meaning:
-        "Rabbimiz, kendimize zulmettik. Bizi bağışlamaz ve bize merhamet etmezsen hüsrana uğrayanlardan oluruz.",
-      occasion: "Tövbe için",
+        "İkisi dediler ki: “Rabbimiz! Biz kendimize zulmettik. Bizi bağışlamaz ve bize merhamet etmezsen elbette hüsrana uğrayanlardan oluruz.” (A’râf 7/23)",
+      occasion: "Tövbe için · A’râf 23",
     },
     "13": {
       title: "Rızık duası",
       meaning:
-        "Allah'ım, Senden faydalı ilim, temiz rızık ve kabul edilen amel isterim.",
+        "Allah’ım! Senden faydalı ilim, temiz rızık ve kabul edilen amel isterim.",
       occasion: "İş / geçim",
     },
     "14": {
       title: "Sabır duası",
       meaning:
-        "Rabbimiz, üzerimize sabır yağdır ve bizi Müslüman olarak vefat ettir.",
-      occasion: "Sabır gerektiğinde",
+        "“Sen bizden ancak Rabbimizin âyetleri gelince onlara iman etmemizden ötürü öç alıyorsun. Rabbimiz! Üzerimize sabır yağdır ve bizi Müslümanlar olarak vefat ettir.” (A’râf 7/126)",
+      occasion: "Sabır gerektiğinde · A’râf 126",
     },
   },
 } as const;
@@ -500,6 +513,8 @@ const en: DeepStringify<typeof tr> = {
     autoImam: "Voice guide",
     autoImamHint: "Guides you aloud like an imam; advances when a step ends",
     expandHint: "Tap a step for full text and meaning",
+    poseTapHint: "Tap photo to enlarge",
+    poseCloseHint: "Tap to close",
     stepsCount: "steps",
     sectionLabel: "{{section}} · rakah {{rakat}}",
     sectionOnly: "{{section}}",
@@ -700,6 +715,10 @@ const en: DeepStringify<typeof tr> = {
     intro:
       "Unlike other apps: how to pray plus city-based times. Follow each prayer step by step.",
     guideTitle: "How to Pray",
+    startSession: "Guided prayer session",
+    startSessionHint: "{{prayer}} — open the voice-guided session",
+    startThis: "Start this prayer",
+    openGuide: "Open guide",
   },
   duas: {
     headerTitle: "Daily Duas",
@@ -707,6 +726,10 @@ const en: DeepStringify<typeof tr> = {
     allTitle: "All daily duas",
     allHint:
       "Each day picks the next dua automatically. Tomorrow brings a new one.",
+    expandHint: "Tap a dua for details",
+    arabicLabel: "Arabic",
+    readingLabel: "Transliteration",
+    meaningLabel: "Meaning",
     listen: "Listen",
     stopListen: "Stop",
   },
@@ -783,31 +806,32 @@ const en: DeepStringify<typeof tr> = {
     "5": {
       title: "Ease dua",
       meaning:
-        "My Lord, expand my chest for me, make my affair easy, and untie the knot from my tongue so they may understand my speech.",
-      occasion: "In difficulty",
+        "Moses said: “My Lord, expand my chest for me, make my task easy, and untie the knot from my tongue so they may understand my speech.” (Ta-Ha 20:25–28)",
+      occasion: "In difficulty · Ta-Ha 25–28",
     },
     "6": {
       title: "Guidance dua",
       meaning:
-        "Guide us to the straight path — the path of those You have blessed, not of those who earned anger, nor of those who went astray.",
-      occasion: "In every prayer",
+        "Guide us to the straight path — the path of those You have blessed, not of those who earned anger, nor of those who went astray. (Al-Fatiha 1:6–7)",
+      occasion: "In every prayer · Al-Fatiha 6–7",
     },
     "7": {
       title: "Family dua",
       meaning:
-        "Our Lord, grant us comfort in our spouses and offspring, and make us leaders for the righteous.",
-      occasion: "For family",
+        "Those who say: “Our Lord, grant us comfort in our spouses and offspring, and make us leaders for the righteous.” (Al-Furqan 25:74)",
+      occasion: "For family · Al-Furqan 74",
     },
     "8": {
       title: "Knowledge dua",
-      meaning: "My Lord, increase me in knowledge.",
-      occasion: "While learning",
+      meaning:
+        "So exalted is Allah, the True King. Do not hasten with the Quran before its revelation is completed to you, and say: “My Lord, increase me in knowledge.” (Ta-Ha 20:114)",
+      occasion: "While learning · Ta-Ha 114",
     },
     "9": {
       title: "Distress dua",
       meaning:
-        "There is no god but You; glory be to You. I was among the wrongdoers. (Prophet Yunus)",
-      occasion: "In hardship",
+        "And remember the Companion of the Fish (Yunus), when he went off in anger and thought We would not decree upon him. Then he called out in the darkness: “There is no god but You; glory be to You. I was among the wrongdoers.” (Al-Anbiya 21:87)",
+      occasion: "In hardship · Al-Anbiya 87",
     },
     "10": {
       title: "Evening dua",
@@ -817,14 +841,14 @@ const en: DeepStringify<typeof tr> = {
     },
     "11": {
       title: "Sleep dua",
-      meaning: "O Allah, in Your name I die and I live.",
+      meaning: "O Allah, in Your name I die (sleep) and I live (wake).",
       occasion: "Before sleep",
     },
     "12": {
       title: "Repentance dua",
       meaning:
-        "Our Lord, we have wronged ourselves. If You do not forgive us and have mercy on us, we will surely be among the losers.",
-      occasion: "For repentance",
+        "They both said: “Our Lord, we have wronged ourselves. If You do not forgive us and have mercy on us, we will surely be among the losers.” (Al-A‘raf 7:23)",
+      occasion: "For repentance · Al-A‘raf 23",
     },
     "13": {
       title: "Provision dua",
@@ -834,8 +858,9 @@ const en: DeepStringify<typeof tr> = {
     },
     "14": {
       title: "Patience dua",
-      meaning: "Our Lord, pour upon us patience and let us die as Muslims.",
-      occasion: "When patience is needed",
+      meaning:
+        "“You take revenge on us only because we believed in the signs of our Lord when they came to us. Our Lord, pour upon us patience and let us die as Muslims.” (Al-A‘raf 7:126)",
+      occasion: "When patience is needed · Al-A‘raf 126",
     },
   },
 };

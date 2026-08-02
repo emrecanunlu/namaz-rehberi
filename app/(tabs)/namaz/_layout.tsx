@@ -1,10 +1,12 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { softNavTheme } from "@/constants/nav-theme";
+import { StackAppHeader } from "@/components/tab-hero-header";
 
 export default function NamazLayout() {
   const { locale, resolvedTheme } = useAppSettings();
+  const router = useRouter();
   const dark = resolvedTheme === "dark";
   const nav = softNavTheme(dark);
 
@@ -12,10 +14,6 @@ export default function NamazLayout() {
     <Stack
       key={`${locale}-${resolvedTheme}`}
       screenOptions={{
-        headerStyle: nav.headerStyle,
-        headerTintColor: nav.headerTintColor,
-        headerTitleStyle: nav.headerTitleStyle,
-        headerShadowVisible: nav.headerShadowVisible,
         contentStyle: { backgroundColor: nav.contentBackground },
         animation: "slide_from_right",
         animationDuration: 300,
@@ -23,12 +21,20 @@ export default function NamazLayout() {
         fullScreenGestureEnabled: true,
       }}
     >
-      <Stack.Screen name="index" options={{ title: t("prayer.guideTitle") }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen
         name="[id]"
         options={{
           title: t("prayer.guideTitle"),
-          headerBackTitle: t("common.back"),
+          header: ({ options }) => (
+            <StackAppHeader
+              title={String(options.title ?? t("prayer.guideTitle"))}
+              subtitle={t("tabs.prayer")}
+              onBack={() => {
+                if (router.canGoBack()) router.back();
+              }}
+            />
+          ),
         }}
       />
     </Stack>

@@ -37,5 +37,3 @@ export const PRAYER_POSE_IMAGES: Record<PrayerPoseId, ImageSourcePropType> = {
   kunut: require("../assets/images/prayer-steps/kunut.png"),
   selam: require("../assets/images/prayer-steps/selam.png"),
 };
-
-export const DUA_CARD_IMAGE: ImageSourcePropType = require("../assets/images/duas/card.png");

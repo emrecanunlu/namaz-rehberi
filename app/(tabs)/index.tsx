@@ -12,13 +12,21 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { IMAGES } from "@/constants/images";
+import { bannerForTheme } from "@/constants/images";
 import { getDuaText, getTodaysDua } from "@/data/content";
 import { cityDisplayName } from "@/data/cities-tr";
 import { formatDate, t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { fonts } from "@/constants/fonts";
+import {
+  heroOverlayColors,
+  pageBackground,
+  pageFadeColors,
+  themeColors,
+} from "@/constants/theme";
 import { ArabicListenButton } from "@/components/arabic-listen-button";
+import { DuaBody } from "@/components/dua-body";
+import { CityPickerSheet } from "@/components/city-picker-sheet";
 import {
   calculatePrayerTimes,
   formatTime,
@@ -38,7 +46,7 @@ const COLLAPSED_CONTENT = 64;
 /** Expanded hero (safe area hariç) — countdown + alt dissolve payı */
 const EXPANDED_CONTENT = 248;
 
-function AnimatedDigit({ digit }: { digit: string }) {
+function AnimatedDigit({ digit, color }: { digit: string; color: string }) {
   const anim = useRef(new Animated.Value(1)).current;
   const prev = useRef(digit);
 
@@ -61,7 +69,7 @@ function AnimatedDigit({ digit }: { digit: string }) {
           fontFamily: fonts.displayBold,
           fontSize: 38,
           lineHeight: 42,
-          color: "#f3efe6",
+          color,
           textAlign: "center",
           opacity: anim,
           transform: [
@@ -80,12 +88,22 @@ function AnimatedDigit({ digit }: { digit: string }) {
   );
 }
 
-function CountdownUnit({ value, label }: { value: string; label: string }) {
+function CountdownUnit({
+  value,
+  label,
+  color,
+  muted,
+}: {
+  value: string;
+  label: string;
+  color: string;
+  muted: string;
+}) {
   return (
     <View style={{ minWidth: 64, alignItems: "center" }}>
       <View style={{ flexDirection: "row" }}>
         {value.split("").map((digit, i) => (
-          <AnimatedDigit key={i} digit={digit} />
+          <AnimatedDigit key={i} digit={digit} color={color} />
         ))}
       </View>
       <Text
@@ -95,7 +113,7 @@ function CountdownUnit({ value, label }: { value: string; label: string }) {
           fontSize: 11,
           letterSpacing: 2,
           textTransform: "uppercase",
-          color: "rgba(243,239,230,0.78)",
+          color: muted,
         }}
       >
         {label}
@@ -107,6 +125,11 @@ function CountdownUnit({ value, label }: { value: string; label: string }) {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { locale, city, resolvedTheme } = useAppSettings();
+  const dark = resolvedTheme === "dark";
+  const pageBg = pageBackground(dark);
+  const pageBgFade = pageFadeColors(dark);
+  const overlay = heroOverlayColors(dark);
+  const chrome = dark ? themeColors.dark : themeColors.light;
   const dua = getTodaysDua();
   const duaText = getDuaText(dua.id);
   const dateLabel = formatDate(new Date(), locale);
@@ -114,6 +137,7 @@ export default function HomeScreen() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const fade = useRef(new Animated.Value(0)).current;
   const [now, setNow] = useState(() => new Date());
+  const [citySheetOpen, setCitySheetOpen] = useState(false);
 
   const expandedHeight = insets.top + EXPANDED_CONTENT;
   const collapseRange = EXPANDED_CONTENT - COLLAPSED_CONTENT;
@@ -201,15 +225,9 @@ export default function HomeScreen() {
       : t(`prayerTimes.${next.id}` as `prayerTimes.${PrayerSlotId}`)
     : "";
 
-  const pageBg = resolvedTheme === "dark" ? "#0f1a15" : "#faf8f4";
-  const pageBgFade =
-    resolvedTheme === "dark"
-      ? (["rgba(15,26,21,0)", "rgba(15,26,21,0.35)", "#0f1a15"] as const)
-      : (["rgba(250,248,244,0)", "rgba(250,248,244,0.35)", "#faf8f4"] as const);
-
   return (
     <View className="flex-1" style={{ backgroundColor: pageBg }}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={dark ? "light-content" : "dark-content"} />
 
       {/* Collapsing hero */}
       <Animated.View
@@ -226,16 +244,12 @@ export default function HomeScreen() {
         }}
       >
         <ImageBackground
-          source={IMAGES.homeHero}
+          source={bannerForTheme("homeHero", dark)}
           style={{ flex: 1 }}
           resizeMode="cover"
         >
           <LinearGradient
-            colors={[
-              "rgba(15,26,21,0.52)",
-              "rgba(15,26,21,0.7)",
-              "rgba(15,26,21,0.82)",
-            ]}
+            colors={[...overlay]}
             locations={[0, 0.5, 1]}
             style={{
               flex: 1,
@@ -245,13 +259,13 @@ export default function HomeScreen() {
             <LinearGradient
               pointerEvents="none"
               colors={[...pageBgFade]}
-              locations={[0, 0.55, 1]}
+              locations={[0, 0.45, 1]}
               style={{
                 position: "absolute",
                 left: 0,
                 right: 0,
                 bottom: 0,
-                height: 44,
+                height: 28,
               }}
             />
 
@@ -260,7 +274,7 @@ export default function HomeScreen() {
                 flex: 1,
                 paddingHorizontal: 20,
                 paddingTop: 4,
-                paddingBottom: 48,
+                paddingBottom: 22,
                 justifyContent: "flex-start",
                 opacity: flexibleOpacity,
               }}
@@ -271,7 +285,7 @@ export default function HomeScreen() {
                     style={{
                       fontFamily: fonts.body,
                       fontSize: 13,
-                      color: "rgba(243,239,230,0.75)",
+                      color: chrome.heroSubtitle,
                     }}
                   >
                     {t("home.nextPrayer")}
@@ -288,7 +302,7 @@ export default function HomeScreen() {
                       style={{
                         fontFamily: fonts.displayBold,
                         fontSize: 26,
-                        color: "#f3efe6",
+                        color: chrome.heroTitle,
                       }}
                     >
                       {nextLabel}
@@ -297,7 +311,7 @@ export default function HomeScreen() {
                       style={{
                         fontFamily: fonts.body,
                         fontSize: 15,
-                        color: "#d4a84b",
+                        color: chrome.heroEyebrow,
                       }}
                     >
                       {formatTime(next.at, locale)}
@@ -310,7 +324,7 @@ export default function HomeScreen() {
                       fontSize: 11,
                       letterSpacing: 2,
                       textTransform: "uppercase",
-                      color: "rgba(243,239,230,0.72)",
+                      color: chrome.heroSubtitle,
                     }}
                   >
                     {t("home.untilPrayer")}
@@ -327,12 +341,16 @@ export default function HomeScreen() {
                     <CountdownUnit
                       value={pad2(remaining.hours)}
                       label={t("home.hoursShort")}
+                      color={chrome.heroTitle}
+                      muted={chrome.heroSubtitle}
                     />
                     <Text
                       style={{
                         fontFamily: fonts.displayBold,
                         fontSize: 26,
-                        color: "rgba(243,239,230,0.35)",
+                        color: dark
+                          ? "rgba(243,239,230,0.35)"
+                          : "rgba(26,47,37,0.28)",
                         paddingBottom: 16,
                       }}
                     >
@@ -341,12 +359,16 @@ export default function HomeScreen() {
                     <CountdownUnit
                       value={pad2(remaining.minutes)}
                       label={t("home.minutesShort")}
+                      color={chrome.heroTitle}
+                      muted={chrome.heroSubtitle}
                     />
                     <Text
                       style={{
                         fontFamily: fonts.displayBold,
                         fontSize: 26,
-                        color: "rgba(243,239,230,0.35)",
+                        color: dark
+                          ? "rgba(243,239,230,0.35)"
+                          : "rgba(26,47,37,0.28)",
                         paddingBottom: 16,
                       }}
                     >
@@ -355,6 +377,8 @@ export default function HomeScreen() {
                     <CountdownUnit
                       value={pad2(remaining.seconds)}
                       label={t("home.secondsShort")}
+                      color={chrome.heroTitle}
+                      muted={chrome.heroSubtitle}
                     />
                   </View>
                 </View>
@@ -384,7 +408,7 @@ export default function HomeScreen() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(15,26,21,0.92)",
+            backgroundColor: chrome.compactBar,
             opacity: barBgOpacity,
           }}
         />
@@ -414,7 +438,7 @@ export default function HomeScreen() {
                   fontSize: 14,
                   lineHeight: 18,
                   letterSpacing: 0.15,
-                  color: "#ebe6dc",
+                  color: chrome.compactTitle,
                 }}
                 numberOfLines={1}
               >
@@ -426,7 +450,7 @@ export default function HomeScreen() {
                   fontFamily: fonts.body,
                   fontSize: 11,
                   lineHeight: 14,
-                  color: "#d4a84b",
+                  color: dark ? "#d4a84b" : chrome.compactMuted,
                   opacity: compactOpacity,
                   transform: [{ translateY: compactSlide }],
                 }}
@@ -440,7 +464,7 @@ export default function HomeScreen() {
           </View>
 
           <Pressable
-            onPress={() => router.push("/ayarlar")}
+            onPress={() => setCitySheetOpen(true)}
             hitSlop={10}
             style={{
               flexDirection: "row",
@@ -450,18 +474,27 @@ export default function HomeScreen() {
               paddingLeft: 4,
             }}
           >
-            <Ionicons name="location-outline" size={14} color="#d4a84b" />
+            <Ionicons
+              name="location-outline"
+              size={14}
+              color={dark ? "#d4a84b" : "#2a4a39"}
+            />
             <Text
               style={{
                 fontFamily: fonts.bodyMedium,
                 fontSize: 13,
-                color: "#ebe6dc",
+                color: chrome.compactTitle,
                 maxWidth: 110,
               }}
               numberOfLines={1}
             >
               {cityName}
             </Text>
+            <Ionicons
+              name="chevron-down"
+              size={12}
+              color={dark ? "rgba(212,168,75,0.85)" : "rgba(42,74,57,0.7)"}
+            />
           </Pressable>
         </View>
       </View>
@@ -490,12 +523,14 @@ export default function HomeScreen() {
               >
                 {t("home.prayerTimes")}
               </Text>
-              <Text
-                style={{ fontFamily: fonts.body }}
-                className="text-[11px] text-forest-500/70 dark:text-sand-200/45"
-              >
-                {cityName}
-              </Text>
+              <Pressable onPress={() => setCitySheetOpen(true)} hitSlop={6}>
+                <Text
+                  style={{ fontFamily: fonts.body }}
+                  className="text-[11px] text-forest-500/70 dark:text-sand-200/45"
+                >
+                  {cityName}
+                </Text>
+              </Pressable>
             </View>
 
             <View>
@@ -625,25 +660,15 @@ export default function HomeScreen() {
             >
               {duaText.title}
             </Text>
-            <Text
-              style={{ fontFamily: fonts.displayMedium }}
-              className="mt-5 text-right text-[26px] leading-10 text-forest-800 dark:text-sand-100"
-            >
-              {dua.arabic}
-            </Text>
+            <View className="mt-5">
+              <DuaBody
+                arabic={dua.arabic}
+                latin={dua.latin}
+                meaning={duaText.meaning}
+                size="lg"
+              />
+            </View>
             <ArabicListenButton arabic={dua.arabic} duaId={dua.id} />
-            <Text
-              style={{ fontFamily: fonts.body }}
-              className="mt-3 text-[15px] italic leading-6 text-forest-500 dark:text-sand-200"
-            >
-              {dua.latin}
-            </Text>
-            <Text
-              style={{ fontFamily: fonts.body }}
-              className="mt-3 text-[15px] leading-6 text-forest-800 dark:text-sand-100"
-            >
-              {duaText.meaning}
-            </Text>
 
             <Link href="/dualar" asChild>
               <Pressable className="mt-5 self-start border-b border-forest-700 pb-0.5 active:opacity-60 dark:border-gold-400">
@@ -658,6 +683,11 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
       </Animated.ScrollView>
+
+      <CityPickerSheet
+        visible={citySheetOpen}
+        onClose={() => setCitySheetOpen(false)}
+      />
     </View>
   );
 }

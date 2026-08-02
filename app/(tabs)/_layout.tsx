@@ -75,12 +75,15 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: nav.tabBarBackground,
           borderTopColor: nav.tabBarBorder,
-          borderTopWidth: 1,
+          borderTopWidth: dark ? 1 : 0,
           height: TAB_BAR_CONTENT + bottomInset,
           paddingTop: 4,
           paddingBottom: bottomInset,
-          elevation: 0,
-          shadowOpacity: 0,
+          elevation: dark ? 0 : 8,
+          shadowColor: "#1a2f25",
+          shadowOpacity: dark ? 0 : 0.08,
+          shadowRadius: 10,
+          shadowOffset: { width: 0, height: -2 },
         },
         tabBarActiveTintColor: nav.tabBarActive,
         tabBarInactiveTintColor: nav.tabBarInactive,
@@ -120,7 +123,7 @@ export default function TabsLayout() {
         name="dualar"
         options={{
           title: t("tabs.duas"),
-          headerTitle: t("duas.headerTitle"),
+          headerShown: false,
           tabBarIcon: ({ focused, color }) => (
             <TabIcon
               focused={focused}
@@ -135,7 +138,7 @@ export default function TabsLayout() {
         name="ayarlar"
         options={{
           title: t("tabs.settings"),
-          headerTitle: t("settings.title"),
+          headerShown: false,
           tabBarIcon: ({ focused, color }) => (
             <TabIcon
               focused={focused}
