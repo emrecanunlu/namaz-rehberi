@@ -2,7 +2,7 @@ import type { AudioSource } from "expo-audio";
 
 /**
  * Tüm günlük duaların yerel sesleri.
- * Kur’an ayetleri (5–9, 12, 14): Mishary Alafasy — EveryAyah
+ * Kur’an ayetleri (5–9, 12, 14–19): Mishary Alafasy — EveryAyah
  * Ezkar (1–4, 10, 11, 13): gömülü stüdyo Arapça MP3
  */
 export const DUA_AUDIO: Record<string, AudioSource> = {
@@ -20,6 +20,11 @@ export const DUA_AUDIO: Record<string, AudioSource> = {
   "12": require("../assets/audio/duas/12.mp3"),
   "13": require("../assets/audio/duas/13.mp3"),
   "14": require("../assets/audio/duas/14.mp3"),
+  "15": require("../assets/audio/duas/15.mp3"),
+  "16": require("../assets/audio/duas/16.mp3"),
+  "17": require("../assets/audio/duas/17.mp3"),
+  "18": require("../assets/audio/duas/18.mp3"),
+  "19": require("../assets/audio/duas/19.mp3"),
 };
 
 export function getDuaAudio(id: string): AudioSource | undefined {

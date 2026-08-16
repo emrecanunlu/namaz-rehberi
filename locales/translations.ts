@@ -1,7 +1,7 @@
 export type Locale = "tr" | "en";
 
 const tr = {
-  appName: "Namaz Rehberi",
+  appName: "Namaz Rehberim",
   tabs: {
     today: "Bugün",
     prayer: "Namaz",
@@ -24,7 +24,7 @@ const tr = {
     slides: {
       welcome: {
         accent: "Hoş geldin",
-        title: "Namaz Rehberi'ne hoş geldin",
+        title: "Namaz Rehberim'e hoş geldin",
         description:
           "Bu uygulama vakit hatırlatmaz. Amacı, namazı adım adım öğrenmen ve her gün yeni bir dua ile tanışman.",
       },
@@ -277,7 +277,7 @@ const tr = {
     locationDenied: "Konum izni yok. Varsayılan veya seçtiğin il kullanılıyor.",
     about: "Hakkında",
     aboutText:
-      "Namaz Rehberi — adım adım kılınış, günlük dua ve il bazlı namaz vakitleri.",
+      "Namaz Rehberim — adım adım kılınış, günlük dua ve il bazlı namaz vakitleri.",
     report: "Namaz raporu",
     reportHint: "Günlük tamamlanan namaz ve rekatlar",
   },
@@ -326,7 +326,7 @@ const tr = {
     preparingShare: "Görsel hazırlanıyor…",
     shareUnavailable: "Bu cihazda paylaşım kullanılamıyor.",
     shareError: "Rapor görseli hazırlanamadı. Lütfen tekrar dene.",
-    shareBrand: "Namaz Rehberi",
+    shareBrand: "Namaz Rehberim",
     shareDaily: "Günlük rapor",
     shareWeekly: "Haftalık rapor",
     shareMonthly: "Aylık rapor",
@@ -416,6 +416,37 @@ const tr = {
     },
   },
   duaItems: {
+    "15": {
+      title: "Âyetel Kürsî",
+      meaning:
+        "Allah, O’ndan başka ilâh yoktur; diridir, her şeyin varlığı O’na bağlı ve dayalıdır. Ne uykusu gelir ne de uyur. Göklerde ve yerde ne varsa hepsi O’nundur. O’nun izni olmadıkça katında hiçbir kimse şefaat edemez. Onların önlerinde ve arkalarında olanları O bilir. O’nun ilminden hiçbir şeyi — dilediği müstesna — kimse bilgisi içine sığdıramaz. O’nun kürsüsü gökleri ve yeri içine almıştır. Onları korumak kendisine zor gelmez. O yücedir, mutlak büyüktür. (Bakara 2/255)",
+      occasion: "Korunma ve zikir için · Bakara 255",
+    },
+    "16": {
+      title: "İhlâs Suresi",
+      meaning:
+        "De ki: “O, Allah’tır, tektir. Allah Samed’dir. O doğurmamış ve doğmamıştır. O’nun hiçbir dengi yoktur.” (İhlâs 112/1–4)",
+      occasion: "Tevhid ve zikir için · İhlâs 1–4",
+    },
+    "17": {
+      title: "Felak Suresi",
+      meaning:
+        "De ki: “Yarattığı şeylerin kötülüğünden, karanlığı çöktüğü zaman gecenin kötülüğünden, düğümlere üfleyenlerin kötülüğünden, haset ettiği zaman hasetçinin kötülüğünden sabah aydınlığının Rabbine sığınırım.” (Felak 113/1–5)",
+      occasion: "Kötülüklerden Allah’a sığınmak için · Felak 1–5",
+    },
+    "18": {
+      title: "Nâs Suresi",
+      meaning:
+        "De ki: “Cinlerden ve insanlardan; insanların kalplerine vesvese veren sinsi vesvesecinin kötülüğünden, insanların Rabbine, insanların Melik’ine, insanların İlâh’ına sığınırım.” (Nâs 114/1–6)",
+      occasion: "Vesveseden Allah’a sığınmak için · Nâs 1–6",
+    },
+    "19": {
+      title: "Kalem 51–52 (Nazar ayetleri)",
+      meaning:
+        "O inkârcılar Kur’an’ı işittikleri zaman, seni gözleriyle devireceklermiş gibi bakar, “Şüphe yok, o bir delidir” derler. Oysa Kur’an, âlemler için öğütten başka bir şey değildir. (Kalem 68/51–52)",
+      occasion:
+        "Halk arasında nazar ayetleri olarak bilinir · Kalem 51–52",
+    },
     "1": {
       title: "Sabah duası",
       meaning:
@@ -508,7 +539,7 @@ type DeepStringify<T> = {
 };
 
 const en: DeepStringify<typeof tr> = {
-  appName: "Prayer Guide",
+  appName: "My Prayer Guide",
   tabs: {
     today: "Today",
     prayer: "Prayer",
@@ -531,7 +562,7 @@ const en: DeepStringify<typeof tr> = {
     slides: {
       welcome: {
         accent: "Welcome",
-        title: "Welcome to Prayer Guide",
+        title: "Welcome to My Prayer Guide",
         description:
           "This app does not track prayer times. It helps you learn how to pray step by step and meet a new dua every day.",
       },
@@ -782,7 +813,7 @@ const en: DeepStringify<typeof tr> = {
       "Location permission denied. Using the default or selected city.",
     about: "About",
     aboutText:
-      "Prayer Guide — step-by-step prayer, daily dua, and city-based prayer times.",
+      "My Prayer Guide — step-by-step prayer, daily dua, and city-based prayer times.",
     report: "Prayer report",
     reportHint: "Daily completed prayers and rakahs",
   },
@@ -831,7 +862,7 @@ const en: DeepStringify<typeof tr> = {
     preparingShare: "Preparing image…",
     shareUnavailable: "Sharing is not available on this device.",
     shareError: "The report image could not be created. Please try again.",
-    shareBrand: "Prayer Guide",
+    shareBrand: "My Prayer Guide",
     shareDaily: "Daily report",
     shareWeekly: "Weekly report",
     shareMonthly: "Monthly report",
@@ -919,6 +950,37 @@ const en: DeepStringify<typeof tr> = {
     },
   },
   duaItems: {
+    "15": {
+      title: "Ayat al-Kursi",
+      meaning:
+        "Allah—there is no god except Him—is the Ever-Living, the Sustainer of all. Neither drowsiness nor sleep overtakes Him. To Him belongs all that is in the heavens and on earth. Who could intercede with Him without His permission? He knows what is before them and what is behind them, while they encompass nothing of His knowledge except what He wills. His Throne extends over the heavens and the earth, and preserving them does not tire Him. He is the Most High, the Magnificent. (Al-Baqarah 2:255)",
+      occasion: "For protection and remembrance · Al-Baqarah 255",
+    },
+    "16": {
+      title: "Surah Al-Ikhlas",
+      meaning:
+        "Say: “He is Allah, the One; Allah, the Eternal Refuge. He neither begets nor is born, and there is none comparable to Him.” (Al-Ikhlas 112:1–4)",
+      occasion: "For affirmation of faith and remembrance · Al-Ikhlas 1–4",
+    },
+    "17": {
+      title: "Surah Al-Falaq",
+      meaning:
+        "Say: “I seek refuge in the Lord of daybreak from the evil of what He has created, from the evil of the night when it grows dark, from the evil of those who blow on knots, and from the evil of an envier when they envy.” (Al-Falaq 113:1–5)",
+      occasion: "Seeking Allah’s refuge from evil · Al-Falaq 1–5",
+    },
+    "18": {
+      title: "Surah An-Nas",
+      meaning:
+        "Say: “I seek refuge in the Lord of humankind, the Sovereign of humankind, the God of humankind, from the evil of the retreating whisperer who whispers into the hearts of humankind—from among jinn and humankind.” (An-Nas 114:1–6)",
+      occasion: "Seeking Allah’s refuge from whispers · An-Nas 1–6",
+    },
+    "19": {
+      title: "Al-Qalam 51–52 (commonly called the evil-eye verses)",
+      meaning:
+        "The disbelievers almost strike you down with their looks when they hear the Reminder, and they say, “He is certainly mad.” Yet it is only a reminder to all worlds. (Al-Qalam 68:51–52)",
+      occasion:
+        "Commonly known as the evil-eye verses · Al-Qalam 51–52",
+    },
     "1": {
       title: "Morning dua",
       meaning:

@@ -19,14 +19,16 @@ import {
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  type ViewStyle,
 } from "react-native";
 import * as Sharing from "expo-sharing";
 import Animated, {
   Easing,
   FadeIn,
-  FadeInDown,
   runOnJS,
   useAnimatedProps,
+  useAnimatedRef,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -129,6 +131,32 @@ function legendSwatch(level: number, dark: boolean) {
 
 function monthKeyOf(date: Date) {
   return `${date.getFullYear()}-${date.getMonth()}`;
+}
+
+/** Bir ayın özeti — her sayfa kendi değerlerini taşısın diye ayrı tutulur */
+function statsForMonth(days: DaySnapshot[], today: Date) {
+  const elapsed = days.filter((day) => day.date.getTime() <= today.getTime());
+  const fullDays = elapsed.filter(
+    (day) => day.completed === TOTAL_PRAYERS,
+  ).length;
+
+  let best = 0;
+  let running = 0;
+  for (const day of elapsed) {
+    if (day.completed === TOTAL_PRAYERS) {
+      running += 1;
+      best = Math.max(best, running);
+    } else {
+      running = 0;
+    }
+  }
+
+  const completed = days.reduce((sum, day) => sum + day.completed, 0);
+  const target = elapsed.length * TOTAL_PRAYERS;
+  const consistency =
+    target === 0 ? 0 : Math.round((completed / target) * 100);
+
+  return { fullDays, bestStreak: best, consistency };
 }
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -938,6 +966,73 @@ function ShareReportCard({
 }
 
 /** Karuselin tek bir sayfası — başlık, gün ızgarası ve yoğunluk göstergesi */
+const MonthStatsRow = memo(function MonthStatsRow({
+  stats,
+  cardStyle,
+  colors,
+  tint,
+}: {
+  stats: ReturnType<typeof statsForMonth> | null;
+  cardStyle: ViewStyle[];
+  colors: ThemeChrome;
+  tint: string;
+}) {
+  if (!stats) return <View style={{ height: 112 }} />;
+
+  const cards = [
+    {
+      icon: "calendar-clear" as const,
+      value: `${stats.fullDays}`,
+      label: t("report.fullDays"),
+    },
+    {
+      icon: "flame" as const,
+      value: `${stats.bestStreak}`,
+      label: t("report.bestStreak"),
+    },
+    {
+      icon: "trending-up" as const,
+      value: `%${stats.consistency}`,
+      label: t("report.consistency"),
+    },
+  ];
+
+  return (
+    <View style={{ flexDirection: "row", gap: 12 }}>
+      {cards.map((card) => (
+        <View
+          key={card.label}
+          style={[...cardStyle, { flex: 1, minHeight: 112, padding: 14 }]}
+        >
+          <Ionicons name={card.icon} size={20} color={tint} />
+          <Text
+            style={{
+              marginTop: 10,
+              fontFamily: fonts.displayBold,
+              fontSize: 24,
+              lineHeight: 30,
+              height: 30,
+              color: colors.compactTitle,
+            }}
+          >
+            {card.value}
+          </Text>
+          <Text
+            style={{
+              marginTop: 2,
+              fontFamily: fonts.bodyMedium,
+              fontSize: 11,
+              color: colors.compactMuted,
+            }}
+          >
+            {card.label}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+});
+
 const MonthCalendarCard = memo(function MonthCalendarCard({
   days,
   monthDate,
@@ -1235,6 +1330,9 @@ export default function PrayerTrackingScreen() {
   const indicator = useSharedValue(0);
   // Uzak aylara atlarken şeridi kısaca soldurmak için
   const jump = useSharedValue(1);
+  // Takvim ve özet şeridi aynı kaydırma konumundan sürülür
+  const scrollX = useSharedValue(0);
+  const liveIndex = useSharedValue(MONTH_WINDOW - 1);
 
   const week = useMemo<DaySnapshot[]>(
     () =>
@@ -1299,7 +1397,7 @@ export default function PrayerTrackingScreen() {
   // Yalnızca görünen sayfa ve iki komşusu hesaplanır
   const visibleMonths = useMemo(() => {
     const map = new Map<number, DaySnapshot[]>();
-    for (const offset of [-2, -1, 0, 1, 2]) {
+    for (const offset of [-3, -2, -1, 0, 1, 2, 3]) {
       const index = monthIndex + offset;
       if (index < 0 || index >= monthPages.length) continue;
       map.set(index, buildMonth(monthPages[index]));
@@ -1324,14 +1422,12 @@ export default function PrayerTrackingScreen() {
   // İlk kare ölçülene kadar ekran genişliğinden tahmin et ki sayfalar hizalı doğsun
   const cardWidth = pageWidth || Math.max(0, screenWidth - 40);
   const pageStep = cardWidth + MONTH_GAP;
-  const activeMonthKey = monthKeyOf(monthPages[monthIndex]);
-
   /**
    * Karusel platformun kendi yatay kaydırmasıyla sürülür.
    * Sekme değişiminde bölüm unmount olduğu için özel bir hareket
    * algılayıcısı kopuk kalıyordu; native kaydırma her mount'ta taze kurulur.
    */
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
   const scrollToIndex = useCallback(
     (index: number, animated: boolean) => {
@@ -1342,6 +1438,8 @@ export default function PrayerTrackingScreen() {
 
   const monthIndexRef = useRef(monthIndex);
   monthIndexRef.current = monthIndex;
+  // Titreşim yalnızca ay gerçekten değişince çalsın
+  const hapticIndexRef = useRef(monthIndex);
 
   // Bölüme her dönüşte şerit aktif aya hizalanır; hizalanana dek görünmez kalır
   useEffect(() => {
@@ -1349,37 +1447,55 @@ export default function PrayerTrackingScreen() {
     jump.value = 0;
     const id = requestAnimationFrame(() => {
       scrollToIndex(monthIndexRef.current, false);
+      scrollX.value = monthIndexRef.current * pageStep;
+      liveIndex.value = monthIndexRef.current;
       jump.value = withTiming(1, { duration: 180, easing: EASE });
     });
     return () => cancelAnimationFrame(id);
-  }, [jump, period, scrollToIndex]);
+  }, [jump, liveIndex, pageStep, period, scrollToIndex, scrollX]);
+
+  // Kaydırma sürerken sayfa değişimini anında yansıt; veriler geride kalmasın
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+      if (pageStep <= 0) return;
+      const raw = Math.round(event.contentOffset.x / pageStep);
+      const next = Math.max(0, Math.min(MONTH_WINDOW - 1, raw));
+      if (next !== liveIndex.value) {
+        liveIndex.value = next;
+        runOnJS(setMonthIndex)(next);
+      }
+    },
+  });
 
   const handleMomentumEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (pageStep <= 0) return;
       const raw = Math.round(event.nativeEvent.contentOffset.x / pageStep);
       const next = Math.max(0, Math.min(MONTH_WINDOW - 1, raw));
-      setMonthIndex((prev) => {
-        if (prev === next) return prev;
+      setMonthIndex(next);
+      if (next !== hapticIndexRef.current) {
+        hapticIndexRef.current = next;
         hapticSelection();
-        return next;
-      });
+      }
     },
     [pageStep],
   );
 
   const stepToMonth = useCallback(
     (delta: number) => {
-      const next = Math.max(
-        0,
-        Math.min(MONTH_WINDOW - 1, monthIndex + delta),
-      );
-      if (next === monthIndex) return;
+      // Referanstan okunur ki ok düğmeleri her ay değişiminde yeniden doğmasın
+      const current = monthIndexRef.current;
+      const next = Math.max(0, Math.min(MONTH_WINDOW - 1, current + delta));
+      if (next === current) return;
       hapticSelection();
+      hapticIndexRef.current = next;
+      monthIndexRef.current = next;
+      liveIndex.value = next;
       setMonthIndex(next);
       scrollToIndex(next, true);
     },
-    [monthIndex, scrollToIndex],
+    [liveIndex, scrollToIndex],
   );
 
   const goPrevMonth = useCallback(() => stepToMonth(-1), [stepToMonth]);
@@ -1388,10 +1504,14 @@ export default function PrayerTrackingScreen() {
   const applyJump = useCallback(
     (target: number) => {
       setMonthIndex(target);
+      hapticIndexRef.current = target;
+      monthIndexRef.current = target;
+      liveIndex.value = target;
+      scrollX.value = target * pageStep;
       scrollToIndex(target, false);
       jump.value = withTiming(1, { duration: 240, easing: EASE });
     },
-    [jump, scrollToIndex],
+    [jump, liveIndex, pageStep, scrollToIndex, scrollX],
   );
 
   /** Uzak aylara atlama — aradaki sayfaları taramak yerine yumuşak geçiş */
@@ -1437,6 +1557,10 @@ export default function PrayerTrackingScreen() {
   const showOldestJump = oldestIndex !== null && monthIndex > oldestIndex;
 
   const trackStyle = useAnimatedStyle(() => ({ opacity: jump.value }));
+  const statsTrackStyle = useAnimatedStyle(() => ({
+    opacity: jump.value,
+    transform: [{ translateX: -scrollX.value }],
+  }));
 
   const weekdayLabels = useMemo(() => {
     // 2024-01-01 pazartesi — kısa gün adlarını yerelden üret
@@ -1448,36 +1572,6 @@ export default function PrayerTrackingScreen() {
         .slice(0, 2),
     );
   }, [locale]);
-
-  const monthStats = useMemo(() => {
-    const elapsed = month.filter(
-      (day) => day.date.getTime() <= today.getTime(),
-    );
-    const fullDays = elapsed.filter(
-      (day) => day.completed === TOTAL_PRAYERS,
-    ).length;
-
-    let best = 0;
-    let running = 0;
-    for (const day of elapsed) {
-      if (day.completed === TOTAL_PRAYERS) {
-        running += 1;
-        best = Math.max(best, running);
-      } else {
-        running = 0;
-      }
-    }
-
-    const target = elapsed.length * TOTAL_PRAYERS;
-    const consistency =
-      target === 0 ? 0 : Math.round((monthCompleted / target) * 100);
-
-    return {
-      fullDays,
-      bestStreak: best,
-      consistency,
-    };
-  }, [month, monthCompleted, today.getTime()]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: indicator.value }],
@@ -1958,15 +2052,16 @@ export default function PrayerTrackingScreen() {
               trackStyle,
             ]}
           >
-            <ScrollView
+            <Animated.ScrollView
               ref={scrollRef}
               horizontal
               showsHorizontalScrollIndicator={false}
               decelerationRate="fast"
               snapToInterval={pageStep}
               snapToAlignment="start"
-              disableIntervalMomentum
               directionalLockEnabled
+              scrollEventThrottle={16}
+              onScroll={scrollHandler}
               onMomentumScrollEnd={handleMomentumEnd}
               contentContainerStyle={{ alignItems: "flex-start" }}
             >
@@ -2005,59 +2100,32 @@ export default function PrayerTrackingScreen() {
                   </View>
                 );
               })}
-            </ScrollView>
+            </Animated.ScrollView>
           </Animated.View>
 
-          <View style={{ marginTop: 14, flexDirection: "row", gap: 12 }}>
-            {[
-              {
-                icon: "calendar-clear" as const,
-                value: `${monthStats.fullDays}`,
-                label: t("report.fullDays"),
-              },
-              {
-                icon: "flame" as const,
-                value: `${monthStats.bestStreak}`,
-                label: t("report.bestStreak"),
-              },
-              {
-                icon: "trending-up" as const,
-                value: `%${monthStats.consistency}`,
-                label: t("report.consistency"),
-              },
-            ].map((stat) => (
-              <View
-                key={stat.label}
-                style={[...cardStyle, { flex: 1, minHeight: 112, padding: 14 }]}
-              >
-                <Ionicons name={stat.icon} size={20} color={tint} />
-                {/* Ay değişince yalnızca değer yenilenir, kart yerinde kalır */}
-                <Animated.Text
-                  key={`${activeMonthKey}-${stat.label}`}
-                  entering={FadeInDown.duration(280)}
-                  style={{
-                    marginTop: 10,
-                    fontFamily: fonts.displayBold,
-                    fontSize: 24,
-                    lineHeight: 30,
-                    height: 30,
-                    color: colors.compactTitle,
-                  }}
-                >
-                  {stat.value}
-                </Animated.Text>
-                <Text
-                  style={{
-                    marginTop: 2,
-                    fontFamily: fonts.bodyMedium,
-                    fontSize: 11,
-                    color: colors.compactMuted,
-                  }}
-                >
-                  {stat.label}
-                </Text>
-              </View>
-            ))}
+          {/* Özet şeridi takvimle aynı kaydırma konumundan sürülür */}
+          <View style={{ marginTop: 14, overflow: "hidden" }}>
+            <Animated.View style={[{ flexDirection: "row" }, statsTrackStyle]}>
+              {monthPages.map((pageMonth, index) => {
+                const days = visibleMonths.get(index);
+                return (
+                  <View
+                    key={monthKeyOf(pageMonth)}
+                    style={{
+                      width: cardWidth,
+                      marginRight: index === MONTH_WINDOW - 1 ? 0 : MONTH_GAP,
+                    }}
+                  >
+                    <MonthStatsRow
+                      stats={days ? statsForMonth(days, today) : null}
+                      cardStyle={cardStyle}
+                      colors={colors}
+                      tint={tint}
+                    />
+                  </View>
+                );
+              })}
+            </Animated.View>
           </View>
         </Animated.View>
       ) : null}

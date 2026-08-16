@@ -1,5 +1,5 @@
 {
-  "name": "namaz-rehberi",
+  "name": "namaz-rehberim",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
@@ -43,6 +43,9 @@
     "@types/adhan": "^3.0.1",
     "@types/react": "~19.1.10",
     "babel-preset-expo": "~54.0.10",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~10.0.0",
+    "pngjs": "^7.0.0",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.19",
     "typescript": "~5.9.2"
@@ -56,7 +59,9 @@
     "build:dev:ios": "eas build --profile development --platform ios",
     "build:dev:android": "eas build --profile development --platform android",
     "build:device:ios": "eas build --profile development-device --platform ios",
-    "build:preview:android": "eas build --profile preview --platform android"
+    "build:preview:android": "eas build --profile preview --platform android",
+    "lint": "expo lint",
+    "brand:assets": "node scripts/build-brand-assets.mjs"
   },
   "private": true
 }

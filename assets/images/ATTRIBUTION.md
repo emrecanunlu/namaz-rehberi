@@ -15,7 +15,7 @@ Unsplash License: https://unsplash.com/license
 
 ## Prayer step art (original — no third-party stock)
 
-All files under `prayer-steps/` were created specifically for Namaz Rehberi
+All files under `prayer-steps/` were created specifically for Namaz Rehberim
 as photorealistic pose illustrations. No stock photography for step art.
 
 | Path                         | Purpose                    |
@@ -31,7 +31,7 @@ as photorealistic pose illustrations. No stock photography for step art.
 | `prayer-steps/kunut.png`     | Qunut / hands raised       |
 | `prayer-steps/selam.png`     | Salam                      |
 
-Copyright: Namaz Rehberi project. Free to use within this app.
+Copyright: Namaz Rehberim project. Free to use within this app.
 
 ## Dua audio
 

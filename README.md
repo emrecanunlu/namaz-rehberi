@@ -1,4 +1,4 @@
-# Namaz Rehberi
+# Namaz Rehberim
 
 Expo + React Native + NativeWind mobil uygulaması.
 

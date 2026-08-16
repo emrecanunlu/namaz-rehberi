@@ -15,6 +15,11 @@ Kaynak: https://everyayah.com/data/Alafasy_128kbps/
 | `9.mp3`  | Sıkıntı  | Enbiya 21:87           |
 | `12.mp3` | Tövbe    | Araf 7:23              |
 | `14.mp3` | Sabır    | Araf 7:126             |
+| `15.mp3` | Âyetel Kürsî | Bakara 2:255        |
+| `16.mp3` | İhlâs    | İhlâs 112:1–4          |
+| `17.mp3` | Felak    | Felak 113:1–5          |
+| `18.mp3` | Nâs      | Nâs 114:1–6            |
+| `19.mp3` | Nazar ayetleri | Kalem 68:51–52    |
 
 ## Sünnet ezkar — henüz kari değil
 
