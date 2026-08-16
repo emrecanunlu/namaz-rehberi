@@ -4,7 +4,6 @@ import { PRAYER_TEXTS } from "@/data/prayer-texts";
 export type PrayerSectionKind = "sunnah" | "fard" | "lastSunnah" | "witr";
 
 export type PrayerVoiceId =
-  | "niyet"
   | "tekbir"
   | "subhaneke"
   | "fatiha"
@@ -48,8 +47,6 @@ function step(
 function niyet(section: PrayerSectionKind): PrayerStep {
   return step("niyet", section, {
     cueKey: "niyet",
-    arabic: latin("niyet"),
-    voiceId: "niyet",
   });
 }
 

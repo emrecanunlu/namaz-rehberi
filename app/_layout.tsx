@@ -3,7 +3,12 @@ import "react-native-gesture-handler";
 import { useEffect, useMemo } from "react";
 import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Stack, ThemeProvider, DarkTheme, DefaultTheme } from "expo-router";
+import { Stack } from "expo-router";
+import {
+  ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+} from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -12,6 +17,7 @@ import {
   useOnboarding,
 } from "@/lib/onboarding-context";
 import { AppSettingsProvider, useAppSettings } from "@/lib/settings-context";
+import { PrayerLogProvider } from "@/lib/prayer-log-context";
 import { fontAssets } from "@/constants/fonts";
 import { pageBackground } from "@/constants/theme";
 
@@ -92,7 +98,9 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppSettingsProvider>
         <OnboardingProvider>
-          <RootNavigator />
+          <PrayerLogProvider>
+            <RootNavigator />
+          </PrayerLogProvider>
         </OnboardingProvider>
       </AppSettingsProvider>
     </GestureHandlerRootView>

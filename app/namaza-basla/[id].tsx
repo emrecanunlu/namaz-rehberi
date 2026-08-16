@@ -28,13 +28,21 @@ import {
 } from "@/data/content";
 import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
+import { usePrayerLog } from "@/lib/prayer-log-context";
 import { fonts } from "@/constants/fonts";
 import { pageBackground } from "@/constants/theme";
 import { PoseImageLightbox } from "@/components/pose-image-lightbox";
-import { speakPrayerStep, stopPrayerVoice } from "@/lib/prayer-voice";
-
-/** Ses bitince sonraki adıma geçmeden önce gösterilen süre */
-const ADVANCE_MS = 3200;
+import {
+  speakPrayerStep,
+  stopPrayerVoice,
+  getAdvanceDelayMs,
+} from "@/lib/prayer-voice";
+import {
+  hapticLight,
+  hapticMedium,
+  hapticSelection,
+  hapticSuccess,
+} from "@/lib/haptics";
 
 const SURAH_VOICE_IDS: PrayerVoiceId[] = ["fatiha", "ihlas"];
 
@@ -51,6 +59,7 @@ export default function StartPrayerSessionScreen() {
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const { locale, autoImam, setAutoImam, resolvedTheme } = useAppSettings();
+  const { isSectionDoneToday, markSectionGuided, todayKey } = usePrayerLog();
   const dark = resolvedTheme === "dark";
   const pageBg = pageBackground(dark);
   const iconPrimary = dark ? "#f3efe6" : "#1a2f25";
@@ -127,12 +136,26 @@ export default function StartPrayerSessionScreen() {
     setPhase("hub");
   }, [clearAdvanceTimer]);
 
+  // Kalıcı kayıt: bugün tamamlanan bölümleri hub’da göster
+  useEffect(() => {
+    if (!prayer) return;
+    const next: Partial<Record<PrayerSectionKind, boolean>> = {};
+    for (const item of sectionSummaries) {
+      if (isSectionDoneToday(prayer.id, item.section)) {
+        next[item.section] = true;
+      }
+    }
+    setCompleted(next);
+  }, [prayer, sectionSummaries, isSectionDoneToday, todayKey]);
+
   const finishSection = useCallback(() => {
-    if (activeSection) {
+    if (activeSection && prayer) {
       setCompleted((prev) => ({ ...prev, [activeSection]: true }));
+      void markSectionGuided(prayer.id, activeSection);
+      hapticSuccess();
     }
     returnToHub();
-  }, [activeSection, returnToHub]);
+  }, [activeSection, prayer, markSectionGuided, returnToHub]);
 
   const animateStepIn = useCallback(() => {
     fadeAnim.setValue(0);
@@ -173,12 +196,15 @@ export default function StartPrayerSessionScreen() {
 
   const scheduleAdvance = useCallback(
     (fromIndex: number) => {
+      const fromStep = steps[fromIndex];
+      const delayMs = fromStep ? getAdvanceDelayMs(fromStep) : 1100;
+
       clearAdvanceTimer();
       setIsAdvancing(true);
       advanceBar.setValue(0);
       advanceBarAnimRef.current = Animated.timing(advanceBar, {
         toValue: 1,
-        duration: ADVANCE_MS,
+        duration: delayMs,
         easing: Easing.linear,
         useNativeDriver: false,
       });
@@ -196,9 +222,9 @@ export default function StartPrayerSessionScreen() {
           return;
         }
         goTo(fromIndex + 1);
-      }, ADVANCE_MS);
+      }, delayMs);
     },
-    [clearAdvanceTimer, finishSection, goTo, steps.length, advanceBar],
+    [clearAdvanceTimer, finishSection, goTo, steps, advanceBar],
   );
 
   const skipCountdown = useCallback(() => {
@@ -206,6 +232,7 @@ export default function StartPrayerSessionScreen() {
     const current = stepIndexRef.current;
     const atEnd = current >= steps.length - 1;
     clearAdvanceTimer();
+    hapticLight();
     if (atEnd) {
       finishSection();
       return;
@@ -228,7 +255,7 @@ export default function StartPrayerSessionScreen() {
   }, [phase, steps.length, stepIndex, progressAnim]);
 
   useEffect(() => {
-    if (phase !== "active" || !autoImam || steps.length === 0) {
+    if (phase !== "active" || !autoImam || steps.length === 0 || !prayer) {
       void stopPrayerVoice();
       clearAdvanceTimer();
       return;
@@ -239,8 +266,18 @@ export default function StartPrayerSessionScreen() {
 
     let active = true;
     const current = stepIndex;
+    // Arapça kaydı olan adımlarda kıraat zaten yönlendirme yerine geçiyor;
+    // sadece sessiz adımlarda (niyet, oturuş) seçili dilde cümle okunur.
+    const guidanceText =
+      step.poseId === "niyet"
+        ? resolvePrayerStep(prayer.id, step).detail
+        : !step.voiceId && step.cueKey
+          ? t(`session.cues.${step.cueKey}`)
+          : undefined;
 
     void speakPrayerStep(step, {
+      guidanceText,
+      locale,
       onDone: () => {
         if (!active) return;
         scheduleAdvance(current);
@@ -252,7 +289,16 @@ export default function StartPrayerSessionScreen() {
       clearAdvanceTimer();
       void stopPrayerVoice();
     };
-  }, [phase, steps, stepIndex, autoImam, scheduleAdvance, clearAdvanceTimer]);
+  }, [
+    phase,
+    steps,
+    stepIndex,
+    autoImam,
+    prayer,
+    locale,
+    scheduleAdvance,
+    clearAdvanceTimer,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -265,6 +311,7 @@ export default function StartPrayerSessionScreen() {
     (section: PrayerSectionKind) => {
       clearAdvanceTimer();
       void stopPrayerVoice();
+      hapticMedium();
       setActiveSection(section);
       stepIndexRef.current = 0;
       setStepIndex(0);
@@ -457,7 +504,10 @@ export default function StartPrayerSessionScreen() {
             </View>
             <Switch
               value={autoImam}
-              onValueChange={(v) => void setAutoImam(v)}
+              onValueChange={(v) => {
+                hapticSelection();
+                void setAutoImam(v);
+              }}
               trackColor={switchTrack}
               thumbColor={switchThumb}
             />
@@ -494,6 +544,24 @@ export default function StartPrayerSessionScreen() {
 
   const total = steps.length;
   const step = steps[stepIndex];
+  if (!step) {
+    return (
+      <View
+        className="flex-1 items-center justify-center px-6"
+        style={{ backgroundColor: pageBg }}
+      >
+        <StatusBar barStyle={dark ? "light-content" : "dark-content"} />
+        <Pressable onPress={returnToHub} className="active:opacity-70">
+          <Text
+            style={{ fontFamily: fonts.bodySemi }}
+            className="text-gold-500 dark:text-gold-400"
+          >
+            {t("session.backToSections")}
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
   const text = resolvePrayerStep(prayer.id, step);
   const recitation = getStepRecitation(step.voiceId);
   const isFirst = stepIndex === 0;
@@ -606,7 +674,10 @@ export default function StartPrayerSessionScreen() {
             </Text>
             <Switch
               value={autoImam}
-              onValueChange={(v) => void setAutoImam(v)}
+              onValueChange={(v) => {
+                hapticSelection();
+                void setAutoImam(v);
+              }}
               trackColor={switchTrack}
               thumbColor={switchThumb}
               style={{ transform: [{ scaleX: 0.82 }, { scaleY: 0.82 }] }}
@@ -722,7 +793,10 @@ export default function StartPrayerSessionScreen() {
           }}
         >
           <Pressable
-            onPress={() => goTo(Math.max(0, stepIndex - 1))}
+            onPress={() => {
+              hapticSelection();
+              goTo(Math.max(0, stepIndex - 1));
+            }}
             disabled={isFirst}
             hitSlop={10}
             className={`flex-row items-center gap-1 active:opacity-50 ${
@@ -748,6 +822,7 @@ export default function StartPrayerSessionScreen() {
                 finishSection();
                 return;
               }
+              hapticSelection();
               goTo(stepIndex + 1);
             }}
             hitSlop={10}

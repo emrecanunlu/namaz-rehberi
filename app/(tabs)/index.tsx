@@ -13,7 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { bannerForTheme } from "@/constants/images";
-import { getDuaText, getTodaysDua } from "@/data/content";
+import { getDuaText, getTodaysDua, getPrayerName } from "@/data/content";
 import { cityDisplayName } from "@/data/cities-tr";
 import { formatDate, t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
@@ -37,7 +37,7 @@ import {
   PRAYER_SLOT_ORDER,
   type PrayerSlotId,
 } from "@/lib/prayer-times";
-import { getPrayerName } from "@/data/content";
+import { hapticMedium, hapticSelection } from "@/lib/haptics";
 
 const ease = Easing.bezier(0.22, 1, 0.36, 1);
 const tickEase = Easing.bezier(0.33, 1, 0.68, 1);
@@ -614,9 +614,36 @@ export default function HomeScreen() {
             ) : null}
           </View>
 
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              hapticSelection();
+              router.push("/(tabs)/kible");
+            }}
+            className="mx-5 mt-8 self-start active:opacity-70"
+            hitSlop={8}
+          >
+            <View className="flex-row items-center gap-2">
+              <Ionicons
+                name="compass-outline"
+                size={18}
+                color={dark ? "#d4a84b" : "#2a4a39"}
+              />
+              <Text
+                style={{ fontFamily: fonts.bodySemi }}
+                className="border-b border-forest-700 pb-0.5 text-[14px] text-forest-800 dark:border-gold-400 dark:text-gold-400"
+              >
+                {t("home.openQibla")}
+              </Text>
+            </View>
+          </Pressable>
+
           {/* Namaza başla — sıradaki / aktif vakit rehberi */}
           <Pressable
-            onPress={() => router.push(`/namaza-basla/${guideId}`)}
+            onPress={() => {
+              hapticMedium();
+              router.push(`/namaza-basla/${guideId}`);
+            }}
             className="mx-5 mt-8 active:opacity-80"
           >
             <Text

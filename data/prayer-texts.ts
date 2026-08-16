@@ -7,10 +7,6 @@ export type PrayerText = {
 
 /** Tam Arapça + okunuş — meal i18n: session.texts.<id>.meaning */
 export const PRAYER_TEXTS: Record<PrayerVoiceId, PrayerText> = {
-  niyet: {
-    arabic: "نَوَيْتُ أَنْ أُصَلِّيَ لِلَّهِ تَعَالَى",
-    latin: "Neveytü en usalliye lillahi teala",
-  },
   tekbir: {
     arabic: "اللهُ أَكْبَرُ",
     latin: "Allahu Ekber",

@@ -11,9 +11,11 @@ export const IMAGES = {
   dualarBannerLight: require("../assets/images/light/dualar-banner.png"),
   namazBanner: require("../assets/images/namaz-banner.jpg"),
   namazBannerLight: require("../assets/images/light/namaz-banner.png"),
+  takipBanner: require("../assets/images/takip-banner.jpg"),
+  takipBannerLight: require("../assets/images/light/takip-banner.png"),
 } as const;
 
-type BannerKey = "homeHero" | "dualarBanner" | "namazBanner";
+type BannerKey = "homeHero" | "dualarBanner" | "namazBanner" | "takipBanner";
 
 /** Light tema için ayrı, daha açık app bar görselleri */
 export function bannerForTheme(
@@ -23,5 +25,6 @@ export function bannerForTheme(
   if (dark) return IMAGES[key];
   if (key === "homeHero") return IMAGES.homeHeroLight;
   if (key === "dualarBanner") return IMAGES.dualarBannerLight;
+  if (key === "takipBanner") return IMAGES.takipBannerLight;
   return IMAGES.namazBannerLight;
 }

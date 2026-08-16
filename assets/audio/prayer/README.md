@@ -1,26 +1,24 @@
 # Namaz sesleri
 
-Cihaz TTS (**expo-speech**) kullanılmaz — yalnızca yerel MP3.
+- Arapça kıraat ve ezkar yerel MP3 dosyalarından oynatılır.
+- Niyet ve hareket yönlendirmeleri `expo-speech` ile seçili uygulama dilinde
+  (`tr-TR` / `en-US`) okunur.
+- Niyet Arapça bir kıraat olmadığı için `niyet.mp3` kullanılmaz.
 
-## Kur’an — Alafasy (EveryAyah)
+## Arapça kıraat ve ezkar
 
 | Dosya | İçerik |
 | ----- | ------ |
-| `fatiha.mp3` | Fatiha 1:1–7 |
-| `ihlas.mp3` | İhlas 112:1–4 |
+| `fatiha.mp3` | Fatiha |
+| `ihlas.mp3` | İhlas |
 | `rabbenaAtina.mp3` | Bakara 2:201 |
-
-## Tekbir — Wikimedia CC BY-SA 4.0
-
-| Dosya | Kaynak |
-| ----- | ------ |
-| `tekbir.mp3` | Assem khidhr — File:Ar-eg-الله أكبر.oga |
-
-## Diğer ezkar — gömülü stüdyo Arapça
-
-Telifsiz tam kari paketi bulunamadığı için Arapça metinler
-`ar-SA-HamedNeural` ile üretilip **uygulamaya gömüldü** (44.1 kHz;
-cihaz TTS değil). Gerçek kari kaydı eklenince dosyayı değiştirmek yeterli.
-
-`niyet`, `subhaneke`, `ruku`, `secde`, `semiallah`, `rabbena`, `selam`,
-`kunut`, `ettehiyyatu`, `salavat`
+| `subhaneke.mp3` | Sübhaneke |
+| `ruku.mp3` | Sübhâne Rabbiye'l-Azîm |
+| `semiallah.mp3` | Semi'allâhu limen hamideh |
+| `rabbena.mp3` | Rabbenâ leke'l-hamd |
+| `secde.mp3` | Sübhâne Rabbiye'l-A'lâ |
+| `ettehiyyatu.mp3` | Ettehiyyâtü |
+| `salavat.mp3` | Allâhümme Salli + Allâhümme Bârik |
+| `selam.mp3` | Sağa ve sola selam |
+| `tekbir.mp3` | Tekbir |
+| `kunut.mp3` | Kunut |

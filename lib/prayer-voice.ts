@@ -1,43 +1,132 @@
 import type { PrayerStep, PrayerVoiceId } from "@/data/prayer-build";
 import { getPrayerAudio } from "@/data/prayer-audio";
 import { speakDua, stopSpeaking } from "@/lib/speak-arabic";
+import * as Speech from "expo-speech";
+import type { Locale } from "@/locales/translations";
 
 type VoiceCallbacks = {
   onDone?: () => void;
   onError?: () => void;
+  guidanceText?: string;
+  locale?: Locale;
 };
 
 let cancelled = false;
 let generation = 0;
 let holdTimer: ReturnType<typeof setTimeout> | null = null;
 
+/** Rüku/secde: 3 kez; kısa zikirler daha sıkı aralıkla */
 function repeatCount(voiceId: PrayerVoiceId | undefined) {
   return voiceId === "ruku" || voiceId === "secde" ? 3 : 1;
 }
 
-function holdAfterVoiceMs(step: PrayerStep) {
-  switch (step.poseId) {
-    case "niyet":
-      return 1800;
-    case "tekbir":
-      return 1400;
+function gapBetweenRepeatsMs(voiceId: PrayerVoiceId | undefined) {
+  if (voiceId === "ruku" || voiceId === "secde") return 320;
+  return 500;
+}
+
+function playbackRateFor(voiceId: PrayerVoiceId | undefined) {
+  // Kısa zikirler hafif hızlı; uzun okuyuşlar doğal tempo
+  switch (voiceId) {
     case "ruku":
     case "secde":
-      return 1200;
-    case "kavme":
-      return 1200;
-    case "oturma":
-      return 2200;
-    case "kiyam":
-      return 1000;
-    case "teshehhud":
-      return 1200;
+    case "tekbir":
+    case "semiallah":
+    case "rabbena":
+      return 1.08;
+    case "fatiha":
+    case "ihlas":
+    case "subhaneke":
     case "kunut":
-      return 1200;
-    case "selam":
-      return 1800;
+    case "ettehiyyatu":
+    case "salavat":
+    case "rabbenaAtina":
+      return 1;
     default:
-      return 1200;
+      return 1.02;
+  }
+}
+
+/** Ses bittikten sonra advance bar başlamadan önce kısa nefes */
+function holdAfterVoiceMs(step: PrayerStep) {
+  switch (step.voiceId) {
+    case "ruku":
+    case "secde":
+      return 280;
+    case "tekbir":
+    case "semiallah":
+    case "rabbena":
+      return 350;
+    case "fatiha":
+    case "ihlas":
+      return 700;
+    case "subhaneke":
+    case "kunut":
+    case "ettehiyyatu":
+    case "salavat":
+    case "rabbenaAtina":
+      return 600;
+    case "selam":
+      return 900;
+    default:
+      break;
+  }
+
+  switch (step.poseId) {
+    case "oturma":
+      return 900;
+    case "kavme":
+      return 400;
+    case "kiyam":
+      return 450;
+    default:
+      return 500;
+  }
+}
+
+/**
+ * Ses + hold bittikten sonra sonraki adıma geçiş süresi.
+ * Rüku/secde kısa; uzun dualar / oturuş daha uzun.
+ */
+export function getAdvanceDelayMs(step: PrayerStep) {
+  switch (step.voiceId) {
+    case "ruku":
+    case "secde":
+      return 850;
+    case "tekbir":
+      return 700;
+    case "semiallah":
+    case "rabbena":
+      return 750;
+    case "fatiha":
+      return 2200;
+    case "ihlas":
+      return 1800;
+    case "subhaneke":
+      return 2000;
+    case "kunut":
+      return 2400;
+    case "ettehiyyatu":
+      return 2200;
+    case "salavat":
+      return 2000;
+    case "rabbenaAtina":
+      return 2000;
+    case "selam":
+      return 1600;
+    default:
+      break;
+  }
+
+  switch (step.poseId) {
+    case "oturma":
+      return 1400;
+    case "kavme":
+      return 800;
+    case "kiyam":
+      return 900;
+    default:
+      return 1100;
   }
 }
 
@@ -52,7 +141,7 @@ export async function stopPrayerVoice() {
   cancelled = true;
   generation += 1;
   clearHoldTimer();
-  await stopSpeaking();
+  await Promise.all([stopSpeaking(), Speech.stop()]);
 }
 
 function finishWithHold(
@@ -83,6 +172,8 @@ function playArabicPhrase(
   }
 
   const times = repeatCount(step.voiceId);
+  const gap = gapBetweenRepeatsMs(step.voiceId);
+  const rate = playbackRateFor(step.voiceId);
   let played = 0;
 
   const playOnce = () => {
@@ -91,14 +182,14 @@ function playArabicPhrase(
 
     void speakDua(step.arabic ?? "", {
       audio,
-      playbackRate: 1,
+      playbackRate: rate,
       onDone: () => {
         if (cancelled || gen !== generation) return;
         if (played < times) {
           setTimeout(() => {
             if (cancelled || gen !== generation) return;
             playOnce();
-          }, 650);
+          }, gap);
           return;
         }
         onComplete();
@@ -113,7 +204,38 @@ function playArabicPhrase(
   playOnce();
 }
 
-/** Yerel MP3 kıldırıcı — expo-speech yok. */
+function playLocalizedGuidance(
+  text: string | undefined,
+  locale: Locale | undefined,
+  gen: number,
+  onComplete: () => void,
+) {
+  if (!text?.trim()) {
+    onComplete();
+    return;
+  }
+
+  Speech.speak(text, {
+    language: locale === "en" ? "en-US" : "tr-TR",
+    rate: locale === "en" ? 0.88 : 0.9,
+    pitch: 1,
+    useApplicationAudioSession: false,
+    onDone: () => {
+      if (cancelled || gen !== generation) return;
+      onComplete();
+    },
+    onStopped: () => {
+      if (cancelled || gen !== generation) return;
+      onComplete();
+    },
+    onError: () => {
+      if (cancelled || gen !== generation) return;
+      onComplete();
+    },
+  });
+}
+
+/** Seçili dilde yönlendirme + yerel Arapça MP3 kıraat. */
 export async function speakPrayerStep(
   step: PrayerStep,
   options?: VoiceCallbacks,
@@ -122,7 +244,7 @@ export async function speakPrayerStep(
   cancelled = false;
   clearHoldTimer();
 
-  await stopSpeaking();
+  await Promise.all([stopSpeaking(), Speech.stop()]);
 
   const complete = () => finishWithHold(step, gen, options);
 
@@ -141,8 +263,16 @@ export async function speakPrayerStep(
     playArabicPhrase(step, gen, complete, fail);
   };
 
-  setTimeout(() => {
-    if (cancelled || gen !== generation) return;
-    startArabic();
-  }, step.cueKey ? 450 : 120);
+  playLocalizedGuidance(
+    options?.guidanceText,
+    options?.locale,
+    gen,
+    () => {
+      const introMs = options?.guidanceText ? 220 : 80;
+      setTimeout(() => {
+        if (cancelled || gen !== generation) return;
+        startArabic();
+      }, introMs);
+    },
+  );
 }

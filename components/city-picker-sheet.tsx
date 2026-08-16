@@ -22,6 +22,7 @@ import {
 import { fonts } from "@/constants/fonts";
 import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
+import { hapticMedium, hapticSuccess } from "@/lib/haptics";
 
 type Props = {
   visible: boolean;
@@ -78,11 +79,13 @@ export function CityPickerSheet({ visible, onClose }: Props) {
   }, [visible, mounted, progress]);
 
   const selectCity = async (city: TurkeyCity) => {
+    hapticSuccess();
     await setCityManual(city.id);
     onClose();
   };
 
   const useLocation = async () => {
+    hapticMedium();
     setLocating(true);
     try {
       await refreshLocation();

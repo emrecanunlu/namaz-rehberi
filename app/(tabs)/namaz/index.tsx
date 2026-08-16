@@ -13,6 +13,7 @@ import { fonts } from "@/constants/fonts";
 import { cardShadow } from "@/constants/theme";
 import { useAppSettings } from "@/lib/settings-context";
 import { SliverTabScreen } from "@/components/sliver-tab-screen";
+import { hapticMedium } from "@/lib/haptics";
 import {
   calculatePrayerTimes,
   getActiveGuideId,
@@ -56,7 +57,10 @@ export default function NamazListScreen() {
       contentContainerStyle={{ paddingHorizontal: 12 }}
     >
       <Pressable
-        onPress={() => router.push(`/namaza-basla/${guideId}`)}
+        onPress={() => {
+          hapticMedium();
+          router.push(`/namaza-basla/${guideId}`);
+        }}
         android_ripple={{ color: "rgba(42,74,57,0.12)" }}
         style={({ pressed }) => ({
           opacity: pressed ? 0.85 : 1,
@@ -147,7 +151,10 @@ export default function NamazListScreen() {
             </Link>
 
             <Pressable
-              onPress={() => router.push(`/namaza-basla/${prayer.id}`)}
+              onPress={() => {
+                hapticMedium();
+                router.push(`/namaza-basla/${prayer.id}`);
+              }}
               android_ripple={{ color: "rgba(42,74,57,0.1)" }}
               className="flex-row items-center border-t border-sand-200/70 px-3.5 py-3 active:opacity-70 dark:border-forest-800"
             >

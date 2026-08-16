@@ -4,6 +4,7 @@ import type { ComponentProps } from "react";
 import { Easing, type ColorValue } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "@/lib/i18n";
+import { hapticSelection } from "@/lib/haptics";
 import { useAppSettings } from "@/lib/settings-context";
 import { fonts } from "@/constants/fonts";
 import { softNavTheme } from "@/constants/nav-theme";
@@ -46,23 +47,27 @@ export default function TabsLayout() {
       // Lazy detach + varsayılan beyaz sahne = geçişte flaş
       detachInactiveScreens={false}
       safeAreaInsets={{ bottom: 0 }}
+      screenListeners={{
+        tabPress: () => {
+          hapticSelection();
+        },
+      }}
       screenOptions={{
         headerStyle: nav.headerStyle,
         headerTintColor: nav.headerTintColor,
         headerTitleStyle: nav.headerTitleStyle,
         headerShadowVisible: nav.headerShadowVisible,
-        // Tabs sahne arka planı (beyaz flaşın ana çözümü)
-        sceneStyle: {
-          backgroundColor: nav.contentBackground,
-        },
-        // Tabs: "none" | "fade" | "shift" (slide_from_right yok)
-        animation: "shift",
+        // Tabs: "none" | "fade" | "shift"
+        animation: "fade",
         transitionSpec: {
           animation: "timing",
           config: {
-            duration: 240,
+            duration: 220,
             easing: Easing.out(Easing.cubic),
           },
+        },
+        sceneStyle: {
+          backgroundColor: nav.contentBackground,
         },
         tabBarLabelStyle: {
           fontFamily: fonts.bodyMedium,
@@ -135,6 +140,21 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="takip"
+        options={{
+          title: t("tabs.tracking"),
+          headerShown: false,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon
+              focused={focused}
+              color={color}
+              active="stats-chart"
+              inactive="stats-chart-outline"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="ayarlar"
         options={{
           title: t("tabs.settings"),
@@ -147,6 +167,15 @@ export default function TabsLayout() {
               inactive="settings-outline"
             />
           ),
+        }}
+      />
+      {/* Kıble: alt barda değil — anasayfadaki kısayoldan açılır */}
+      <Tabs.Screen
+        name="kible"
+        options={{
+          href: null,
+          title: t("tabs.qibla"),
+          headerShown: false,
         }}
       />
     </Tabs>

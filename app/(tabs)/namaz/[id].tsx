@@ -32,6 +32,7 @@ import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { fonts } from "@/constants/fonts";
 import { stopSpeaking } from "@/lib/speak-arabic";
+import { hapticMedium } from "@/lib/haptics";
 
 type StepRow = {
   step: PrayerStep;
@@ -384,7 +385,10 @@ export default function PrayerDetailScreen() {
               </View>
 
               <Pressable
-                onPress={() => router.push(`/namaza-basla/${prayer.id}`)}
+                onPress={() => {
+                  hapticMedium();
+                  router.push(`/namaza-basla/${prayer.id}`);
+                }}
                 android_ripple={{ color: "rgba(42,74,57,0.12)" }}
                 className={`mb-4 flex-row items-center px-4 py-3.5 active:opacity-80 ${
                   resolvedTheme === "dark"

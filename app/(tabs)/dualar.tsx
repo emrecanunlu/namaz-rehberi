@@ -22,6 +22,7 @@ import { fonts } from "@/constants/fonts";
 import { cardShadow, themeColors } from "@/constants/theme";
 import { useAppSettings } from "@/lib/settings-context";
 import { stopSpeaking } from "@/lib/speak-arabic";
+import { hapticSelection } from "@/lib/haptics";
 
 export default function DualarScreen() {
   const today = getTodaysDua();
@@ -62,6 +63,7 @@ export default function DualarScreen() {
 
   const toggle = useCallback((id: string) => {
     void stopSpeaking();
+    hapticSelection();
     setExpandedId((prev) => (prev === id ? null : id));
   }, []);
 

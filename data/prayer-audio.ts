@@ -4,14 +4,12 @@ import type { PrayerVoiceId } from "@/data/prayer-build";
 /**
  * Namaz sesleri — yerel MP3 (cihaz TTS / expo-speech yok).
  *
- * - alafasy: Kur’an (EveryAyah / Mishary Alafasy)
- * - wikimedia: CC BY-SA insan sesi
- * - studio: gömülü Arapça ses (açık kari paketi yoksa; cihaz TTS değil)
+ * Namaz kıraati ve ezkar: doğrulanmış yerel Arapça MP3 kayıtları.
+ * Niyet ve hareket yönlendirmeleri bu tabloda değildir; seçili dilde TTS okunur.
  */
-export type PrayerAudioSourceKind = "alafasy" | "wikimedia" | "studio";
+export type PrayerAudioSourceKind = "alafasy" | "studio";
 
 export const PRAYER_AUDIO: Record<PrayerVoiceId, AudioSource> = {
-  niyet: require("../assets/audio/prayer/niyet.mp3"),
   tekbir: require("../assets/audio/prayer/tekbir.mp3"),
   subhaneke: require("../assets/audio/prayer/subhaneke.mp3"),
   fatiha: require("../assets/audio/prayer/fatiha.mp3"),

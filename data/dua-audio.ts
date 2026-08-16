@@ -2,8 +2,8 @@ import type { AudioSource } from "expo-audio";
 
 /**
  * Tüm günlük duaların yerel sesleri.
- * Kur’an ayetleri: Mishary Alafasy (EveryAyah)
- * Ezkar: ar-SA-HamedNeural ile üretilmiş yerel MP3
+ * Kur’an ayetleri (5–9, 12, 14): Mishary Alafasy — EveryAyah
+ * Ezkar (1–4, 10, 11, 13): gömülü stüdyo Arapça MP3
  */
 export const DUA_AUDIO: Record<string, AudioSource> = {
   "1": require("../assets/audio/duas/1.mp3"),

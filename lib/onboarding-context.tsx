@@ -8,10 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  FORCE_ONBOARDING_EVERY_LAUNCH,
-  ONBOARDING_STORAGE_KEY,
-} from "@/data/onboarding";
+import { ONBOARDING_STORAGE_KEY } from "@/data/onboarding";
 
 type OnboardingContextValue = {
   ready: boolean;
@@ -29,14 +26,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     let active = true;
 
     async function load() {
-      if (FORCE_ONBOARDING_EVERY_LAUNCH) {
-        await AsyncStorage.removeItem(ONBOARDING_STORAGE_KEY);
-        if (!active) return;
-        setSeenOnboarding(false);
-        setReady(true);
-        return;
-      }
-
       const value = await AsyncStorage.getItem(ONBOARDING_STORAGE_KEY);
       if (!active) return;
       setSeenOnboarding(value === "1");
@@ -50,9 +39,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const completeOnboarding = useCallback(async () => {
-    if (!FORCE_ONBOARDING_EVERY_LAUNCH) {
-      await AsyncStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
-    }
+    await AsyncStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
     setSeenOnboarding(true);
   }, []);
 
@@ -62,7 +49,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>
+    <OnboardingContext.Provider value={value}>
+      {children}
+    </OnboardingContext.Provider>
   );
 }
 

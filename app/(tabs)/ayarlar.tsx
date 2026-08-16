@@ -2,15 +2,13 @@ import { useState } from "react";
 import { Pressable, Switch, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/lib/i18n";
-import {
-  useAppSettings,
-  type ThemePreference,
-} from "@/lib/settings-context";
+import { useAppSettings, type ThemePreference } from "@/lib/settings-context";
 import type { Locale } from "@/locales/translations";
 import { cityDisplayName } from "@/data/cities-tr";
 import { fonts } from "@/constants/fonts";
 import { SliverTabScreen } from "@/components/sliver-tab-screen";
 import { CityPickerSheet } from "@/components/city-picker-sheet";
+import { hapticSelection } from "@/lib/haptics";
 
 function OptionChip({
   label,
@@ -98,7 +96,10 @@ export default function SettingsScreen() {
               key={item.value}
               label={item.label}
               selected={themePreference === item.value}
-              onPress={() => void setThemePreference(item.value)}
+              onPress={() => {
+                hapticSelection();
+                void setThemePreference(item.value);
+              }}
             />
           ))}
         </View>
@@ -115,7 +116,10 @@ export default function SettingsScreen() {
               key={item.value}
               label={item.label}
               selected={locale === item.value}
-              onPress={() => void setLocale(item.value)}
+              onPress={() => {
+                hapticSelection();
+                void setLocale(item.value);
+              }}
             />
           ))}
         </View>
@@ -137,7 +141,10 @@ export default function SettingsScreen() {
           </View>
           <Switch
             value={autoImam}
-            onValueChange={(v) => void setAutoImam(v)}
+            onValueChange={(v) => {
+              hapticSelection();
+              void setAutoImam(v);
+            }}
             trackColor={{ false: "#cfc6b6", true: "#d4a84b" }}
             thumbColor="#faf8f4"
           />

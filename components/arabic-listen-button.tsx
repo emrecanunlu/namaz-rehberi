@@ -7,6 +7,7 @@ import { getDuaAudio } from "@/data/dua-audio";
 import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { speakDua, stopSpeaking } from "@/lib/speak-arabic";
+import { hapticLight } from "@/lib/haptics";
 
 type Props = {
   arabic: string;
@@ -43,6 +44,7 @@ export function ArabicListenButton({
   }, [arabic, duaId, audio]);
 
   const onPress = async () => {
+    hapticLight();
     if (playing) {
       await stopSpeaking();
       setPlaying(false);

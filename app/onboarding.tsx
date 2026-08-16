@@ -22,6 +22,7 @@ import { useOnboarding } from "@/lib/onboarding-context";
 import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { fonts } from "@/constants/fonts";
+import { hapticSelection, hapticSuccess } from "@/lib/haptics";
 
 const SLIDE_COUNT = ONBOARDING_SLIDE_IDS.length;
 const softEase = Easing.bezier(0.33, 1, 0.28, 1);
@@ -406,6 +407,7 @@ export default function OnboardingScreen() {
   }, [fadeIn]);
 
   async function finish() {
+    hapticSuccess();
     await completeOnboarding();
   }
 
@@ -433,11 +435,13 @@ export default function OnboardingScreen() {
 
   function goNext() {
     if (isLast) return;
+    hapticSelection();
     animateTo(index + 1);
   }
 
   function goBack() {
-    if (isFirst) return;
+    if (index <= 0) return;
+    hapticSelection();
     animateTo(index - 1);
   }
 

@@ -15,14 +15,23 @@
     },
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.emrecanunlu.namazrehberi",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "İlinize göre namaz vakitlerini göstermek için konumunuza ihtiyaç duyuyoruz."
+        "NSLocationWhenInUseUsageDescription": "Namaz vakitleri ve kıble yönü için konumunuza ihtiyaç duyuyoruz.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
+      "package": "com.emrecanunlu.namazrehberi",
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ],
       "adaptiveIcon": {
         "backgroundColor": "#1a2f25",
@@ -43,7 +52,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "İlinize göre namaz vakitlerini göstermek için konumunuza ihtiyaç duyuyoruz."
+          "locationWhenInUsePermission": "Namaz vakitleri ve kıble yönü için konumunuza ihtiyaç duyuyoruz."
         }
       ],
       [
@@ -54,7 +63,15 @@
           "imageWidth": 180
         }
       ],
-      "expo-audio"
-    ]
+      "expo-audio",
+      "expo-asset"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "92adad1f-674f-4fcf-abb7-bdcfefc2f5be"
+      }
+    },
+    "owner": "emreunlu0"
   }
 }
