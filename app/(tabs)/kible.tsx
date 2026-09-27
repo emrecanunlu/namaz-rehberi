@@ -306,9 +306,9 @@ export default function QiblaScreen() {
     transform: [{ scale: 1 + pulse.value * 0.03 }],
   }));
 
-  const gold = dark ? "#d4a84b" : "#b8892e";
+  const gold = dark ? "#d4a84b" : "#7a5812";
   const forest = dark ? "#f3efe6" : "#1a2f25";
-  const muted = dark ? "rgba(243,239,230,0.55)" : "rgba(42,74,57,0.55)";
+  const muted = dark ? "rgba(243,239,230,0.7)" : "rgba(42,74,57,0.8)";
   const ring = dark ? "rgba(212,168,75,0.35)" : "rgba(42,74,57,0.18)";
   const dialBg = dark ? "#15241c" : "#f3efe6";
   const cityName = cityDisplayName(city, locale);
@@ -330,6 +330,13 @@ export default function QiblaScreen() {
         </View>
 
         <View
+          accessible
+          accessibilityRole="image"
+          accessibilityLabel={
+            bearing != null
+              ? t("common.qiblaDialA11y", { degrees: Math.round(bearing) })
+              : t("qibla.calibrating")
+          }
           style={{
             width: dialSize,
             height: dialSize,
@@ -450,7 +457,7 @@ export default function QiblaScreen() {
               <Text
                 style={{
                   fontFamily: fonts.body,
-                  fontSize: 10,
+                  fontSize: 11,
                   letterSpacing: 1,
                   color: muted,
                   marginTop: 2,
@@ -463,6 +470,7 @@ export default function QiblaScreen() {
         </View>
 
         <Text
+          accessibilityLiveRegion="polite"
           style={{
             fontFamily: fonts.bodySemi,
             fontSize: 16,
@@ -517,7 +525,7 @@ export default function QiblaScreen() {
             </Text>
             <Text
               style={{ fontFamily: fonts.body }}
-              className="mt-0.5 text-[12px] text-forest-500 dark:text-sand-200/60"
+              className="mt-0.5 text-[12px] text-forest-500 dark:text-sand-200/70"
             >
               {permissionDenied
                 ? t("qibla.permissionDenied")
@@ -532,7 +540,9 @@ export default function QiblaScreen() {
               void refreshLocation();
             }}
             hitSlop={8}
-            className="h-10 w-10 items-center justify-center bg-forest-100 active:opacity-70 dark:bg-forest-800"
+            accessibilityRole="button"
+            accessibilityLabel={t("common.refreshLocation")}
+            className="h-11 w-11 items-center justify-center bg-forest-100 active:opacity-70 dark:bg-forest-800"
           >
             <Ionicons name="locate-outline" size={20} color={gold} />
           </Pressable>

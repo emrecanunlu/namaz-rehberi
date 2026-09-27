@@ -30,7 +30,8 @@ import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 import { usePrayerLog } from "@/lib/prayer-log-context";
 import { fonts } from "@/constants/fonts";
-import { pageBackground } from "@/constants/theme";
+import { pageBackground, switchColors } from "@/constants/theme";
+import { useReducedMotion } from "react-native-reanimated";
 import { PoseImageLightbox } from "@/components/pose-image-lightbox";
 import {
   speakPrayerStep,
@@ -65,10 +66,9 @@ export default function StartPrayerSessionScreen() {
   const iconPrimary = dark ? "#f3efe6" : "#1a2f25";
   const playIcon = dark ? "#d4a84b" : "#2a4a39";
   const playIconBg = dark ? "#24352c" : "#e0ebe4";
-  const switchTrack = dark
-    ? { false: "#24352c", true: "#a8893a" }
-    : { false: "#d4cbb6", true: "#b8892e" };
-  const switchThumb = dark ? "#faf8f4" : "#f3efe6";
+  const switchTrack = switchColors(dark).track;
+  const switchThumb = switchColors(dark).thumb;
+  const reduceMotion = useReducedMotion();
 
   const prayer = useMemo(
     () => PRAYER_GUIDES.find((item) => item.id === id),
@@ -158,6 +158,12 @@ export default function StartPrayerSessionScreen() {
   }, [activeSection, prayer, markSectionGuided, returnToHub]);
 
   const animateStepIn = useCallback(() => {
+    if (reduceMotion) {
+      fadeAnim.setValue(1);
+      slideAnim.setValue(0);
+      scaleAnim.setValue(1);
+      return;
+    }
     fadeAnim.setValue(0);
     slideAnim.setValue(14);
     scaleAnim.setValue(0.985);
@@ -181,7 +187,7 @@ export default function StartPrayerSessionScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [fadeAnim, slideAnim, scaleAnim]);
+  }, [fadeAnim, slideAnim, scaleAnim, reduceMotion]);
 
   const goTo = useCallback(
     (next: number) => {
@@ -337,10 +343,14 @@ export default function StartPrayerSessionScreen() {
         >
           {t("common.notFound")}
         </Text>
-        <Pressable onPress={exitScreen} className="mt-6 active:opacity-70">
+        <Pressable
+          onPress={exitScreen}
+          accessibilityRole="button"
+          className="mt-6 min-h-[44px] justify-center active:opacity-70"
+        >
           <Text
             style={{ fontFamily: fonts.bodySemi }}
-            className="text-gold-500 dark:text-gold-400"
+            className="text-gold-600 dark:text-gold-400"
           >
             {t("session.close")}
           </Text>
@@ -366,8 +376,9 @@ export default function StartPrayerSessionScreen() {
         <View className="flex-row items-center px-4 pb-2 pt-1">
           <Pressable
             onPress={exitScreen}
-            hitSlop={14}
-            className="h-9 w-9 items-center justify-center active:opacity-50"
+            hitSlop={10}
+            className="h-11 w-11 items-center justify-center active:opacity-50"
+            accessibilityRole="button"
             accessibilityLabel={t("session.close")}
           >
             <Ionicons name="close" size={22} color={iconPrimary} />
@@ -375,12 +386,12 @@ export default function StartPrayerSessionScreen() {
           <View className="flex-1 items-center px-2">
             <Text
               style={{ fontFamily: fonts.bodyMedium }}
-              className="text-[11px] tracking-[1.5px] text-gold-500 dark:text-gold-400/90"
+              className="text-[12px] tracking-[1.5px] text-gold-600 dark:text-gold-400/90"
             >
               {name}
             </Text>
           </View>
-          <View className="w-9" />
+          <View className="w-11" />
         </View>
 
         <ScrollView
@@ -389,6 +400,7 @@ export default function StartPrayerSessionScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Text
+            accessibilityRole="header"
             style={{ fontFamily: fonts.displayBold }}
             className="text-[28px] leading-9 text-forest-900 dark:text-sand-50"
           >
@@ -396,7 +408,7 @@ export default function StartPrayerSessionScreen() {
           </Text>
           <Text
             style={{ fontFamily: fonts.body }}
-            className="mt-2 text-[14px] leading-5 text-forest-500 dark:text-sand-200/60"
+            className="mt-2 text-[14px] leading-5 text-forest-500 dark:text-sand-200/70"
           >
             {t("session.sectionPickHint")}
           </Text>
@@ -404,7 +416,7 @@ export default function StartPrayerSessionScreen() {
           {doneCount > 0 ? (
             <Text
               style={{ fontFamily: fonts.body }}
-              className="mt-3 text-[13px] text-gold-500/90 dark:text-gold-400/80"
+              className="mt-3 text-[13px] text-gold-600 dark:text-gold-400/90"
             >
               {doneCount}/{sectionSummaries.length} ·{" "}
               {t("session.sectionCompleted")}
@@ -418,6 +430,13 @@ export default function StartPrayerSessionScreen() {
                 <Pressable
                   key={item.section}
                   onPress={() => startSection(item.section)}
+                  accessibilityRole="button"
+                  accessibilityState={{ checked: isDone }}
+                  accessibilityLabel={`${getSectionLabel(item.section)}, ${
+                    isDone
+                      ? t("session.sectionCompleted")
+                      : t("session.sectionReady")
+                  }`}
                   className={`border px-4 py-4 active:opacity-75 ${
                     isDone
                       ? "border-gold-400/40 bg-gold-400/10"
@@ -436,7 +455,7 @@ export default function StartPrayerSessionScreen() {
                       <Ionicons
                         name={isDone ? "checkmark" : "play"}
                         size={18}
-                        color={isDone ? "#d4a84b" : playIcon}
+                        color={isDone ? (dark ? "#d4a84b" : "#7a5812") : playIcon}
                       />
                     </View>
 
@@ -449,7 +468,7 @@ export default function StartPrayerSessionScreen() {
                       </Text>
                       <Text
                         style={{ fontFamily: fonts.body }}
-                        className="mt-0.5 text-[13px] text-forest-500 dark:text-sand-200/55"
+                        className="mt-0.5 text-[13px] text-forest-500 dark:text-sand-200/70"
                       >
                         {t("session.sectionRakat", {
                           count: String(item.rakatCount),
@@ -463,7 +482,7 @@ export default function StartPrayerSessionScreen() {
                       {isDone ? (
                         <Text
                           style={{ fontFamily: fonts.bodyMedium }}
-                          className="text-[12px] text-gold-500 dark:text-gold-400"
+                          className="text-[12px] text-gold-600 dark:text-gold-400"
                         >
                           {t("session.sectionCompleted")}
                         </Text>
@@ -472,8 +491,8 @@ export default function StartPrayerSessionScreen() {
                         style={{ fontFamily: fonts.body }}
                         className={`text-[13px] ${
                           isDone
-                            ? "mt-1 text-forest-400 dark:text-sand-200/50"
-                            : "text-gold-500 dark:text-gold-400"
+                            ? "mt-1 text-forest-400 dark:text-sand-200/65"
+                            : "text-gold-600 dark:text-gold-400"
                         }`}
                       >
                         {isDone
@@ -497,12 +516,13 @@ export default function StartPrayerSessionScreen() {
               </Text>
               <Text
                 style={{ fontFamily: fonts.body }}
-                className="mt-1 text-[12px] leading-4 text-forest-500 dark:text-sand-200/50"
+                className="mt-1 text-[12px] leading-4 text-forest-500 dark:text-sand-200/65"
               >
                 {t("session.autoImamHint")}
               </Text>
             </View>
             <Switch
+              accessibilityLabel={t("session.autoImam")}
               value={autoImam}
               onValueChange={(v) => {
                 hapticSelection();
@@ -530,10 +550,14 @@ export default function StartPrayerSessionScreen() {
         >
           {t("common.notFound")}
         </Text>
-        <Pressable onPress={returnToHub} className="mt-6 active:opacity-70">
+        <Pressable
+          onPress={returnToHub}
+          accessibilityRole="button"
+          className="mt-6 min-h-[44px] justify-center active:opacity-70"
+        >
           <Text
             style={{ fontFamily: fonts.bodySemi }}
-            className="text-gold-500 dark:text-gold-400"
+            className="text-gold-600 dark:text-gold-400"
           >
             {t("session.backToSections")}
           </Text>
@@ -551,10 +575,14 @@ export default function StartPrayerSessionScreen() {
         style={{ backgroundColor: pageBg }}
       >
         <StatusBar barStyle={dark ? "light-content" : "dark-content"} />
-        <Pressable onPress={returnToHub} className="active:opacity-70">
+        <Pressable
+          onPress={returnToHub}
+          accessibilityRole="button"
+          className="min-h-[44px] justify-center active:opacity-70"
+        >
           <Text
             style={{ fontFamily: fonts.bodySemi }}
-            className="text-gold-500 dark:text-gold-400"
+            className="text-gold-600 dark:text-gold-400"
           >
             {t("session.backToSections")}
           </Text>
@@ -599,8 +627,9 @@ export default function StartPrayerSessionScreen() {
         <View className="flex-row items-center px-4 pb-1 pt-1">
           <Pressable
             onPress={returnToHub}
-            hitSlop={14}
-            className="h-9 w-9 items-center justify-center active:opacity-50"
+            hitSlop={10}
+            className="h-11 w-11 items-center justify-center active:opacity-50"
+            accessibilityRole="button"
             accessibilityLabel={t("session.backToSections")}
           >
             <Ionicons name="chevron-back" size={22} color={iconPrimary} />
@@ -609,7 +638,7 @@ export default function StartPrayerSessionScreen() {
           <View className="flex-1 items-center px-2">
             <Text
               style={{ fontFamily: fonts.bodyMedium }}
-              className="text-[11px] tracking-[1.5px] text-gold-500 dark:text-gold-400/90"
+              className="text-[11px] tracking-[1.5px] text-gold-600 dark:text-gold-400/90"
             >
               {name}
             </Text>
@@ -623,8 +652,12 @@ export default function StartPrayerSessionScreen() {
           </View>
 
           <Text
+            accessibilityLabel={t("session.stepOf", {
+              current: stepIndex + 1,
+              total,
+            })}
             style={{ fontFamily: fonts.body }}
-            className="min-w-9 text-right tabular-nums text-[12px] text-forest-400 dark:text-sand-200/50"
+            className="min-w-11 text-right tabular-nums text-[13px] text-forest-400 dark:text-sand-200/65"
           >
             {stepIndex + 1}/{total}
           </Text>
@@ -640,19 +673,20 @@ export default function StartPrayerSessionScreen() {
         {isAdvancing ? (
           <Pressable
             onPress={skipCountdown}
-            className="mx-4 mt-3 active:opacity-80"
+            className="mx-4 mt-3 min-h-[44px] justify-center active:opacity-80"
+            accessibilityRole="button"
             accessibilityLabel={t("session.skipWait")}
           >
             <View className="flex-row items-center justify-between pb-1.5">
               <Text
                 style={{ fontFamily: fonts.bodyMedium }}
-                className="text-[12px] tracking-[0.4px] text-gold-500 dark:text-gold-400/90"
+                className="text-[12px] tracking-[0.4px] text-gold-600 dark:text-gold-400/90"
               >
                 {isLast ? t("session.finishIn") : t("session.nextIn")}
               </Text>
               <Text
                 style={{ fontFamily: fonts.body }}
-                className="text-[12px] text-forest-400 dark:text-sand-200/45"
+                className="text-[12px] text-forest-400 dark:text-sand-200/65"
               >
                 {t("session.skipWait")}
               </Text>
@@ -665,14 +699,15 @@ export default function StartPrayerSessionScreen() {
             </View>
           </Pressable>
         ) : (
-          <View className="mx-4 mt-3 flex-row items-center justify-between">
+          <View className="mx-4 mt-3 min-h-[44px] flex-row items-center justify-between">
             <Text
               style={{ fontFamily: fonts.body }}
-              className="text-[12px] text-forest-500 dark:text-sand-200/55"
+              className="text-[13px] text-forest-500 dark:text-sand-200/70"
             >
               {t("session.autoImam")}
             </Text>
             <Switch
+              accessibilityLabel={t("session.autoImam")}
               value={autoImam}
               onValueChange={(v) => {
                 hapticSelection();
@@ -680,7 +715,6 @@ export default function StartPrayerSessionScreen() {
               }}
               trackColor={switchTrack}
               thumbColor={switchThumb}
-              style={{ transform: [{ scaleX: 0.82 }, { scaleY: 0.82 }] }}
             />
           </View>
         )}
@@ -720,7 +754,7 @@ export default function StartPrayerSessionScreen() {
             {text.detail ? (
               <Text
                 style={{ fontFamily: fonts.body }}
-                className="mt-1.5 text-[13px] leading-5 text-forest-500 dark:text-sand-200/55"
+                className="mt-1.5 text-[13px] leading-5 text-forest-500 dark:text-sand-200/70"
               >
                 {text.detail}
               </Text>
@@ -731,13 +765,13 @@ export default function StartPrayerSessionScreen() {
                 <View className="border border-gold-400/30 bg-gold-400/[0.08] px-4 py-4 dark:border-gold-400/25 dark:bg-gold-400/[0.07]">
                   <Text
                     style={{ fontFamily: fonts.bodyMedium }}
-                    className="text-[11px] uppercase tracking-[1.6px] text-gold-500 dark:text-gold-400"
+                    className="text-[11px] uppercase tracking-[1.6px] text-gold-600 dark:text-gold-400"
                   >
                     {t("session.reading")}
                   </Text>
                   <Text
                     style={{ fontFamily: fonts.body }}
-                    className="mt-1 text-[12px] leading-4 text-forest-500 dark:text-sand-200/50"
+                    className="mt-1 text-[12px] leading-4 text-forest-500 dark:text-sand-200/65"
                   >
                     {t("session.readingHint")}
                   </Text>
@@ -762,21 +796,22 @@ export default function StartPrayerSessionScreen() {
                 </View>
 
                 <Text
-                  style={{ fontFamily: fonts.displayMedium }}
-                  className="mt-5 text-right text-[18px] leading-8 text-gold-500/90 dark:text-gold-400/75"
+                  selectable
+                  style={{ writingDirection: "rtl", textAlign: "right", lineHeight: 36 }}
+                  className="mt-5 text-[20px] text-gold-600 dark:text-gold-400/90"
                 >
                   {recitation.arabic}
                 </Text>
 
                 <Text
                   style={{ fontFamily: fonts.bodyMedium }}
-                  className="mt-5 text-[11px] uppercase tracking-[1.5px] text-forest-400 dark:text-sand-200/35"
+                  className="mt-5 text-[11px] uppercase tracking-[1.5px] text-forest-400 dark:text-sand-200/65"
                 >
                   {t("session.meal")}
                 </Text>
                 <Text
                   style={{ fontFamily: fonts.body }}
-                  className="mt-1 text-[14px] leading-6 text-forest-500 dark:text-sand-200/55"
+                  className="mt-1 text-[14px] leading-6 text-forest-500 dark:text-sand-200/70"
                 >
                   {recitation.meaning}
                 </Text>
@@ -799,14 +834,16 @@ export default function StartPrayerSessionScreen() {
             }}
             disabled={isFirst}
             hitSlop={10}
-            className={`flex-row items-center gap-1 active:opacity-50 ${
-              isFirst ? "opacity-25" : ""
+            accessibilityRole="button"
+            accessibilityState={{ disabled: isFirst }}
+            className={`min-h-[48px] flex-row items-center gap-1 pr-3 active:opacity-50 ${
+              isFirst ? "opacity-40" : ""
             }`}
           >
             <Ionicons name="chevron-back" size={18} color={iconPrimary} />
             <Text
               style={{ fontFamily: fonts.body }}
-              className="text-[14px] text-forest-800/80 dark:text-sand-100/80"
+              className="text-[15px] text-forest-800 dark:text-sand-100"
             >
               {t("session.prev")}
             </Text>
@@ -825,12 +862,12 @@ export default function StartPrayerSessionScreen() {
               hapticSelection();
               goTo(stepIndex + 1);
             }}
-            hitSlop={10}
-            className="flex-row items-center gap-1 active:opacity-50"
+            accessibilityRole="button"
+            className="min-h-[48px] flex-row items-center gap-1.5 rounded-full bg-forest-700 px-6 active:opacity-80 dark:bg-gold-400"
           >
             <Text
               style={{ fontFamily: fonts.bodySemi }}
-              className="text-[14px] text-gold-500 dark:text-gold-400"
+              className="text-[15px] text-sand-50 dark:text-forest-950"
             >
               {isAdvancing
                 ? t("session.skipWait")
@@ -839,7 +876,11 @@ export default function StartPrayerSessionScreen() {
                   : t("session.next")}
             </Text>
             {!isLast && !isAdvancing ? (
-              <Ionicons name="chevron-forward" size={18} color="#d4a84b" />
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={dark ? "#0f1a15" : "#f3efe6"}
+              />
             ) : null}
           </Pressable>
         </View>

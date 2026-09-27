@@ -493,13 +493,14 @@ function PrayerRow({
               key={item.section}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: item.done }}
+              accessibilityLabel={`${getPrayerName(prayerId)} ${getSectionLabel(item.section)}, ${item.rakats} ${t("common.rakat")}`}
               onPress={(event) => {
                 event.stopPropagation();
                 onToggleSection(item.section, item.done);
               }}
-              hitSlop={3}
+              hitSlop={4}
               style={{
-                minHeight: 34,
+                minHeight: 36,
                 paddingHorizontal: 10,
                 borderRadius: 10,
                 borderWidth: 1,
@@ -522,7 +523,7 @@ function PrayerRow({
               <Text
                 style={{
                   fontFamily: fonts.bodySemi,
-                  fontSize: 11,
+                  fontSize: 12,
                   color: item.done ? colors.compactTitle : colors.compactMuted,
                 }}
               >
@@ -1092,6 +1093,7 @@ const MonthCalendarCard = memo(function MonthCalendarCard({
           accessibilityRole="button"
           accessibilityLabel={t("report.prevMonth")}
           disabled={!canPrev}
+          accessibilityState={{ disabled: !canPrev }}
           onPress={onPrev}
           hitSlop={10}
           style={[arrowStyle, { opacity: canPrev ? 1 : 0.28 }]}
@@ -1132,6 +1134,7 @@ const MonthCalendarCard = memo(function MonthCalendarCard({
           accessibilityRole="button"
           accessibilityLabel={t("report.nextMonth")}
           disabled={!canNext}
+          accessibilityState={{ disabled: !canNext }}
           onPress={onNext}
           hitSlop={10}
           style={[arrowStyle, { opacity: canNext ? 1 : 0.28 }]}
@@ -1152,7 +1155,7 @@ const MonthCalendarCard = memo(function MonthCalendarCard({
               width: "14.285%",
               textAlign: "center",
               fontFamily: fonts.bodySemi,
-              fontSize: 10,
+              fontSize: 11,
               letterSpacing: 0.6,
               textTransform: "uppercase",
               color: colors.compactMuted,
@@ -1183,6 +1186,10 @@ const MonthCalendarCard = memo(function MonthCalendarCard({
           return (
             <View
               key={day.key}
+              accessible
+              accessibilityLabel={`${day.date.getDate()} ${monthLabel}${
+                isFuture ? "" : `: ${done}/${TOTAL_PRAYERS}`
+              }`}
               style={{
                 width: "14.285%",
                 paddingVertical: 4,
@@ -1211,8 +1218,8 @@ const MonthCalendarCard = memo(function MonthCalendarCard({
                       ? "#17291f"
                       : isFuture
                         ? dark
-                          ? "rgba(243,239,230,0.25)"
-                          : "rgba(42,74,57,0.3)"
+                          ? "rgba(243,239,230,0.4)"
+                          : "rgba(42,74,57,0.45)"
                         : colors.compactTitle,
                   }}
                 >
@@ -1223,14 +1230,14 @@ const MonthCalendarCard = memo(function MonthCalendarCard({
                     style={{
                       marginTop: 1,
                       fontFamily: fonts.bodySemi,
-                      fontSize: 8,
-                      lineHeight: 9,
+                      fontSize: 10,
+                      lineHeight: 12,
                       color: isFull
-                        ? "rgba(23,41,31,0.65)"
+                        ? "rgba(23,41,31,0.8)"
                         : done === 0
                           ? dark
-                            ? "rgba(243,239,230,0.35)"
-                            : "rgba(42,74,57,0.35)"
+                            ? "rgba(243,239,230,0.55)"
+                            : "rgba(42,74,57,0.6)"
                           : dark
                             ? "rgba(243,239,230,0.75)"
                             : "rgba(42,74,57,0.7)",
@@ -1286,7 +1293,7 @@ const MonthCalendarCard = memo(function MonthCalendarCard({
               <Text
                 style={{
                   fontFamily: fonts.bodySemi,
-                  fontSize: 10,
+                  fontSize: 11,
                   color: colors.compactMuted,
                 }}
               >

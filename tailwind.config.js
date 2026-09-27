@@ -23,8 +23,12 @@ module.exports = {
           50: "#f2f7f4",
           100: "#e0ebe4",
           200: "#c2d7cb",
+          /** İkincil metin — açık yüzeyde ≥4.5:1 */
+          400: "#416d56",
           500: "#3d6b52",
+          600: "#335c46",
           700: "#2a4a39",
+          800: "#223d30",
           900: "#1a2f25",
           950: "#0f1a15",
         },
@@ -37,6 +41,8 @@ module.exports = {
         gold: {
           400: "#d4a84b",
           500: "#b8892e",
+          /** Açık temada altın metin — #ebe4d4 üzerinde 5.1:1 */
+          600: "#7a5812",
         },
       },
     },

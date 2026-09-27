@@ -9,6 +9,7 @@ import { fonts } from "@/constants/fonts";
 import { SliverTabScreen } from "@/components/sliver-tab-screen";
 import { CityPickerSheet } from "@/components/city-picker-sheet";
 import { hapticSelection } from "@/lib/haptics";
+import { switchColors, themeColors } from "@/constants/theme";
 
 function OptionChip({
   label,
@@ -22,7 +23,9 @@ function OptionChip({
   return (
     <Pressable
       onPress={onPress}
-      className={`mb-2 mr-2 px-4 py-2 ${
+      accessibilityRole="radio"
+      accessibilityState={{ selected, checked: selected }}
+      className={`mb-2 mr-2 min-h-[44px] justify-center px-4 active:opacity-70 ${
         selected
           ? "bg-forest-700 dark:bg-gold-400"
           : "bg-sand-100 dark:bg-forest-900"
@@ -51,7 +54,9 @@ export default function SettingsScreen() {
     city,
     autoImam,
     setAutoImam,
+    resolvedTheme,
   } = useAppSettings();
+  const chrome = resolvedTheme === "dark" ? themeColors.dark : themeColors.light;
   const [citySheetOpen, setCitySheetOpen] = useState(false);
 
   const themes: { value: ThemePreference; label: string }[] = [
@@ -80,7 +85,7 @@ export default function SettingsScreen() {
       >
         <Text
           style={{ fontFamily: fonts.bodyMedium }}
-          className="mb-2 text-[11px] uppercase tracking-[1.6px] text-forest-500 dark:text-gold-400/80"
+          className="mb-2 text-[12px] uppercase tracking-[1.6px] text-forest-500 dark:text-gold-400/80"
         >
           {t("settings.appearance")}
         </Text>
@@ -90,7 +95,7 @@ export default function SettingsScreen() {
         >
           {t("settings.theme")}
         </Text>
-        <View className="mb-8 flex-row flex-wrap">
+        <View accessibilityRole="radiogroup" className="mb-8 flex-row flex-wrap">
           {themes.map((item) => (
             <OptionChip
               key={item.value}
@@ -110,7 +115,7 @@ export default function SettingsScreen() {
         >
           {t("settings.language")}
         </Text>
-        <View className="mb-8 flex-row flex-wrap">
+        <View accessibilityRole="radiogroup" className="mb-8 flex-row flex-wrap">
           {languages.map((item) => (
             <OptionChip
               key={item.value}
@@ -140,19 +145,21 @@ export default function SettingsScreen() {
             </Text>
           </View>
           <Switch
+            accessibilityLabel={t("session.autoImam")}
+            accessibilityHint={t("session.autoImamHint")}
             value={autoImam}
             onValueChange={(v) => {
               hapticSelection();
               void setAutoImam(v);
             }}
-            trackColor={{ false: "#cfc6b6", true: "#d4a84b" }}
-            thumbColor="#faf8f4"
+            trackColor={switchColors(resolvedTheme === "dark").track}
+            thumbColor={switchColors(resolvedTheme === "dark").thumb}
           />
         </View>
 
         <Text
           style={{ fontFamily: fonts.bodyMedium }}
-          className="mb-2 text-[11px] uppercase tracking-[1.6px] text-forest-500 dark:text-gold-400/80"
+          className="mb-2 text-[12px] uppercase tracking-[1.6px] text-forest-500 dark:text-gold-400/80"
         >
           {t("settings.location")}
         </Text>
@@ -165,10 +172,12 @@ export default function SettingsScreen() {
 
         <Pressable
           onPress={() => setCitySheetOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={t("common.changeCity", { city: cityName })}
           className="mb-8 flex-row items-center border border-sand-200/80 bg-sand-50 px-4 py-4 active:opacity-80 dark:border-forest-700 dark:bg-forest-900"
         >
           <View className="mr-3 h-10 w-10 items-center justify-center bg-forest-100 dark:bg-forest-800">
-            <Ionicons name="location-outline" size={20} color="#d4a84b" />
+            <Ionicons name="location-outline" size={20} color={chrome.tint} />
           </View>
           <Text
             style={{ fontFamily: fonts.bodySemi }}
@@ -176,7 +185,7 @@ export default function SettingsScreen() {
           >
             {cityName}
           </Text>
-          <Ionicons name="chevron-up" size={18} color="#d4a84b" />
+          <Ionicons name="chevron-forward" size={18} color={chrome.muted} />
         </Pressable>
 
         <Text

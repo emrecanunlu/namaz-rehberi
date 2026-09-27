@@ -10,6 +10,7 @@ import {
   StatusBar,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useReducedMotion } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { bannerForTheme } from "@/constants/images";
@@ -49,10 +50,12 @@ const EXPANDED_CONTENT = 248;
 function AnimatedDigit({ digit, color }: { digit: string; color: string }) {
   const anim = useRef(new Animated.Value(1)).current;
   const prev = useRef(digit);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (prev.current === digit) return;
     prev.current = digit;
+    if (reduceMotion) return;
     anim.setValue(0);
     Animated.timing(anim, {
       toValue: 1,
@@ -60,7 +63,7 @@ function AnimatedDigit({ digit, color }: { digit: string; color: string }) {
       easing: tickEase,
       useNativeDriver: true,
     }).start();
-  }, [digit, anim]);
+  }, [digit, anim, reduceMotion]);
 
   return (
     <View style={{ height: 46, overflow: "hidden", justifyContent: "center" }}>
@@ -138,6 +141,7 @@ export default function HomeScreen() {
   const fade = useRef(new Animated.Value(0)).current;
   const [now, setNow] = useState(() => new Date());
   const [citySheetOpen, setCitySheetOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   const expandedHeight = insets.top + EXPANDED_CONTENT;
   const collapseRange = EXPANDED_CONTENT - COLLAPSED_CONTENT;
@@ -171,15 +175,19 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    fade.setValue(0);
     scrollY.setValue(0);
+    if (reduceMotion) {
+      fade.setValue(1);
+      return;
+    }
+    fade.setValue(0);
     Animated.timing(fade, {
       toValue: 1,
       duration: 480,
       easing: ease,
       useNativeDriver: true,
     }).start();
-  }, [fade, scrollY, locale, city.id]);
+  }, [fade, scrollY, locale, city.id, reduceMotion]);
 
   // Hero yukarı kayar; toolbar ayrı sabit katmanda
   const headerTranslate = scrollY.interpolate({
@@ -280,7 +288,10 @@ export default function HomeScreen() {
               }}
             >
               {next && remaining ? (
-                <View>
+                <View
+                  accessible
+                  accessibilityLabel={`${t("home.nextPrayer")}: ${nextLabel} ${formatTime(next.at, locale)}. ${t("common.countdownA11y", { prayer: nextLabel, hours: remaining.hours, minutes: remaining.minutes })}`}
+                >
                   <Text
                     style={{
                       fontFamily: fonts.body,
@@ -465,8 +476,11 @@ export default function HomeScreen() {
 
           <Pressable
             onPress={() => setCitySheetOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={t("common.changeCity", { city: cityName })}
             hitSlop={10}
             style={{
+              minHeight: 44,
               flexDirection: "row",
               alignItems: "center",
               gap: 4,
@@ -518,15 +532,21 @@ export default function HomeScreen() {
           <View className="mx-5 mt-5">
             <View className="mb-5 flex-row items-baseline justify-between">
               <Text
+                accessibilityRole="header"
                 style={{ fontFamily: fonts.bodySemi }}
-                className="text-[12px] uppercase tracking-[2px] text-gold-500"
+                className="text-[12px] uppercase tracking-[2px] text-gold-600 dark:text-gold-400"
               >
                 {t("home.prayerTimes")}
               </Text>
-              <Pressable onPress={() => setCitySheetOpen(true)} hitSlop={6}>
+              <Pressable
+                onPress={() => setCitySheetOpen(true)}
+                accessibilityRole="button"
+                accessibilityLabel={t("common.changeCity", { city: cityName })}
+                hitSlop={12}
+              >
                 <Text
                   style={{ fontFamily: fonts.body }}
-                  className="text-[11px] text-forest-500/70 dark:text-sand-200/45"
+                  className="text-[12px] text-forest-400 dark:text-sand-200/65"
                 >
                   {cityName}
                 </Text>
@@ -552,6 +572,12 @@ export default function HomeScreen() {
                       return (
                         <View
                           key={slot}
+                          accessible
+                          accessibilityLabel={`${t(
+                            `prayerTimes.${slot}` as `prayerTimes.${PrayerSlotId}`,
+                          )} ${formatTime(times[slot], locale)}${
+                            isNext ? `, ${t("common.nextPrayerA11y")}` : ""
+                          }`}
                           style={{ flex: 1, alignItems: align }}
                         >
                           <Text
@@ -561,10 +587,10 @@ export default function HomeScreen() {
                             }}
                             className={`text-[11px] tracking-[0.6px] ${
                               isNext
-                                ? "text-gold-500"
+                                ? "text-gold-600 dark:text-gold-400"
                                 : isPast
-                                  ? "text-forest-500/45 dark:text-sand-200/30"
-                                  : "text-forest-500 dark:text-sand-200/55"
+                                  ? "text-forest-400 dark:text-sand-200/60"
+                                  : "text-forest-500 dark:text-sand-200/70"
                             }`}
                           >
                             {t(
@@ -580,9 +606,9 @@ export default function HomeScreen() {
                             }}
                             className={`mt-1 text-[22px] tabular-nums ${
                               isNext
-                                ? "text-gold-500"
+                                ? "text-gold-600 dark:text-gold-400"
                                 : isPast
-                                  ? "text-forest-500/45 dark:text-sand-200/30"
+                                  ? "text-forest-400 dark:text-sand-200/60"
                                   : "text-forest-900 dark:text-sand-50"
                             }`}
                           >
@@ -600,13 +626,13 @@ export default function HomeScreen() {
               <View className="mt-5 flex-row items-baseline justify-between">
                 <Text
                   style={{ fontFamily: fonts.body }}
-                  className="text-[12px] text-forest-500 dark:text-sand-200/55"
+                  className="text-[12px] text-forest-500 dark:text-sand-200/70"
                 >
                   {t("home.tomorrowFajr")}
                 </Text>
                 <Text
                   style={{ fontFamily: fonts.displayMedium }}
-                  className="text-[18px] tabular-nums text-gold-500"
+                  className="text-[18px] tabular-nums text-gold-600 dark:text-gold-400"
                 >
                   {formatTime(next.at, locale)}
                 </Text>
@@ -640,6 +666,9 @@ export default function HomeScreen() {
 
           {/* Namaza başla — sıradaki / aktif vakit rehberi */}
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${t("home.startPrayer")}: ${guideName}`}
+            accessibilityHint={t("home.startPrayerHint", { prayer: guideName })}
             onPress={() => {
               hapticMedium();
               router.push(`/namaza-basla/${guideId}`);
@@ -648,7 +677,7 @@ export default function HomeScreen() {
           >
             <Text
               style={{ fontFamily: fonts.bodySemi }}
-              className="text-[12px] uppercase tracking-[2px] text-gold-500"
+              className="text-[12px] uppercase tracking-[2px] text-gold-600 dark:text-gold-400"
             >
               {t("home.startPrayer")}
             </Text>
@@ -677,7 +706,7 @@ export default function HomeScreen() {
           <View className="mx-5 mt-10">
             <Text
               style={{ fontFamily: fonts.bodySemi }}
-              className="text-[12px] uppercase tracking-[2px] text-gold-500"
+              className="text-[12px] uppercase tracking-[2px] text-gold-600 dark:text-gold-400"
             >
               {t("home.todaysDua")} · {duaText.occasion}
             </Text>

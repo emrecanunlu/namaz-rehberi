@@ -155,6 +155,7 @@ export const SliverTabScreen = forwardRef<
         </Text>
       ) : null}
       <Text
+        accessibilityRole="header"
         style={{
           fontFamily: fonts.displayBold,
           fontSize: 28,

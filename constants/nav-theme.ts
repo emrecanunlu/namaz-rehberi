@@ -26,7 +26,7 @@ export function softNavTheme(dark: boolean) {
     contentBackground: pageBackground(dark),
     tabBarBackground: chrome.pageSoft,
     tabBarBorder: chrome.border,
-    tabBarActive: dark ? "#d4a84b" : "#2a4a39",
-    tabBarInactive: dark ? "rgba(194,215,203,0.45)" : "rgba(61,107,82,0.5)",
+    tabBarActive: dark ? "#d4a84b" : "#7a5812",
+    tabBarInactive: dark ? "rgba(194,215,203,0.65)" : "rgba(42,74,57,0.8)",
   };
 }

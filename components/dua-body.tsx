@@ -30,7 +30,7 @@ export function DuaBody({
 }: Props) {
   const labelClass = light
     ? "text-[11px] uppercase tracking-[1.5px] text-gold-400"
-    : "text-[11px] uppercase tracking-[1.5px] text-forest-400 dark:text-sand-200/45";
+    : "text-[11px] uppercase tracking-[1.5px] text-forest-400 dark:text-sand-200/65";
   const arabicClass =
     size === "lg"
       ? light

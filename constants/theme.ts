@@ -13,13 +13,21 @@ export const themeColors = {
     compactMuted: "#2a4a39",
     heroTitle: "#1a2f25",
     heroSubtitle: "rgba(26,47,37,0.72)",
-    heroEyebrow: "#9a7424",
+    heroEyebrow: "#7a5812",
     heroOverlay: [
       "rgba(235,228,212,0.42)",
       "rgba(235,228,212,0.62)",
       "rgba(232,224,208,0.82)",
     ] as const,
     todayDua: ["#f7f3ea", "#efe8d8", "#e4dcc8"] as const,
+    /** Semantik: vurgu (altın) — metin/ikon için kontrastı doğrulanmış */
+    accent: "#7a5812",
+    /** Semantik: ikon/etkileşim rengi */
+    tint: "#2a4a39",
+    /** İkincil metin (≥4.5:1) */
+    muted: "rgba(42,74,57,0.8)",
+    /** Metin/ikon (birincil) */
+    text: "#1a2f25",
   },
   dark: {
     page: "#0f1a15",
@@ -39,8 +47,19 @@ export const themeColors = {
       "rgba(15,26,21,0.86)",
     ] as const,
     todayDua: ["#1f352b", "#15241d", "#0f1a15"] as const,
+    accent: "#d4a84b",
+    tint: "#d4a84b",
+    muted: "rgba(221,210,188,0.7)",
+    text: "#f3efe6",
   },
 } as const;
+
+/** Switch renkleri — tüm ekranlarda aynı */
+export function switchColors(dark: boolean) {
+  return dark
+    ? { track: { false: "#2f4338", true: "#a8893a" }, thumb: "#faf8f4" }
+    : { track: { false: "#cfc6b6", true: "#2a4a39" }, thumb: "#faf8f4" };
+}
 
 export function pageBackground(dark: boolean) {
   return dark ? themeColors.dark.page : themeColors.light.page;

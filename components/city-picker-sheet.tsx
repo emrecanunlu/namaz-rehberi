@@ -99,7 +99,8 @@ export function CityPickerSheet({ visible, onClose }: Props) {
 
   const bg = dark ? "#121c17" : "#ebe4d4";
   const text = dark ? "#f3efe6" : "#1a2f25";
-  const muted = dark ? "rgba(194,215,203,0.45)" : "rgba(61,107,82,0.4)";
+  const muted = dark ? "rgba(194,215,203,0.65)" : "rgba(42,74,57,0.8)";
+  const accent = dark ? "#d4a84b" : "#7a5812";
   const line = dark ? "rgba(42,74,57,0.45)" : "rgba(230,220,200,0.95)";
   const field = dark ? "#0f1a15" : "#ffffff";
 
@@ -112,7 +113,12 @@ export function CityPickerSheet({ visible, onClose }: Props) {
       onRequestClose={onClose}
     >
       <View style={styles.root}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose}>
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel={t("common.close")}
+        >
           <Animated.View
             style={[
               StyleSheet.absoluteFill,
@@ -161,6 +167,7 @@ export function CityPickerSheet({ visible, onClose }: Props) {
 
           <View style={styles.header}>
             <Text
+              accessibilityRole="header"
               style={[
                 styles.title,
                 { fontFamily: fonts.displayBold, color: text },
@@ -173,12 +180,14 @@ export function CityPickerSheet({ visible, onClose }: Props) {
               disabled={locating}
               hitSlop={8}
               style={styles.locateBtn}
+              accessibilityRole="button"
               accessibilityLabel={t("settings.useLocation")}
+              accessibilityState={{ disabled: locating, busy: locating }}
             >
               {locating ? (
-                <ActivityIndicator size="small" color="#d4a84b" />
+                <ActivityIndicator size="small" color={accent} />
               ) : (
-                <Ionicons name="locate-outline" size={20} color="#d4a84b" />
+                <Ionicons name="locate-outline" size={22} color={accent} />
               )}
             </Pressable>
           </View>
@@ -192,13 +201,20 @@ export function CityPickerSheet({ visible, onClose }: Props) {
               onChangeText={setQuery}
               placeholder={t("settings.citySearch")}
               placeholderTextColor={muted}
+              accessibilityLabel={t("settings.citySearch")}
+              returnKeyType="search"
               autoCorrect={false}
               autoCapitalize="none"
               style={[styles.searchInput, { fontFamily: fonts.body, color: text }]}
             />
             {query.length > 0 ? (
-              <Pressable onPress={() => setQuery("")} hitSlop={8}>
-                <Ionicons name="close" size={15} color={muted} />
+              <Pressable
+                onPress={() => setQuery("")}
+                hitSlop={14}
+                accessibilityRole="button"
+                accessibilityLabel={t("common.clearSearch")}
+              >
+                <Ionicons name="close-circle" size={18} color={muted} />
               </Pressable>
             ) : null}
           </View>
@@ -230,19 +246,23 @@ export function CityPickerSheet({ visible, onClose }: Props) {
               return (
                 <Pressable
                   onPress={() => void selectCity(item)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected, checked: selected }}
+                  android_ripple={{ color: "rgba(42,74,57,0.12)" }}
+                  className="active:opacity-60"
                   style={styles.row}
                 >
                   <Text
                     style={{
                       fontFamily: selected ? fonts.bodySemi : fonts.body,
                       fontSize: 16,
-                      color: selected ? "#d4a84b" : text,
+                      color: selected ? accent : text,
                     }}
                   >
                     {cityDisplayName(item, locale)}
                   </Text>
                   {selected ? (
-                    <Ionicons name="checkmark" size={18} color="#d4a84b" />
+                    <Ionicons name="checkmark" size={20} color={accent} />
                   ) : null}
                 </Pressable>
               );
@@ -288,8 +308,8 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
   locateBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -301,11 +321,11 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     paddingHorizontal: 12,
-    paddingVertical: 11,
+    minHeight: 44,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16,
     padding: 0,
   },
   sep: {

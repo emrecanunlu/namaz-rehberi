@@ -51,13 +51,13 @@ export default function ReportScreen() {
       >
         <Text
           style={{ fontFamily: fonts.bodySemi }}
-          className="mt-6 text-[12px] uppercase tracking-[2px] text-gold-500"
+          className="mt-6 text-[12px] uppercase tracking-[2px] text-gold-600 dark:text-gold-400"
         >
           {t("report.todayMark")}
         </Text>
         <Text
           style={{ fontFamily: fonts.body }}
-          className="mt-1 text-[13px] text-forest-500 dark:text-sand-200/60"
+          className="mt-1 text-[13px] text-forest-500 dark:text-sand-200/70"
         >
           {t("report.todayMarkHint")}
         </Text>
@@ -106,7 +106,7 @@ export default function ReportScreen() {
                 </Text>
                 <Text
                   style={{ fontFamily: fonts.body }}
-                  className="text-[12px] text-forest-500/70 dark:text-sand-200/45"
+                  className="text-[12px] text-forest-400 dark:text-sand-200/65"
                 >
                   {done ? t("report.markDone") : t("report.markTodo")}
                 </Text>
@@ -117,7 +117,7 @@ export default function ReportScreen() {
 
         <Text
           style={{ fontFamily: fonts.bodySemi }}
-          className="mt-10 text-[12px] uppercase tracking-[2px] text-gold-500"
+          className="mt-10 text-[12px] uppercase tracking-[2px] text-gold-600 dark:text-gold-400"
         >
           {t("report.history")}
         </Text>
@@ -150,7 +150,7 @@ export default function ReportScreen() {
                   </Text>
                   <Text
                     style={{ fontFamily: fonts.bodySemi }}
-                    className="text-[13px] text-gold-500"
+                    className="text-[13px] text-gold-600 dark:text-gold-400"
                   >
                     {t("report.rakats", { count: day.totalRakats })}
                   </Text>
@@ -159,7 +159,7 @@ export default function ReportScreen() {
                 {day.completedPrayerIds.length === 0 ? (
                   <Text
                     style={{ fontFamily: fonts.body }}
-                    className="mt-2 text-[14px] text-forest-500/70 dark:text-sand-200/45"
+                    className="mt-2 text-[14px] text-forest-400 dark:text-sand-200/65"
                   >
                     {t("report.none")}
                   </Text>
@@ -167,7 +167,7 @@ export default function ReportScreen() {
                   <>
                     <Text
                       style={{ fontFamily: fonts.body }}
-                      className="mt-1 text-[13px] text-forest-500 dark:text-sand-200/60"
+                      className="mt-1 text-[13px] text-forest-500 dark:text-sand-200/70"
                     >
                       {t("report.prayersDone", {
                         count: day.completedPrayerIds.length,

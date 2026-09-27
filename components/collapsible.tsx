@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { Animated, Easing } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
 
 type Props = {
   open: boolean;
@@ -13,9 +14,15 @@ type Props = {
 export function Collapsible({ open, children }: Props) {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(6)).current;
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (!open) return;
+    if (reduceMotion) {
+      opacity.setValue(1);
+      translateY.setValue(0);
+      return;
+    }
     opacity.setValue(0);
     translateY.setValue(6);
     Animated.parallel([
@@ -32,7 +39,7 @@ export function Collapsible({ open, children }: Props) {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [open, opacity, translateY]);
+  }, [open, opacity, translateY, reduceMotion]);
 
   if (!open) return null;
 

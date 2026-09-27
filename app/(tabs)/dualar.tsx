@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -31,6 +32,7 @@ export default function DualarScreen() {
   const insets = useSafeAreaInsets();
   const { resolvedTheme } = useAppSettings();
   const dark = resolvedTheme === "dark";
+  const chrome = dark ? themeColors.dark : themeColors.light;
   const sliverRef = useRef<SliverTabScreenRef>(null);
   const itemRefs = useRef<Record<string, View | null>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -79,7 +81,9 @@ export default function DualarScreen() {
       contentContainerStyle={{ paddingHorizontal: 16 }}
     >
       <LinearGradient
-        colors={[...(dark ? themeColors.dark.todayDua : themeColors.light.todayDua)]}
+        colors={[
+          ...(dark ? themeColors.dark.todayDua : themeColors.light.todayDua),
+        ]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[{ marginBottom: 20 }, cardShadow(dark)]}
@@ -88,7 +92,7 @@ export default function DualarScreen() {
           <Text
             style={{ fontFamily: fonts.bodyMedium }}
             className={`text-[11px] uppercase tracking-[1.6px] ${
-              dark ? "text-gold-400" : "text-gold-500"
+              dark ? "text-gold-400" : "text-gold-600 dark:text-gold-400"
             }`}
           >
             {t("duas.todayLabel", {
@@ -137,7 +141,7 @@ export default function DualarScreen() {
       </Text>
       <Text
         style={{ fontFamily: fonts.body }}
-        className="mb-3 text-[12px] text-forest-500 dark:text-sand-200/55"
+        className="mb-3 text-[12px] text-forest-500 dark:text-sand-200/70"
       >
         {t("duas.expandHint")}
       </Text>
@@ -157,20 +161,24 @@ export default function DualarScreen() {
             style={[
               {
                 marginBottom: 12,
-                backgroundColor: dark ? "#1a2f25" : "#f3efe6",
+                backgroundColor: chrome.surface,
                 borderWidth: isToday ? 1.5 : 0,
                 borderColor: isToday ? "#d4a84b" : "transparent",
               },
               cardShadow(dark),
             ]}
           >
-            <Pressable
-              onPress={() => toggle(dua.id)}
-              android_ripple={{ color: "rgba(42,74,57,0.12)" }}
-              style={({ pressed }) => ({ opacity: pressed ? 0.82 : 1 })}
-            >
-              <View className="px-4 py-4">
-                <View className="mb-1 flex-row items-center justify-between">
+            <View className="px-4 py-4">
+              {/* Yalnız başlık basılabilir — açık içerik (metin seçimi, dinle) kartı kapatmaz */}
+              <Pressable
+                onPress={() => toggle(dua.id)}
+                accessibilityRole="button"
+                accessibilityState={{ expanded: isOpen }}
+                accessibilityLabel={`${index + 1}. ${text.title}${isToday ? `, ${t("common.today")}` : ""}`}
+                android_ripple={{ color: "rgba(42,74,57,0.12)" }}
+                style={({ pressed }) => ({ opacity: pressed ? 0.82 : 1 })}
+              >
+                <View className="mb-1 min-h-[28px] flex-row items-center justify-between">
                   <Text
                     style={{ fontFamily: fonts.bodySemi }}
                     className="mr-2 flex-1 text-base text-forest-900 dark:text-sand-50"
@@ -181,17 +189,16 @@ export default function DualarScreen() {
                     {isToday ? (
                       <Text
                         style={{ fontFamily: fonts.bodySemi }}
-                        className="bg-gold-400/20 px-2 py-0.5 text-xs text-gold-500"
+                        className="bg-gold-400/20 px-2 py-0.5 text-xs text-gold-600 dark:text-gold-400"
                       >
                         {t("common.today")}
                       </Text>
                     ) : null}
-                    <Text
-                      style={{ fontFamily: fonts.body }}
-                      className="text-[13px] text-forest-400 dark:text-sand-200/45"
-                    >
-                      {isOpen ? "−" : "+"}
-                    </Text>
+                    <Ionicons
+                      name={isOpen ? "chevron-up" : "chevron-down"}
+                      size={18}
+                      color={chrome.muted}
+                    />
                   </View>
                 </View>
 
@@ -209,23 +216,23 @@ export default function DualarScreen() {
                     {dua.arabic}
                   </Text>
                 ) : null}
+              </Pressable>
 
-                <Collapsible open={isOpen}>
-                  <View className="pt-3">
-                    <DuaBody
-                      arabic={dua.arabic}
-                      latin={dua.latin}
-                      meaning={text.meaning}
-                    />
-                    <ArabicListenButton
-                      arabic={dua.arabic}
-                      duaId={dua.id}
-                      className="mt-3.5"
-                    />
-                  </View>
-                </Collapsible>
-              </View>
-            </Pressable>
+              <Collapsible open={isOpen}>
+                <View className="pt-3">
+                  <DuaBody
+                    arabic={dua.arabic}
+                    latin={dua.latin}
+                    meaning={text.meaning}
+                  />
+                  <ArabicListenButton
+                    arabic={dua.arabic}
+                    duaId={dua.id}
+                    className="mt-3.5"
+                  />
+                </View>
+              </Collapsible>
+            </View>
           </View>
         );
       })}

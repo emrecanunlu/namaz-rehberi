@@ -30,7 +30,15 @@ const TRANSITION_MS = 720;
 
 function Dots({ index }: { index: number }) {
   return (
-    <View className="flex-row items-center justify-center gap-1.5">
+    <View
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel={t("common.slidePosition", {
+        current: index + 1,
+        total: ONBOARDING_SLIDE_IDS.length,
+      })}
+      className="flex-row items-center justify-center gap-1.5"
+    >
       {ONBOARDING_SLIDE_IDS.map((slide, i) => (
         <Dot key={slide} active={i === index} />
       ))}
@@ -265,11 +273,13 @@ function ControlButton({
   icon: keyof typeof Ionicons.glyphMap;
   iconPosition?: "left" | "right";
 }) {
-  const color = muted ? "rgba(255,255,255,0.55)" : "#ffffff";
+  const color = muted ? "rgba(255,255,255,0.75)" : "#ffffff";
 
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
       hitSlop={14}
       className="flex-row items-center gap-1.5 px-1 py-2 active:opacity-55"
     >
@@ -278,7 +288,7 @@ function ControlButton({
       ) : null}
       <Text
         style={{ fontFamily: muted ? fonts.body : fonts.bodyMedium }}
-        className={`text-[15px] ${muted ? "text-white/55" : "text-white"}`}
+        className={`text-[15px] ${muted ? "text-white/75" : "text-white"}`}
       >
         {label}
       </Text>
@@ -341,6 +351,8 @@ function StartControls({
       </View>
       <Pressable
         onPress={onStart}
+        accessibilityRole="button"
+        className="active:opacity-85"
         style={{
           width: "100%",
           flexDirection: "row",
@@ -349,6 +361,7 @@ function StartControls({
           gap: 8,
           borderRadius: 999,
           backgroundColor: "#d4a84b",
+          minHeight: 52,
           paddingVertical: 14,
         }}
       >
@@ -542,12 +555,13 @@ export default function OnboardingScreen() {
           {!isLast ? (
             <Pressable
               onPress={() => void finish()}
+              accessibilityRole="button"
               hitSlop={14}
               className="px-1 py-2 active:opacity-55"
             >
               <Text
                 style={{ fontFamily: fonts.body }}
-                className="text-[14px] text-white/45"
+                className="text-[14px] text-white/75"
               >
                 {t("common.skip")}
               </Text>

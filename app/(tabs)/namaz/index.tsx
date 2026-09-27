@@ -3,14 +3,10 @@ import { useMemo, useState, useEffect } from "react";
 import { Text, View, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { bannerForTheme } from "@/constants/images";
-import {
-  PRAYER_GUIDES,
-  getPrayerName,
-  getPrayerSummary,
-} from "@/data/content";
+import { PRAYER_GUIDES, getPrayerName, getPrayerSummary } from "@/data/content";
 import { t } from "@/lib/i18n";
 import { fonts } from "@/constants/fonts";
-import { cardShadow } from "@/constants/theme";
+import { cardShadow, themeColors } from "@/constants/theme";
 import { useAppSettings } from "@/lib/settings-context";
 import { SliverTabScreen } from "@/components/sliver-tab-screen";
 import { hapticMedium } from "@/lib/haptics";
@@ -23,6 +19,7 @@ import {
 export default function NamazListScreen() {
   const { resolvedTheme, city } = useAppSettings();
   const dark = resolvedTheme === "dark";
+  const chrome = dark ? themeColors.dark : themeColors.light;
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -57,6 +54,8 @@ export default function NamazListScreen() {
       contentContainerStyle={{ paddingHorizontal: 12 }}
     >
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${t("prayer.startSession")}: ${guideName}`}
         onPress={() => {
           hapticMedium();
           router.push(`/namaza-basla/${guideId}`);
@@ -66,14 +65,14 @@ export default function NamazListScreen() {
           opacity: pressed ? 0.85 : 1,
           marginTop: 16,
           marginBottom: 18,
-          backgroundColor: dark ? "#1a2f25" : "#f3efe6",
+          backgroundColor: chrome.surface,
           ...cardShadow(dark),
         })}
         className="px-3.5 py-4"
       >
         <Text
           style={{ fontFamily: fonts.bodySemi }}
-          className="text-[11px] uppercase tracking-[1.8px] text-gold-500"
+          className="text-[11px] uppercase tracking-[1.8px] text-gold-600 dark:text-gold-400"
         >
           {t("prayer.startSession")}
         </Text>
@@ -90,11 +89,7 @@ export default function NamazListScreen() {
           {t("prayer.startSessionHint", { prayer: guideName })}
         </Text>
         <View className="mt-3 flex-row items-center">
-          <Ionicons
-            name="play-circle-outline"
-            size={18}
-            color={dark ? "#d4a84b" : "#2a4a39"}
-          />
+          <Ionicons name="play-circle-outline" size={18} color={chrome.tint} />
           <Text
             style={{ fontFamily: fonts.bodySemi }}
             className="ml-1.5 text-[14px] text-forest-800 dark:text-gold-400"
@@ -110,12 +105,13 @@ export default function NamazListScreen() {
             key={prayer.id}
             style={{
               marginBottom: 14,
-              backgroundColor: dark ? "#1a2f25" : "#f3efe6",
+              backgroundColor: chrome.surface,
               ...cardShadow(dark),
             }}
           >
             <Link href={`/namaz/${prayer.id}`} asChild>
               <Pressable
+                accessibilityRole="link"
                 android_ripple={{ color: "rgba(42,74,57,0.12)" }}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.78 : 1,
@@ -144,25 +140,25 @@ export default function NamazListScreen() {
                     {getPrayerSummary(prayer.id)}
                   </Text>
                 </View>
-                <Text className="text-forest-500/70 dark:text-sand-200/50">
-                  ›
-                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={chrome.muted}
+                />
               </Pressable>
             </Link>
 
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${t("prayer.startThis")}: ${getPrayerName(prayer.id)}`}
               onPress={() => {
                 hapticMedium();
                 router.push(`/namaza-basla/${prayer.id}`);
               }}
               android_ripple={{ color: "rgba(42,74,57,0.1)" }}
-              className="flex-row items-center border-t border-sand-200/70 px-3.5 py-3 active:opacity-70 dark:border-forest-800"
+              className="min-h-[44px] flex-row items-center border-t border-sand-200/70 px-3.5 py-3 active:opacity-70 dark:border-forest-800"
             >
-              <Ionicons
-                name="play"
-                size={14}
-                color={dark ? "#d4a84b" : "#2a4a39"}
-              />
+              <Ionicons name="play" size={16} color={chrome.tint} />
               <Text
                 style={{ fontFamily: fonts.bodySemi }}
                 className="ml-2 text-[13px] text-forest-800 dark:text-gold-400"

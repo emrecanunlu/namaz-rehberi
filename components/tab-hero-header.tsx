@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fonts } from "@/constants/fonts";
 import { themeColors } from "@/constants/theme";
+import { t } from "@/lib/i18n";
 import { useAppSettings } from "@/lib/settings-context";
 
 type StackAppHeaderProps = {
@@ -55,9 +56,10 @@ export function StackAppHeader({
             onPress={onBack}
             hitSlop={12}
             accessibilityRole="button"
+            accessibilityLabel={t("common.back")}
             style={{
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -69,11 +71,12 @@ export function StackAppHeader({
             />
           </Pressable>
         ) : (
-          <View style={{ width: 40 }} />
+          <View style={{ width: 44 }} />
         )}
 
         <View style={{ flex: 1, paddingHorizontal: 4 }}>
           <Text
+            accessibilityRole="header"
             style={{
               fontFamily: fonts.displayBold,
               fontSize: 20,
@@ -100,7 +103,7 @@ export function StackAppHeader({
           ) : null}
         </View>
 
-        {right ?? <View style={{ width: 40 }} />}
+        {right ?? <View style={{ width: 44 }} />}
       </View>
     </View>
   );

@@ -10,7 +10,7 @@ import { fonts } from "@/constants/fonts";
 import { softNavTheme } from "@/constants/nav-theme";
 
 const TAB_BAR_CONTENT = 52;
-const TAB_ICON_SIZE = 20;
+const TAB_ICON_SIZE = 22;
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -71,7 +71,7 @@ export default function TabsLayout() {
         },
         tabBarLabelStyle: {
           fontFamily: fonts.bodyMedium,
-          fontSize: 10,
+          fontSize: 11,
           marginTop: 0,
         },
         tabBarIconStyle: {

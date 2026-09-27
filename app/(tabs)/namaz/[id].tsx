@@ -140,6 +140,9 @@ export default function PrayerDetailScreen() {
         >
           <Pressable
             onPress={() => toggle(item.index)}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: isOpen }}
+            accessibilityLabel={`${item.index + 1}. ${text.title}`}
             android_ripple={{ color: "rgba(42,74,57,0.12)" }}
             style={({ pressed }) => ({
               opacity: pressed ? 0.78 : 1,
@@ -163,16 +166,15 @@ export default function PrayerDetailScreen() {
               <View className="flex-row items-center justify-between">
                 <Text
                   style={{ fontFamily: fonts.bodySemi }}
-                  className="text-[12px] text-forest-400 dark:text-sand-200/50"
+                  className="text-[12px] text-forest-400 dark:text-sand-200/65"
                 >
                   {item.index + 1}
                 </Text>
-                <Text
-                  style={{ fontFamily: fonts.body }}
-                  className="text-[12px] text-forest-400 dark:text-sand-200/45"
-                >
-                  {isOpen ? "−" : "+"}
-                </Text>
+                <Ionicons
+                  name={isOpen ? "chevron-up" : "chevron-down"}
+                  size={16}
+                  color={resolvedTheme === "dark" ? "rgba(221,210,188,0.7)" : "#416d56"}
+                />
               </View>
               <Text
                 style={{ fontFamily: fonts.bodySemi, lineHeight: 22 }}
@@ -207,14 +209,15 @@ export default function PrayerDetailScreen() {
                 />
                 <Text
                   style={{ fontFamily: fonts.body }}
-                  className="px-3 py-2 text-center text-[11px] text-forest-400 dark:text-sand-200/50"
+                  className="px-3 py-2 text-center text-[11px] text-forest-400 dark:text-sand-200/65"
                 >
                   {t("session.poseTapHint")}
                 </Text>
               </Pressable>
               <Text
-                style={{ fontFamily: fonts.displayMedium }}
-                className="text-right text-base leading-7 text-forest-800 dark:text-gold-400"
+                selectable
+                style={{ writingDirection: "rtl", textAlign: "right", lineHeight: 36 }}
+                className="text-[20px] text-forest-800 dark:text-gold-400"
               >
                 {rec?.arabic}
               </Text>
@@ -226,7 +229,7 @@ export default function PrayerDetailScreen() {
               </Text>
               <Text
                 style={{ fontFamily: fonts.bodyMedium }}
-                className="mt-3 text-[11px] uppercase tracking-[1.5px] text-forest-400 dark:text-sand-200/45"
+                className="mt-3 text-[11px] uppercase tracking-[1.5px] text-forest-400 dark:text-sand-200/65"
               >
                 {t("session.meal")}
               </Text>
@@ -261,14 +264,15 @@ export default function PrayerDetailScreen() {
                 />
                 <Text
                   style={{ fontFamily: fonts.body }}
-                  className="px-3 py-2 text-center text-[11px] text-forest-400 dark:text-sand-200/50"
+                  className="px-3 py-2 text-center text-[11px] text-forest-400 dark:text-sand-200/65"
                 >
                   {t("session.poseTapHint")}
                 </Text>
               </Pressable>
               <Text
-                style={{ fontFamily: fonts.bodyMedium }}
-                className="text-sm text-gold-500"
+                selectable
+                style={{ writingDirection: "rtl", textAlign: "right", lineHeight: 36 }}
+                className="text-[20px] text-gold-600 dark:text-gold-400"
               >
                 {item.step.arabic}
               </Text>
@@ -285,7 +289,7 @@ export default function PrayerDetailScreen() {
         </View>
       );
     },
-    [prayer, expandedIndex, toggle, openPose],
+    [prayer, expandedIndex, toggle, openPose, resolvedTheme],
   );
 
   const renderSectionHeader = useCallback(
@@ -293,12 +297,13 @@ export default function PrayerDetailScreen() {
       const dark = resolvedTheme === "dark";
       return (
         <View
-          style={dark ? { backgroundColor: "#0f1a15" } : undefined}
+          accessibilityRole="header"
+          style={{ backgroundColor: dark ? "#0f1a15" : "#f3efe6" }}
           className="border-b border-sand-200/60 pb-2.5 pt-4 dark:border-forest-800"
         >
           <Text
             style={{ fontFamily: fonts.bodySemi }}
-            className="text-[12px] uppercase tracking-[2px] text-gold-500"
+            className="text-[12px] uppercase tracking-[2px] text-gold-600 dark:text-gold-400"
           >
             {section.title}
           </Text>
@@ -356,7 +361,7 @@ export default function PrayerDetailScreen() {
                 <Text
                   style={{ fontFamily: fonts.bodyMedium }}
                   className={`text-[11px] uppercase tracking-[1.6px] ${
-                    resolvedTheme === "dark" ? "text-gold-400" : "text-gold-500"
+                    resolvedTheme === "dark" ? "text-gold-400" : "text-gold-600"
                   }`}
                 >
                   {prayer.rakats} {t("common.rakat")} · {prayer.steps.length}{" "}
@@ -376,7 +381,7 @@ export default function PrayerDetailScreen() {
                   style={{ fontFamily: fonts.body }}
                   className={`mt-3 text-[12px] ${
                     resolvedTheme === "dark"
-                      ? "text-sand-200/50"
+                      ? "text-sand-200/70"
                       : "text-forest-500"
                   }`}
                 >
@@ -385,6 +390,7 @@ export default function PrayerDetailScreen() {
               </View>
 
               <Pressable
+                accessibilityRole="button"
                 onPress={() => {
                   hapticMedium();
                   router.push(`/namaza-basla/${prayer.id}`);
@@ -410,12 +416,16 @@ export default function PrayerDetailScreen() {
                   </Text>
                   <Text
                     style={{ fontFamily: fonts.body }}
-                    className="mt-0.5 text-[12px] text-forest-500 dark:text-sand-200/55"
+                    className="mt-0.5 text-[12px] text-forest-500 dark:text-sand-200/70"
                   >
                     {t("prayer.startSession")}
                   </Text>
                 </View>
-                <Text className="text-forest-500/70 dark:text-gold-400">›</Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={resolvedTheme === "dark" ? "#d4a84b" : "#2a4a39"}
+                />
               </Pressable>
             </View>
           }
