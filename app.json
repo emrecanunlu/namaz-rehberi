@@ -7,12 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "namazrehberim",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1a2f25"
-    },
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.emrecanunlu.namazrehberim",
@@ -21,6 +16,7 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
+
     "android": {
       "package": "com.emrecanunlu.namazrehberim",
       "permissions": [
@@ -40,20 +36,24 @@
       },
       "predictiveBackGestureEnabled": false
     },
+
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
+
     "plugins": [
       "expo-router",
       "expo-localization",
       "expo-font",
+
       [
         "expo-location",
         {
           "locationWhenInUsePermission": "Namaz vakitleri ve kıble yönü için konumunuza ihtiyaç duyuyoruz."
         }
       ],
+
       [
         "expo-splash-screen",
         {
@@ -63,15 +63,20 @@
           "resizeMode": "contain"
         }
       ],
+
       "expo-audio",
-      "expo-asset"
+      "expo-asset",
+      "expo-sharing",
+      "expo-status-bar"
     ],
+
     "extra": {
       "router": {},
       "eas": {
         "projectId": "92adad1f-674f-4fcf-abb7-bdcfefc2f5be"
       }
     },
+
     "owner": "emreunlu0"
   }
 }

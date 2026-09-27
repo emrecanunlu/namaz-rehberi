@@ -1,23 +1,20 @@
 import "../global.css";
 import "react-native-gesture-handler";
+
 import { useEffect, useMemo } from "react";
 import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Stack } from "expo-router";
-import {
-  ThemeProvider,
-  DarkTheme,
-  DefaultTheme,
-} from "@react-navigation/native";
+
+import { Stack, ThemeProvider, DarkTheme, DefaultTheme } from "expo-router";
+
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import {
-  OnboardingProvider,
-  useOnboarding,
-} from "@/lib/onboarding-context";
+
+import { OnboardingProvider, useOnboarding } from "@/lib/onboarding-context";
 import { AppSettingsProvider, useAppSettings } from "@/lib/settings-context";
 import { PrayerLogProvider } from "@/lib/prayer-log-context";
+
 import { fontAssets } from "@/constants/fonts";
 import { pageBackground } from "@/constants/theme";
 
@@ -26,6 +23,7 @@ SplashScreen.preventAutoHideAsync().catch(() => undefined);
 function RootNavigator() {
   const { ready: onboardingReady, seenOnboarding } = useOnboarding();
   const { ready: settingsReady, resolvedTheme } = useAppSettings();
+
   const [fontsLoaded, fontError] = useFonts(fontAssets);
 
   const ready =
@@ -35,6 +33,7 @@ function RootNavigator() {
 
   const navigationTheme = useMemo(() => {
     const base = resolvedTheme === "dark" ? DarkTheme : DefaultTheme;
+
     return {
       ...base,
       dark: resolvedTheme === "dark",
@@ -54,6 +53,7 @@ function RootNavigator() {
 
   useEffect(() => {
     if (!ready) return;
+
     void SplashScreen.hideAsync();
   }, [ready]);
 
@@ -64,10 +64,13 @@ function RootNavigator() {
   return (
     <ThemeProvider value={navigationTheme}>
       <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
+
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor },
+          contentStyle: {
+            backgroundColor,
+          },
           animation: "slide_from_right",
           animationDuration: 300,
           gestureEnabled: true,
@@ -79,6 +82,7 @@ function RootNavigator() {
 
         <Stack.Protected guard={seenOnboarding}>
           <Stack.Screen name="(tabs)" />
+
           <Stack.Screen
             name="namaza-basla/[id]"
             options={{
