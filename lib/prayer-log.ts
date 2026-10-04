@@ -60,8 +60,30 @@ export function getSectionRakat(
   return summary?.rakatCount ?? 0;
 }
 
+const NO_ENTRIES: PrayerLogEntry[] = [];
+
+/**
+ * Kayıt listeleri değişmez (her değişiklik yeni dizi üretir);
+ * bu yüzden tarih indeksi dizi başına bir kez kurulup önbellekte tutulur.
+ * Takvim yüzlerce günü sorguladığında her sorgu tüm listeyi taramasın.
+ */
+const dateIndexCache = new WeakMap<
+  PrayerLogEntry[],
+  Map<string, PrayerLogEntry[]>
+>();
+
 export function entriesForDate(entries: PrayerLogEntry[], date: string) {
-  return entries.filter((e) => e.date === date);
+  let index = dateIndexCache.get(entries);
+  if (!index) {
+    index = new Map();
+    for (const entry of entries) {
+      const list = index.get(entry.date);
+      if (list) list.push(entry);
+      else index.set(entry.date, [entry]);
+    }
+    dateIndexCache.set(entries, index);
+  }
+  return index.get(date) ?? NO_ENTRIES;
 }
 
 export function isSectionDone(
@@ -146,9 +168,11 @@ export function sectionProgressForPrayer(
 
 /** Gün için rekat toplamı (çift saymadan) */
 export function totalRakatsForDate(entries: PrayerLogEntry[], date: string) {
+  const dayEntries = entriesForDate(entries, date);
+  if (dayEntries.length === 0) return 0;
   let total = 0;
   for (const guide of PRAYER_GUIDES) {
-    const day = entriesForDate(entries, date).filter(
+    const day = dayEntries.filter(
       (e) => e.prayerId === guide.id,
     );
     if (day.length === 0) continue;
@@ -170,6 +194,7 @@ export function completedPrayerIdsForDate(
   entries: PrayerLogEntry[],
   date: string,
 ): PrayerGuideId[] {
+  if (entriesForDate(entries, date).length === 0) return [];
   return PRAYER_GUIDES.filter((g) => isPrayerDone(entries, date, g.id)).map(
     (g) => g.id,
   );

@@ -1,5 +1,5 @@
 import { Link, router } from "expo-router";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 import { Text, View, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { bannerForTheme } from "@/constants/images";
@@ -10,6 +10,7 @@ import { cardShadow, themeColors } from "@/constants/theme";
 import { useAppSettings } from "@/lib/settings-context";
 import { SliverTabScreen } from "@/components/sliver-tab-screen";
 import { hapticMedium } from "@/lib/haptics";
+import { useNow } from "@/lib/use-now";
 import {
   calculatePrayerTimes,
   getActiveGuideId,
@@ -20,12 +21,7 @@ export default function NamazListScreen() {
   const { resolvedTheme, city } = useAppSettings();
   const dark = resolvedTheme === "dark";
   const chrome = dark ? themeColors.dark : themeColors.light;
-  const [now, setNow] = useState(() => new Date());
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30_000);
-    return () => clearInterval(id);
-  }, []);
+  const now = useNow(60_000);
 
   const times = useMemo(() => calculatePrayerTimes(city), [city]);
   const tomorrowTimes = useMemo(() => {
@@ -61,14 +57,13 @@ export default function NamazListScreen() {
           router.push(`/namaza-basla/${guideId}`);
         }}
         android_ripple={{ color: "rgba(42,74,57,0.12)" }}
-        style={({ pressed }) => ({
-          opacity: pressed ? 0.85 : 1,
+        style={{
           marginTop: 16,
           marginBottom: 18,
           backgroundColor: chrome.surface,
           ...cardShadow(dark),
-        })}
-        className="px-3.5 py-4"
+        }}
+        className="px-3.5 py-4 active:opacity-85"
       >
         <Text
           style={{ fontFamily: fonts.bodySemi }}
@@ -113,10 +108,7 @@ export default function NamazListScreen() {
               <Pressable
                 accessibilityRole="link"
                 android_ripple={{ color: "rgba(42,74,57,0.12)" }}
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.78 : 1,
-                })}
-                className="flex-row items-center px-3.5 py-4"
+                className="flex-row items-center px-3.5 py-4 active:opacity-80"
               >
                 <View className="mr-4 h-12 w-12 items-center justify-center bg-forest-100 dark:bg-forest-800">
                   <Text

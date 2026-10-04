@@ -382,7 +382,7 @@ function StartControls({
 
 export default function OnboardingScreen() {
   const { completeOnboarding } = useOnboarding();
-  const { locale } = useAppSettings();
+  const { locale, citySource, refreshLocation } = useAppSettings();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
 
@@ -421,6 +421,10 @@ export default function OnboardingScreen() {
 
   async function finish() {
     hapticSuccess();
+    // Konum izni burada, bağlamıyla istenir (vakitler + kıble için)
+    if (citySource === "auto") {
+      await refreshLocation().catch(() => undefined);
+    }
     await completeOnboarding();
   }
 

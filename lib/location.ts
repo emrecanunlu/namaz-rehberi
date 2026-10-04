@@ -6,11 +6,20 @@ import {
   type TurkeyCity,
 } from "@/data/cities-tr";
 
-export async function resolveCityFromDevice(): Promise<{
+/**
+ * Konumdan en yakın ili bulur (hesap cihazda; konum dışarı gönderilmez).
+ * `request: false` iken izin istenmez — ilk açılışta izin onboarding
+ * sonunda, bağlamıyla birlikte istenir.
+ */
+export async function resolveCityFromDevice({
+  request = true,
+}: { request?: boolean } = {}): Promise<{
   city: TurkeyCity;
   granted: boolean;
 }> {
-  const { status } = await Location.requestForegroundPermissionsAsync();
+  const { status } = request
+    ? await Location.requestForegroundPermissionsAsync()
+    : await Location.getForegroundPermissionsAsync();
   if (status !== "granted") {
     return { city: getCityById(DEFAULT_CITY_ID), granted: false };
   }

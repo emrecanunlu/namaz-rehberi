@@ -144,10 +144,7 @@ export default function PrayerDetailScreen() {
             accessibilityState={{ expanded: isOpen }}
             accessibilityLabel={`${item.index + 1}. ${text.title}`}
             android_ripple={{ color: "rgba(42,74,57,0.12)" }}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.78 : 1,
-            })}
-            className="overflow-hidden border border-sand-200/80 bg-sand-50 dark:border-forest-700 dark:bg-forest-900"
+            className="overflow-hidden border border-sand-200/80 bg-sand-50 dark:border-forest-700 dark:bg-forest-900 active:opacity-80"
           >
           <View className="flex-row px-3.5 py-3.5">
             <Pressable

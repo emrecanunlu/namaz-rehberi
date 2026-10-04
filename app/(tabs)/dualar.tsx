@@ -176,7 +176,7 @@ export default function DualarScreen() {
                 accessibilityState={{ expanded: isOpen }}
                 accessibilityLabel={`${index + 1}. ${text.title}${isToday ? `, ${t("common.today")}` : ""}`}
                 android_ripple={{ color: "rgba(42,74,57,0.12)" }}
-                style={({ pressed }) => ({ opacity: pressed ? 0.82 : 1 })}
+                className="active:opacity-80"
               >
                 <View className="mb-1 min-h-[28px] flex-row items-center justify-between">
                   <Text

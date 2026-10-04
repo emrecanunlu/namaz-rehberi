@@ -120,7 +120,15 @@ export async function speakDua(
       }
     }
 
-    statusSub = player.addListener(
+    // expo-modules-core iç içe kurulu olduğundan SharedObject tipi
+    // expo-audio tarafında çözülmüyor; çalışma anında addListener mevcut.
+    const emitter = player as unknown as {
+      addListener: (
+        event: "playbackStatusUpdate",
+        listener: (status: AudioStatus) => void,
+      ) => { remove: () => void };
+    };
+    statusSub = emitter.addListener(
       "playbackStatusUpdate",
       (status: AudioStatus) => {
         if (token !== playToken || finished) return;

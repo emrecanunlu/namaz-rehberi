@@ -10,7 +10,6 @@ import {
 import type { PrayerSectionKind } from "@/data/content";
 import { dateKey } from "@/lib/prayer-times";
 import {
-  buildDayReports,
   completedPrayerIdsForDate,
   isPrayerDone,
   isSectionDone,
@@ -22,7 +21,6 @@ import {
   togglePrayerManualInList,
   toggleSectionManualInList,
   totalRakatsForDate,
-  type DayReport,
   type PrayerGuideId,
   type PrayerLogEntry,
 } from "@/lib/prayer-log";
@@ -52,7 +50,6 @@ type PrayerLogContextValue = {
     section: PrayerSectionKind,
   ) => Promise<void>;
   togglePrayerManual: (prayerId: PrayerGuideId) => Promise<void>;
-  dayReports: DayReport[];
 };
 
 const PrayerLogContext = createContext<PrayerLogContextValue | null>(null);
@@ -134,7 +131,6 @@ export function PrayerLogProvider({ children }: { children: ReactNode }) {
       markSectionGuided,
       toggleSectionManual,
       togglePrayerManual,
-      dayReports: buildDayReports(entries, 60),
     }),
     [
       ready,

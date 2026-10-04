@@ -44,8 +44,6 @@ export default function TabsLayout() {
   return (
     <Tabs
       key={`${locale}-${resolvedTheme}`}
-      // Lazy detach + varsayılan beyaz sahne = geçişte flaş
-      detachInactiveScreens={false}
       safeAreaInsets={{ bottom: 0 }}
       screenListeners={{
         tabPress: () => {
@@ -57,6 +55,9 @@ export default function TabsLayout() {
         headerTintColor: nav.headerTintColor,
         headerTitleStyle: nav.headerTitleStyle,
         headerShadowVisible: nav.headerShadowVisible,
+        // Gizli sekmeler render olmasın (context değişimi, zamanlayıcı vb.)
+        lazy: true,
+        freezeOnBlur: true,
         // Tabs: "none" | "fade" | "shift"
         animation: "fade",
         transitionSpec: {
@@ -167,15 +168,6 @@ export default function TabsLayout() {
               inactive="settings-outline"
             />
           ),
-        }}
-      />
-      {/* Kıble: alt barda değil — anasayfadaki kısayoldan açılır */}
-      <Tabs.Screen
-        name="kible"
-        options={{
-          href: null,
-          title: t("tabs.qibla"),
-          headerShown: false,
         }}
       />
     </Tabs>

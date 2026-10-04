@@ -1401,10 +1401,11 @@ export default function PrayerTrackingScreen() {
     return days;
   }, []);
 
-  // Yalnızca görünen sayfa ve iki komşusu hesaplanır
+  // Yalnızca görünen sayfa ve iki komşusu render edilir; indeks kaydırma
+  // yarısında güncellendiği için bir sonraki komşu görünmeden hazır olur
   const visibleMonths = useMemo(() => {
     const map = new Map<number, DaySnapshot[]>();
-    for (const offset of [-3, -2, -1, 0, 1, 2, 3]) {
+    for (const offset of [-1, 0, 1]) {
       const index = monthIndex + offset;
       if (index < 0 || index >= monthPages.length) continue;
       map.set(index, buildMonth(monthPages[index]));

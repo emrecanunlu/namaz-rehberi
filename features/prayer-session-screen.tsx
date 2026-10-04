@@ -32,6 +32,10 @@ import { usePrayerLog } from "@/lib/prayer-log-context";
 import { fonts } from "@/constants/fonts";
 import { pageBackground, switchColors } from "@/constants/theme";
 import { useReducedMotion } from "react-native-reanimated";
+import {
+  activateKeepAwakeAsync,
+  deactivateKeepAwake,
+} from "expo-keep-awake";
 import { PoseImageLightbox } from "@/components/pose-image-lightbox";
 import {
   speakPrayerStep,
@@ -54,8 +58,24 @@ function splitReadingLines(latin: string) {
     .filter(Boolean);
 }
 
+const SECTION_KINDS: PrayerSectionKind[] = [
+  "sunnah",
+  "fard",
+  "lastSunnah",
+  "witr",
+];
+
 export default function StartPrayerSessionScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, section: sectionParam } = useLocalSearchParams<{
+    id: string;
+    section?: string;
+  }>();
+  /** Rota bölüm içeriyorsa oynatıcı, içermiyorsa bölüm seçimi (hub) */
+  const routeSection: PrayerSectionKind | null = SECTION_KINDS.includes(
+    sectionParam as PrayerSectionKind,
+  )
+    ? (sectionParam as PrayerSectionKind)
+    : null;
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
@@ -80,10 +100,8 @@ export default function StartPrayerSessionScreen() {
     [prayer],
   );
 
-  const [phase, setPhase] = useState<"hub" | "active">("hub");
-  const [activeSection, setActiveSection] = useState<PrayerSectionKind | null>(
-    null,
-  );
+  const phase: "hub" | "active" = routeSection ? "active" : "hub";
+  const activeSection = routeSection;
   const [completed, setCompleted] = useState<
     Partial<Record<PrayerSectionKind, boolean>>
   >({});
@@ -130,11 +148,12 @@ export default function StartPrayerSessionScreen() {
   const returnToHub = useCallback(() => {
     clearAdvanceTimer();
     void stopPrayerVoice();
-    setActiveSection(null);
-    setStepIndex(0);
-    stepIndexRef.current = 0;
-    setPhase("hub");
-  }, [clearAdvanceTimer]);
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace(`/namaza-basla/${id}`);
+    }
+  }, [clearAdvanceTimer, router, id]);
 
   // Kalıcı kayıt: bugün tamamlanan bölümleri hub’da göster
   useEffect(() => {
@@ -212,7 +231,7 @@ export default function StartPrayerSessionScreen() {
         toValue: 1,
         duration: delayMs,
         easing: Easing.linear,
-        useNativeDriver: false,
+        useNativeDriver: true,
       });
       advanceBarAnimRef.current.start();
 
@@ -256,7 +275,7 @@ export default function StartPrayerSessionScreen() {
       toValue: (stepIndex + 1) / steps.length,
       duration: 420,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   }, [phase, steps.length, stepIndex, progressAnim]);
 
@@ -318,17 +337,29 @@ export default function StartPrayerSessionScreen() {
       clearAdvanceTimer();
       void stopPrayerVoice();
       hapticMedium();
-      setActiveSection(section);
-      stepIndexRef.current = 0;
-      setStepIndex(0);
-      setPhase("active");
-      animateStepIn();
       if (!autoImam) {
         void setAutoImam(true);
       }
+      // Bölüm oynatıcısı ayrı yığın ekranı: sağdan gelir, kaydırarak geri
+      router.push(`/namaza-basla/${id}/${section}`);
     },
-    [clearAdvanceTimer, animateStepIn, autoImam, setAutoImam],
+    [clearAdvanceTimer, autoImam, setAutoImam, router, id],
   );
+
+  // Namaz sırasında ekran kararıp kilitlenmesin (telefon yerde dururken)
+  useEffect(() => {
+    if (!routeSection) return;
+    const tag = `prayer-session-${id}-${routeSection}`;
+    void activateKeepAwakeAsync(tag).catch(() => undefined);
+    return () => {
+      deactivateKeepAwake(tag).catch(() => undefined);
+    };
+  }, [routeSection, id]);
+
+  // Oynatıcı ekranı açılınca ilk adımı canlandır
+  useEffect(() => {
+    if (routeSection) animateStepIn();
+  }, [routeSection, animateStepIn]);
 
   if (!prayer) {
     return (
@@ -379,9 +410,9 @@ export default function StartPrayerSessionScreen() {
             hitSlop={10}
             className="h-11 w-11 items-center justify-center active:opacity-50"
             accessibilityRole="button"
-            accessibilityLabel={t("session.close")}
+            accessibilityLabel={t("common.back")}
           >
-            <Ionicons name="close" size={22} color={iconPrimary} />
+            <Ionicons name="chevron-back" size={24} color={iconPrimary} />
           </Pressable>
           <View className="flex-1 items-center px-2">
             <Text
@@ -607,14 +638,6 @@ export default function StartPrayerSessionScreen() {
       })
     : t("session.sectionOnly", { section: getSectionLabel(step.section) });
 
-  const progressWidth = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0%", "100%"],
-  });
-  const advanceWidth = advanceBar.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0%", "100%"],
-  });
 
   return (
     <>
@@ -666,7 +689,11 @@ export default function StartPrayerSessionScreen() {
         <View className="mx-4 mt-1 h-[2px] overflow-hidden rounded-full bg-forest-200 dark:bg-forest-800">
           <Animated.View
             className="h-full rounded-full bg-gold-400/85"
-            style={{ width: progressWidth }}
+            style={{
+              width: "100%",
+              transformOrigin: "left",
+              transform: [{ scaleX: progressAnim }],
+            }}
           />
         </View>
 
@@ -694,7 +721,11 @@ export default function StartPrayerSessionScreen() {
             <View className="h-[3px] overflow-hidden rounded-full bg-forest-200 dark:bg-forest-800">
               <Animated.View
                 className="h-full rounded-full bg-gold-400"
-                style={{ width: advanceWidth }}
+                style={{
+                  width: "100%",
+                  transformOrigin: "left",
+                  transform: [{ scaleX: advanceBar }],
+                }}
               />
             </View>
           </Pressable>
