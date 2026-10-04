@@ -6,13 +6,13 @@ export const IMAGES = {
   onboardingDua: require("../assets/images/onboarding-dua.jpg"),
   onboardingReady: require("../assets/images/onboarding-ready.jpg"),
   homeHero: require("../assets/images/home-hero.jpg"),
-  homeHeroLight: require("../assets/images/light/home-hero.png"),
+  homeHeroLight: require("../assets/images/light/home-hero.jpg"),
   dualarBanner: require("../assets/images/dualar-banner.jpg"),
-  dualarBannerLight: require("../assets/images/light/dualar-banner.png"),
+  dualarBannerLight: require("../assets/images/light/dualar-banner.jpg"),
   namazBanner: require("../assets/images/namaz-banner.jpg"),
-  namazBannerLight: require("../assets/images/light/namaz-banner.png"),
+  namazBannerLight: require("../assets/images/light/namaz-banner.jpg"),
   takipBanner: require("../assets/images/takip-banner.jpg"),
-  takipBannerLight: require("../assets/images/light/takip-banner.png"),
+  takipBannerLight: require("../assets/images/light/takip-banner.jpg"),
 } as const;
 
 type BannerKey = "homeHero" | "dualarBanner" | "namazBanner" | "takipBanner";

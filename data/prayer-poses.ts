@@ -26,14 +26,14 @@ export const PRAYER_POSE_IDS: PrayerPoseId[] = [
 ];
 
 export const PRAYER_POSE_IMAGES: Record<PrayerPoseId, ImageSourcePropType> = {
-  niyet: require("../assets/images/prayer-steps/niyet.png"),
-  tekbir: require("../assets/images/prayer-steps/tekbir.png"),
-  kiyam: require("../assets/images/prayer-steps/kiyam.png"),
-  ruku: require("../assets/images/prayer-steps/ruku.png"),
-  kavme: require("../assets/images/prayer-steps/kavme.png"),
-  secde: require("../assets/images/prayer-steps/secde.png"),
-  oturma: require("../assets/images/prayer-steps/oturma.png"),
-  teshehhud: require("../assets/images/prayer-steps/teshehhud.png"),
-  kunut: require("../assets/images/prayer-steps/kunut.png"),
-  selam: require("../assets/images/prayer-steps/selam.png"),
+  niyet: require("../assets/images/prayer-steps/niyet.jpg"),
+  tekbir: require("../assets/images/prayer-steps/tekbir.jpg"),
+  kiyam: require("../assets/images/prayer-steps/kiyam.jpg"),
+  ruku: require("../assets/images/prayer-steps/ruku.jpg"),
+  kavme: require("../assets/images/prayer-steps/kavme.jpg"),
+  secde: require("../assets/images/prayer-steps/secde.jpg"),
+  oturma: require("../assets/images/prayer-steps/oturma.jpg"),
+  teshehhud: require("../assets/images/prayer-steps/teshehhud.jpg"),
+  kunut: require("../assets/images/prayer-steps/kunut.jpg"),
+  selam: require("../assets/images/prayer-steps/selam.jpg"),
 };

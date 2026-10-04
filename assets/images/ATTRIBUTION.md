@@ -9,7 +9,7 @@
 | `onboarding-dua.jpg`                                                       | Her gün farklı dua  | Oluşturulmuş — dua eden eller      |
 | `onboarding-ready.jpg`                                                     | Hazırsın            | Unsplash — şafak manzarası         |
 | `home-hero.jpg`, `dualar-banner.jpg`, `namaz-banner.jpg`                   | UI banners (dark)   | Project assets                     |
-| `light/home-hero.png`, `light/dualar-banner.png`, `light/namaz-banner.png` | UI banners (light)  | Generated for light theme          |
+| `light/home-hero.jpg`, `light/dualar-banner.jpg`, `light/namaz-banner.jpg` | UI banners (light)  | Generated for light theme          |
 
 Unsplash License: https://unsplash.com/license
 
@@ -20,16 +20,16 @@ as photorealistic pose illustrations. No stock photography for step art.
 
 | Path                         | Purpose                    |
 | ---------------------------- | -------------------------- |
-| `prayer-steps/niyet.png`     | Intention / standing       |
-| `prayer-steps/tekbir.png`    | Opening takbir             |
-| `prayer-steps/kiyam.png`     | Standing with folded hands |
-| `prayer-steps/ruku.png`      | Bowing                     |
-| `prayer-steps/kavme.png`     | Rising after ruku          |
-| `prayer-steps/secde.png`     | Prostration                |
-| `prayer-steps/oturma.png`    | Sitting between sujuds     |
-| `prayer-steps/teshehhud.png` | Tashahhud sitting          |
-| `prayer-steps/kunut.png`     | Qunut / hands raised       |
-| `prayer-steps/selam.png`     | Salam                      |
+| `prayer-steps/niyet.jpg`     | Intention / standing       |
+| `prayer-steps/tekbir.jpg`    | Opening takbir             |
+| `prayer-steps/kiyam.jpg`     | Standing with folded hands |
+| `prayer-steps/ruku.jpg`      | Bowing                     |
+| `prayer-steps/kavme.jpg`     | Rising after ruku          |
+| `prayer-steps/secde.jpg`     | Prostration                |
+| `prayer-steps/oturma.jpg`    | Sitting between sujuds     |
+| `prayer-steps/teshehhud.jpg` | Tashahhud sitting          |
+| `prayer-steps/kunut.jpg`     | Qunut / hands raised       |
+| `prayer-steps/selam.jpg`     | Salam                      |
 
 Copyright: Namaz Rehberim project. Free to use within this app.
 
