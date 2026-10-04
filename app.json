@@ -20,6 +20,9 @@
         "CFBundleAllowMixedLocalizations": true,
         "NSLocationWhenInUseUsageDescription": "Bulunduğun ile göre namaz vakitlerini ve kıble yönünü hesaplamak için konumunu kullanırız. Konum cihazından dışarı gönderilmez.",
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "com.apple.developer.usernotifications.time-sensitive": true
       }
     },
     "android": {
@@ -88,6 +91,7 @@
         "expo-notifications",
         {
           "sounds": [
+            "./assets/sounds/alarm_tone.wav",
             "./assets/sounds/adhan_short.wav",
             "./assets/sounds/reminder_sparkle.wav",
             "./assets/sounds/reminder_chime.wav"

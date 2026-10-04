@@ -12,10 +12,12 @@ import { t } from "@/lib/i18n";
  *   çalar (Expo Go sistem sesine düşer).
  * - iOS: bildirim sesi ≤ 30 sn olmalı, yoksa sistem sesi çalar.
  * - Android: ses bildirim kanalına bağlıdır ve kanal oluşturulduktan sonra
- *   değiştirilemez → her ses için ayrı kanal.
+ *   değiştirilemez → her ses için ayrı kanal. Alarmlar ayrı kanallarda,
+ *   alarm ses akışında çalar ve Rahatsız Etmeyin'i geçer.
  */
 
 export type NotificationSound =
+  | "alarm"
   | "adhan"
   | "sparkle"
   | "chime"
@@ -24,12 +26,14 @@ export type NotificationSound =
 
 /** Kaynak ve lisanslar: assets/sounds/CREDITS.md */
 const PREVIEWS: Partial<Record<NotificationSound, number>> = {
+  alarm: require("../assets/sounds/alarm_tone.wav"),
   adhan: require("../assets/sounds/adhan_short.wav"),
   sparkle: require("../assets/sounds/reminder_sparkle.wav"),
   chime: require("../assets/sounds/reminder_chime.wav"),
 };
 
 const SOUND_FILES: Partial<Record<NotificationSound, string>> = {
+  alarm: "alarm_tone.wav",
   adhan: "adhan_short.wav",
   sparkle: "reminder_sparkle.wav",
   chime: "reminder_chime.wav",
@@ -52,9 +56,15 @@ export const LEAD_SOUNDS: NotificationSound[] = [
   "silent",
 ];
 
-export function availableSounds(kind?: "at" | "lead"): NotificationSound[] {
+/** Alarm sessiz olamaz; vakit sesi yerine çalar */
+export const ALARM_SOUNDS: NotificationSound[] = ["alarm", "adhan"];
+
+export type SoundKind = "at" | "lead" | "alarm";
+
+export function availableSounds(kind?: SoundKind): NotificationSound[] {
   if (kind === "at") return AT_SOUNDS;
   if (kind === "lead") return LEAD_SOUNDS;
+  if (kind === "alarm") return ALARM_SOUNDS;
   return ["adhan", "sparkle", "chime", "system", "silent"];
 }
 
@@ -62,7 +72,7 @@ export function availableSounds(kind?: "at" | "lead"): NotificationSound[] {
 export function resolveSound(
   sound: NotificationSound,
   fallback: NotificationSound,
-  kind?: "at" | "lead",
+  kind?: SoundKind,
 ): NotificationSound {
   return availableSounds(kind).includes(sound) ? sound : fallback;
 }
@@ -76,6 +86,10 @@ export function contentSound(sound: NotificationSound): string | false {
 
 export function channelIdFor(sound: NotificationSound) {
   return `prayer-${sound}`;
+}
+
+export function alarmChannelIdFor(sound: NotificationSound) {
+  return `prayer-alarm-${sound}`;
 }
 
 /** Android: her ses için bir kanal (idempotent) */
@@ -96,6 +110,21 @@ export async function ensureSoundChannels() {
             : (SOUND_FILES[sound] ?? "default"),
       vibrationPattern: sound === "silent" ? null : [0, 250, 150, 250],
       enableVibrate: sound !== "silent",
+    });
+  }
+  for (const sound of ALARM_SOUNDS) {
+    await Notifications.setNotificationChannelAsync(alarmChannelIdFor(sound), {
+      name: `${t("notifications.alarmChannelName")} · ${t(`notifications.sounds.${sound}`)}`,
+      importance: Notifications.AndroidImportance.MAX,
+      bypassDnd: true,
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+      sound: IN_EXPO_GO ? "default" : (SOUND_FILES[sound] ?? "default"),
+      audioAttributes: {
+        usage: Notifications.AndroidAudioUsage.ALARM,
+        contentType: Notifications.AndroidAudioContentType.SONIFICATION,
+      },
+      vibrationPattern: [0, 600, 300, 600, 300, 600],
+      enableVibrate: true,
     });
   }
 }

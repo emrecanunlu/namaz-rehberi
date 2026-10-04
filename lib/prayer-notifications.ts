@@ -11,6 +11,7 @@ import {
   type PrayerSlotId,
 } from "@/lib/prayer-times";
 import {
+  alarmChannelIdFor,
   channelIdFor,
   contentSound,
   ensureSoundChannels,
@@ -33,6 +34,16 @@ export const NOTIFY_SLOTS: PrayerSlotId[] = [
   "isha",
 ];
 
+/** Alarm yalnız namaz vakitlerine; güneş doğuşu namaz değil */
+export const ALARM_SLOTS = [
+  "fajr",
+  "dhuhr",
+  "asr",
+  "maghrib",
+  "isha",
+] as const satisfies readonly PrayerSlotId[];
+export type AlarmSlot = (typeof ALARM_SLOTS)[number];
+
 export const LEAD_OPTIONS = [0, 10, 15, 30] as const;
 export type LeadMinutes = (typeof LEAD_OPTIONS)[number];
 
@@ -44,6 +55,13 @@ export type NotificationPrefs = {
   atSound: NotificationSound;
   /** Vakit yaklaşırken (ön hatırlatma) */
   leadSound: NotificationSound;
+  /**
+   * Vakit girdiğinde alarm: vakit bildiriminin yerine geçer; uzun alarm
+   * sesi, iOS'ta Odak modunu geçer (time-sensitive), Android'de alarm
+   * ses akışında çalar ve Rahatsız Etmeyin'i geçer.
+   */
+  alarms: Record<AlarmSlot, boolean>;
+  alarmSound: NotificationSound;
 };
 
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
@@ -59,7 +77,28 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
   leadMinutes: 0,
   atSound: "adhan",
   leadSound: "sparkle",
+  alarms: {
+    fajr: false,
+    dhuhr: false,
+    asr: false,
+    maghrib: false,
+    isha: false,
+  },
+  alarmSound: "alarm",
 };
+
+export function isAlarmSlot(slot: PrayerSlotId): slot is AlarmSlot {
+  return (ALARM_SLOTS as readonly PrayerSlotId[]).includes(slot);
+}
+
+function hasAlarm(prefs: NotificationPrefs, slot: PrayerSlotId) {
+  return isAlarmSlot(slot) && prefs.alarms[slot];
+}
+
+/** Bildirim ya da alarm açık mı */
+function isSlotActive(prefs: NotificationPrefs, slot: PrayerSlotId) {
+  return prefs.slots[slot] || hasAlarm(prefs, slot);
+}
 
 /** iOS sınırı 64; birkaç yuva boşta kalsın */
 const MAX_PENDING = 60;
@@ -109,7 +148,7 @@ export function scheduledDayCount(prefs: NotificationPrefs) {
 function notificationsPerDay(prefs: NotificationPrefs) {
   let count = 0;
   for (const slot of NOTIFY_SLOTS) {
-    if (!prefs.slots[slot]) continue;
+    if (!isSlotActive(prefs, slot)) continue;
     count += 1;
     // Güneş doğuşu namaz değil; ön hatırlatma yalnız namaz vakitlerine
     if (prefs.leadMinutes > 0 && slot !== "sunrise") count += 1;
@@ -133,10 +172,16 @@ function composeContent(
 
 type PlannedNotification = {
   at: Date;
-  kind: "at" | "lead";
+  kind: "at" | "lead" | "alarm";
   sound: NotificationSound;
   content: Notifications.NotificationContentInput;
 };
+
+function triggerChannelId(item: PlannedNotification) {
+  return item.kind === "alarm"
+    ? alarmChannelIdFor(item.sound)
+    : channelIdFor(item.sound);
+}
 
 export function planNotifications(
   city: TurkeyCity,
@@ -149,6 +194,7 @@ export function planNotifications(
   const cityName = cityDisplayName(city, locale);
   const atSound = resolveSound(prefs.atSound, "adhan", "at");
   const leadSound = resolveSound(prefs.leadSound, "sparkle", "lead");
+  const alarmSound = resolveSound(prefs.alarmSound, "alarm", "alarm");
   const planned: PlannedNotification[] = [];
 
   for (let offset = 0; offset < days + 1; offset++) {
@@ -157,7 +203,7 @@ export function planNotifications(
     const times = calculatePrayerTimes(city, day);
 
     for (const slot of NOTIFY_SLOTS) {
-      if (!prefs.slots[slot]) continue;
+      if (!isSlotActive(prefs, slot)) continue;
       const at = times[slot];
       const time = formatTime(at, locale);
       const meta = t("notifications.meta", { city: cityName, time });
@@ -183,18 +229,28 @@ export function planNotifications(
         continue;
       }
 
+      const alarm = hasAlarm(prefs, slot);
+      const sound = alarm ? alarmSound : atSound;
       planned.push({
         at,
-        kind: "at",
-        sound: atSound,
+        kind: alarm ? "alarm" : "at",
+        sound,
         content: {
           ...composeContent(
-            t("notifications.atTitle", { prayer }),
+            t(alarm ? "notifications.alarmTitle" : "notifications.atTitle", {
+              prayer,
+            }),
             meta,
             `${t(`notifications.atBodies.${slot}`)} ${t("notifications.atAction")}`,
           ),
-          sound: contentSound(atSound),
+          sound: contentSound(sound),
           data: { slot, url },
+          ...(alarm
+            ? {
+                interruptionLevel: "timeSensitive" as const,
+                priority: Notifications.AndroidNotificationPriority.MAX,
+              }
+            : null),
         },
       });
 
@@ -252,7 +308,7 @@ export function reschedulePrayerNotifications(
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
             date: item.at,
-            channelId: channelIdFor(item.sound),
+            channelId: triggerChannelId(item),
           },
         });
       }
@@ -283,7 +339,7 @@ export async function sendTestNotification(
     locale,
   );
   const lead = planned.find((item) => item.kind === "lead");
-  const at = planned.find((item) => item.kind === "at");
+  const at = planned.find((item) => item.kind !== "lead");
   const tests: [PlannedNotification | undefined, number][] = [
     [lead, 5],
     [at, 12],
@@ -295,7 +351,7 @@ export async function sendTestNotification(
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds,
-        channelId: channelIdFor(item.sound),
+        channelId: triggerChannelId(item),
       },
     });
   }

@@ -11,12 +11,14 @@ import { AppState } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAppSettings } from "@/lib/settings-context";
 import {
+  ALARM_SLOTS,
   configureNotificationHandler,
   DEFAULT_NOTIFICATION_PREFS,
   getPermissionState,
   LEAD_OPTIONS,
   reschedulePrayerNotifications,
   requestPermission,
+  type AlarmSlot,
   type LeadMinutes,
   type NotificationPrefs,
   type PermissionState,
@@ -25,6 +27,7 @@ import type { PrayerSlotId } from "@/lib/prayer-times";
 import {
   availableSounds,
   type NotificationSound,
+  type SoundKind,
 } from "@/lib/notification-sounds";
 
 const PREFS_KEY = "namaz_rehberi_notification_prefs";
@@ -35,8 +38,9 @@ type NotificationsContextValue = {
   /** true: izin verildi ve açıldı; false: izin reddedildi */
   setEnabled: (value: boolean) => Promise<boolean>;
   toggleSlot: (slot: PrayerSlotId) => Promise<void>;
+  toggleAlarm: (slot: AlarmSlot) => Promise<void>;
   setLeadMinutes: (value: LeadMinutes) => Promise<void>;
-  setSound: (kind: "at" | "lead", value: NotificationSound) => Promise<void>;
+  setSound: (kind: SoundKind, value: NotificationSound) => Promise<void>;
 };
 
 const NotificationsContext = createContext<NotificationsContextValue | null>(
@@ -52,7 +56,7 @@ function parsePrefs(raw: string | null): NotificationPrefs {
       : DEFAULT_NOTIFICATION_PREFS.leadMinutes;
     const pickSound = (
       v: unknown,
-      kind: "at" | "lead",
+      kind: SoundKind,
       fallback: NotificationSound,
     ) =>
       availableSounds(kind).includes(v as NotificationSound)
@@ -71,6 +75,14 @@ function parsePrefs(raw: string | null): NotificationPrefs {
         value.leadSound,
         "lead",
         DEFAULT_NOTIFICATION_PREFS.leadSound,
+      ),
+      alarms: Object.fromEntries(
+        ALARM_SLOTS.map((slot) => [slot, value.alarms?.[slot] === true]),
+      ) as Record<AlarmSlot, boolean>,
+      alarmSound: pickSound(
+        value.alarmSound,
+        "alarm",
+        DEFAULT_NOTIFICATION_PREFS.alarmSound,
       ),
     };
   } catch {
@@ -147,6 +159,16 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     [prefs, persist],
   );
 
+  const toggleAlarm = useCallback(
+    async (slot: AlarmSlot) => {
+      await persist({
+        ...prefs,
+        alarms: { ...prefs.alarms, [slot]: !prefs.alarms[slot] },
+      });
+    },
+    [prefs, persist],
+  );
+
   const setLeadMinutes = useCallback(
     async (value: LeadMinutes) => {
       await persist({ ...prefs, leadMinutes: value });
@@ -155,12 +177,10 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   );
 
   const setSound = useCallback(
-    async (kind: "at" | "lead", value: NotificationSound) => {
-      await persist(
-        kind === "at"
-          ? { ...prefs, atSound: value }
-          : { ...prefs, leadSound: value },
-      );
+    async (kind: SoundKind, value: NotificationSound) => {
+      const key =
+        kind === "at" ? "atSound" : kind === "lead" ? "leadSound" : "alarmSound";
+      await persist({ ...prefs, [key]: value });
     },
     [prefs, persist],
   );
@@ -171,10 +191,19 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       permission,
       setEnabled,
       toggleSlot,
+      toggleAlarm,
       setLeadMinutes,
       setSound,
     }),
-    [prefs, permission, setEnabled, toggleSlot, setLeadMinutes, setSound],
+    [
+      prefs,
+      permission,
+      setEnabled,
+      toggleSlot,
+      toggleAlarm,
+      setLeadMinutes,
+      setSound,
+    ],
   );
 
   return (

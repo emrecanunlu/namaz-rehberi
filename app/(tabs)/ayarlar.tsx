@@ -19,6 +19,7 @@ import {
 import { hapticSelection, hapticSuccess } from "@/lib/haptics";
 import { useNotifications } from "@/lib/notifications-context";
 import {
+  ALARM_SLOTS,
   getScheduledCount,
   LEAD_OPTIONS,
   NOTIFY_SLOTS,
@@ -31,6 +32,7 @@ import {
   availableSounds,
   previewSound,
   type NotificationSound,
+  type SoundKind,
 } from "@/lib/notification-sounds";
 
 /** Expo Go özel bildirim seslerini çalamaz */
@@ -93,7 +95,7 @@ export default function SettingsScreen() {
 
   const version = Constants.expoConfig?.version ?? "1.0.0";
 
-  const soundOptions = (kind: "at" | "lead") =>
+  const soundOptions = (kind: SoundKind) =>
     availableSounds(kind).map((sound) => ({
       value: sound,
       label: t(`notifications.sounds.${sound}`),
@@ -101,7 +103,9 @@ export default function SettingsScreen() {
   const showLeadSound =
     notifyPrefs.leadMinutes > 0 || notifyPrefs.slots.sunrise;
 
-  const pickSound = (kind: "at" | "lead", value: NotificationSound) => {
+  const anyAlarm = ALARM_SLOTS.some((slot) => notifyPrefs.alarms[slot]);
+
+  const pickSound = (kind: SoundKind, value: NotificationSound) => {
     hapticSelection();
     previewSound(value);
     void notifications.setSound(kind, value);
@@ -281,6 +285,35 @@ export default function SettingsScreen() {
             />
           ) : null}
         </SettingsSection>
+
+        {notifyPrefs.enabled ? (
+          <SettingsSection
+            title={t("notifications.alarmSection")}
+            footer={t("notifications.alarmFooter")}
+          >
+            {ALARM_SLOTS.map((slot) => (
+              <SettingsCheckRow
+                key={slot}
+                label={t(`prayerTimes.${slot}`)}
+                value={formatTime(todayTimes[slot], locale)}
+                checked={notifyPrefs.alarms[slot]}
+                onPress={() => {
+                  hapticSelection();
+                  void notifications.toggleAlarm(slot);
+                }}
+              />
+            ))}
+            {anyAlarm ? (
+              <SettingsSegmentRow
+                icon="alarm-outline"
+                label={t("notifications.alarmSound")}
+                options={soundOptions("alarm")}
+                value={notifyPrefs.alarmSound}
+                onChange={(value) => pickSound("alarm", value)}
+              />
+            ) : null}
+          </SettingsSection>
+        ) : null}
 
         <SettingsSection
           title={t("settings.location")}
