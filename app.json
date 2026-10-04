@@ -93,7 +93,7 @@
         {
           "sounds": [
             "./assets/sounds/alarm_tone.wav",
-            "./assets/sounds/adhan_short.wav",
+            "./assets/sounds/melody.wav",
             "./assets/sounds/reminder_sparkle.wav",
             "./assets/sounds/reminder_chime.wav"
           ],

@@ -82,7 +82,7 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
     isha: true,
   },
   leadMinutes: 0,
-  atSound: "adhan",
+  atSound: "melody",
   leadSound: "sparkle",
   alarms: {
     fajr: false,
@@ -216,7 +216,7 @@ export function planNotifications(
   if (!prefs.enabled) return [];
   const days = scheduledDayCount(prefs);
   const cityName = cityDisplayName(city, locale);
-  const atSound = resolveSound(prefs.atSound, "adhan", "at");
+  const atSound = resolveSound(prefs.atSound, "melody", "at");
   const leadSound = resolveSound(prefs.leadSound, "sparkle", "lead");
   const alarmSound = resolveSound(prefs.alarmSound, "alarm", "alarm");
   const planned: PlannedNotification[] = [];

@@ -18,7 +18,7 @@ import { t } from "@/lib/i18n";
 
 export type NotificationSound =
   | "alarm"
-  | "adhan"
+  | "melody"
   | "sparkle"
   | "chime"
   | "system"
@@ -27,14 +27,14 @@ export type NotificationSound =
 /** Kaynak ve lisanslar: assets/sounds/CREDITS.md */
 const PREVIEWS: Partial<Record<NotificationSound, number>> = {
   alarm: require("../assets/sounds/alarm_tone.wav"),
-  adhan: require("../assets/sounds/adhan_short.wav"),
+  melody: require("../assets/sounds/melody.wav"),
   sparkle: require("../assets/sounds/reminder_sparkle.wav"),
   chime: require("../assets/sounds/reminder_chime.wav"),
 };
 
 const SOUND_FILES: Partial<Record<NotificationSound, string>> = {
   alarm: "alarm_tone.wav",
-  adhan: "adhan_short.wav",
+  melody: "melody.wav",
   sparkle: "reminder_sparkle.wav",
   chime: "reminder_chime.wav",
 };
@@ -44,7 +44,7 @@ const IN_EXPO_GO =
   Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 export const AT_SOUNDS: NotificationSound[] = [
-  "adhan",
+  "melody",
   "chime",
   "system",
   "silent",
@@ -57,7 +57,7 @@ export const LEAD_SOUNDS: NotificationSound[] = [
 ];
 
 /** Alarm sessiz olamaz; vakit sesi yerine çalar */
-export const ALARM_SOUNDS: NotificationSound[] = ["alarm", "adhan"];
+export const ALARM_SOUNDS: NotificationSound[] = ["alarm", "melody"];
 
 export type SoundKind = "at" | "lead" | "alarm";
 
@@ -65,7 +65,7 @@ export function availableSounds(kind?: SoundKind): NotificationSound[] {
   if (kind === "at") return AT_SOUNDS;
   if (kind === "lead") return LEAD_SOUNDS;
   if (kind === "alarm") return ALARM_SOUNDS;
-  return ["adhan", "sparkle", "chime", "system", "silent"];
+  return ["melody", "sparkle", "chime", "system", "silent"];
 }
 
 /** Seçim bu tür için geçerli değilse güvenli karşılık */
@@ -97,9 +97,15 @@ export function alarmChannelIdFor(sound: NotificationSound) {
   return `prayer-alarm-${sound}`;
 }
 
+/** Kaldırılan seslerin kanalları (ezan → "Huzur" melodisi) */
+const RETIRED_CHANNELS = ["prayer-adhan", "prayer-alarm-adhan"];
+
 /** Android: her ses için bir kanal (idempotent) */
 export async function ensureSoundChannels() {
   if (Platform.OS !== "android") return;
+  for (const id of RETIRED_CHANNELS) {
+    await Notifications.deleteNotificationChannelAsync(id).catch(() => {});
+  }
   for (const sound of availableSounds()) {
     await Notifications.setNotificationChannelAsync(channelIdFor(sound), {
       name: `${t("notifications.channelName")} · ${t(`notifications.sounds.${sound}`)}`,

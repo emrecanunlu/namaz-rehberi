@@ -340,7 +340,7 @@ const tr = {
     alarmChannelName: "Vakit alarmları",
     sounds: {
       alarm: "Alarm",
-      adhan: "Ezan",
+      melody: "Huzur",
       sparkle: "Işıltı",
       chime: "Zil",
       system: "Sistem",
@@ -1044,7 +1044,7 @@ const en: DeepStringify<typeof tr> = {
     alarmChannelName: "Prayer alarms",
     sounds: {
       alarm: "Alarm",
-      adhan: "Adhan",
+      melody: "Serenity",
       sparkle: "Sparkle",
       chime: "Chime",
       system: "System",
