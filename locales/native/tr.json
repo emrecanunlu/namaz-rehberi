@@ -1,0 +1,9 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Namaz Rehberim",
+    "NSLocationWhenInUseUsageDescription": "Bulunduğun ile göre namaz vakitlerini ve kıble yönünü hesaplamak için konumunu kullanırız. Konum cihazından dışarı gönderilmez."
+  },
+  "android": {
+    "app_name": "Namaz Rehberim"
+  }
+}

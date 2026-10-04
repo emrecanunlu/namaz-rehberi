@@ -117,8 +117,10 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // auto: konumdan il bul; yoksa kayıtlı veya İstanbul
-      const { city: detected, granted } = await resolveCityFromDevice();
+      // auto: izin zaten verilmişse konumdan il bul; izin onboarding'de istenir
+      const { city: detected, granted } = await resolveCityFromDevice({
+        request: false,
+      });
       if (!active) return;
       setLocationGranted(granted);
       const nextCityId = granted

@@ -1,0 +1,9 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Namaz Rehberim",
+    "NSLocationWhenInUseUsageDescription": "Your location is used to calculate prayer times and the Qibla direction for your city. It never leaves your device."
+  },
+  "android": {
+    "app_name": "Namaz Rehberim"
+  }
+}
