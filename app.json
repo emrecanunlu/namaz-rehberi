@@ -19,7 +19,8 @@
         "CFBundleDevelopmentRegion": "tr",
         "CFBundleAllowMixedLocalizations": true,
         "NSLocationWhenInUseUsageDescription": "Bulunduğun ile göre namaz vakitlerini ve kıble yönünü hesaplamak için konumunu kullanırız. Konum cihazından dışarı gönderilmez.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAlarmKitUsageDescription": "Vakit alarmlarını, telefon sessizdeyken de çalan sistem alarmı olarak kurmak için kullanılır."
       },
       "entitlements": {
         "com.apple.developer.usernotifications.time-sensitive": true

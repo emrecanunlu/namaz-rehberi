@@ -84,6 +84,11 @@ export function contentSound(sound: NotificationSound): string | false {
   return SOUND_FILES[sound] ?? "default";
 }
 
+/** Uygulama paketindeki ses dosyası (native alarm); yoksa boş → sistem sesi */
+export function soundFileFor(sound: NotificationSound) {
+  return SOUND_FILES[sound] ?? "";
+}
+
 export function channelIdFor(sound: NotificationSound) {
   return `prayer-${sound}`;
 }

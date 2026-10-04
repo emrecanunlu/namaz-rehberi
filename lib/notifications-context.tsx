@@ -25,6 +25,11 @@ import {
 } from "@/lib/prayer-notifications";
 import type { PrayerSlotId } from "@/lib/prayer-times";
 import {
+  getAlarmAuthorization,
+  requestAlarmAuthorization,
+  type AlarmAuthorization,
+} from "@/modules/prayer-alarm";
+import {
   availableSounds,
   type NotificationSound,
   type SoundKind,
@@ -35,6 +40,8 @@ const PREFS_KEY = "namaz_rehberi_notification_prefs";
 type NotificationsContextValue = {
   prefs: NotificationPrefs;
   permission: PermissionState;
+  /** iOS 26+ sistem alarmı izni; "unavailable" → alarm bildirimle çalar */
+  alarmAuth: AlarmAuthorization;
   /** true: izin verildi ve açıldı; false: izin reddedildi */
   setEnabled: (value: boolean) => Promise<boolean>;
   toggleSlot: (slot: PrayerSlotId) => Promise<void>;
@@ -95,6 +102,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   const [prefs, setPrefs] = useState(DEFAULT_NOTIFICATION_PREFS);
   const [loaded, setLoaded] = useState(false);
   const [permission, setPermission] = useState<PermissionState>("undetermined");
+  const [alarmAuth, setAlarmAuth] = useState(getAlarmAuthorization);
   const [foregroundTick, setForegroundTick] = useState(0);
 
   useEffect(() => {
@@ -119,6 +127,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     const sub = AppState.addEventListener("change", (state) => {
       if (state !== "active") return;
       void getPermissionState().then(setPermission);
+      setAlarmAuth(getAlarmAuthorization());
       setForegroundTick((n) => n + 1);
     });
     return () => sub.remove();
@@ -129,7 +138,16 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     void reschedulePrayerNotifications(city, prefs, locale).catch(() => {
       // Planlama başarısızsa uygulama akışı etkilenmesin
     });
-  }, [loaded, settingsReady, city, prefs, locale, permission, foregroundTick]);
+  }, [
+    loaded,
+    settingsReady,
+    city,
+    prefs,
+    locale,
+    permission,
+    alarmAuth,
+    foregroundTick,
+  ]);
 
   const persist = useCallback(async (next: NotificationPrefs) => {
     setPrefs(next);
@@ -161,12 +179,16 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   const toggleAlarm = useCallback(
     async (slot: AlarmSlot) => {
+      // İlk alarm açılırken sistem alarm izni istenir; reddedilirse bildirimle çalar
+      if (!prefs.alarms[slot] && alarmAuth === "notDetermined") {
+        setAlarmAuth(await requestAlarmAuthorization());
+      }
       await persist({
         ...prefs,
         alarms: { ...prefs.alarms, [slot]: !prefs.alarms[slot] },
       });
     },
-    [prefs, persist],
+    [prefs, persist, alarmAuth],
   );
 
   const setLeadMinutes = useCallback(
@@ -189,6 +211,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     () => ({
       prefs,
       permission,
+      alarmAuth,
       setEnabled,
       toggleSlot,
       toggleAlarm,
@@ -198,6 +221,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     [
       prefs,
       permission,
+      alarmAuth,
       setEnabled,
       toggleSlot,
       toggleAlarm,

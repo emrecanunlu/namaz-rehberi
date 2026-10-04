@@ -16,8 +16,15 @@ import {
   contentSound,
   ensureSoundChannels,
   resolveSound,
+  soundFileFor,
   type NotificationSound,
 } from "@/lib/notification-sounds";
+import {
+  cancelNativeAlarms,
+  getAlarmAuthorization,
+  scheduleNativeAlarms,
+  type NativeAlarmItem,
+} from "@/modules/prayer-alarm";
 
 /**
  * Yerel (cihazda planlanan) vakit bildirimleri — sunucu / APNs gerekmez.
@@ -173,9 +180,26 @@ function composeContent(
 type PlannedNotification = {
   at: Date;
   kind: "at" | "lead" | "alarm";
+  slot: PrayerSlotId;
   sound: NotificationSound;
   content: Notifications.NotificationContentInput;
 };
+
+/** iOS 26+ ve izin varsa alarmlar bildirim yerine sistem alarmı olur */
+function nativeAlarmsReady() {
+  return getAlarmAuthorization() === "authorized";
+}
+
+function toNativeAlarm(item: PlannedNotification, at = item.at): NativeAlarmItem {
+  return {
+    timestamp: at.getTime(),
+    title: t("notifications.atTitle", {
+      prayer: t(`notifications.prayerNames.${item.slot}`),
+    }),
+    stopLabel: t("notifications.alarmStop"),
+    sound: soundFileFor(item.sound),
+  };
+}
 
 function triggerChannelId(item: PlannedNotification) {
   return item.kind === "alarm"
@@ -215,6 +239,7 @@ export function planNotifications(
         planned.push({
           at,
           kind: "lead",
+          slot,
           sound: leadSound,
           content: {
             ...composeContent(
@@ -234,6 +259,7 @@ export function planNotifications(
       planned.push({
         at,
         kind: alarm ? "alarm" : "at",
+        slot,
         sound,
         content: {
           ...composeContent(
@@ -258,6 +284,7 @@ export function planNotifications(
         planned.push({
           at: new Date(at.getTime() - prefs.leadMinutes * 60_000),
           kind: "lead",
+          slot,
           sound: leadSound,
           content: {
             ...composeContent(
@@ -298,11 +325,22 @@ export function reschedulePrayerNotifications(
     .catch(() => undefined)
     .then(async () => {
       await Notifications.cancelAllScheduledNotificationsAsync();
-      if (!prefs.enabled) return;
+      const nativeAlarms = nativeAlarmsReady();
+      if (!prefs.enabled) {
+        if (nativeAlarms) await cancelNativeAlarms();
+        return;
+      }
+      const planned = planNotifications(city, prefs, locale);
+      if (nativeAlarms) {
+        await scheduleNativeAlarms(
+          planned.filter((item) => item.kind === "alarm").map((item) => toNativeAlarm(item)),
+        );
+      }
       if ((await getPermissionState()) !== "granted") return;
       await ensureSoundChannels();
 
-      for (const item of planNotifications(city, prefs, locale)) {
+      for (const item of planned) {
+        if (nativeAlarms && item.kind === "alarm") continue;
         await Notifications.scheduleNotificationAsync({
           content: item.content,
           trigger: {
@@ -346,6 +384,14 @@ export async function sendTestNotification(
   ];
   for (const [item, seconds] of tests) {
     if (!item) continue;
+    if (item.kind === "alarm" && nativeAlarmsReady()) {
+      // Mevcut planı silmeden tek bir deneme alarmı
+      await scheduleNativeAlarms(
+        [toNativeAlarm(item, new Date(Date.now() + seconds * 1000))],
+        false,
+      );
+      continue;
+    }
     await Notifications.scheduleNotificationAsync({
       content: item.content,
       trigger: {

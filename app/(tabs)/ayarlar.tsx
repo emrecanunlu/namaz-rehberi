@@ -289,7 +289,13 @@ export default function SettingsScreen() {
         {notifyPrefs.enabled ? (
           <SettingsSection
             title={t("notifications.alarmSection")}
-            footer={t("notifications.alarmFooter")}
+            footer={t(
+              notifications.alarmAuth === "authorized"
+                ? "notifications.alarmFooterNative"
+                : notifications.alarmAuth === "denied"
+                  ? "notifications.alarmFooterDenied"
+                  : "notifications.alarmFooter",
+            )}
           >
             {ALARM_SLOTS.map((slot) => (
               <SettingsCheckRow

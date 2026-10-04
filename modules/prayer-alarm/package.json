@@ -1,0 +1,10 @@
+{
+  "name": "prayer-alarm",
+  "version": "0.1.0",
+  "description": "Vakit alarmları için iOS AlarmKit köprüsü",
+  "main": "index.ts",
+  "license": "UNLICENSED",
+  "author": "emrecanunlu",
+  "homepage": "https://github.com/emrecanunlu/namaz-rehberi",
+  "private": true
+}
