@@ -28,6 +28,7 @@ import {
 import { ArabicListenButton } from "@/components/arabic-listen-button";
 import { DuaBody } from "@/components/dua-body";
 import { CityPickerSheet } from "@/components/city-picker-sheet";
+import { IslandHomeCard } from "@/components/island/island-home-card";
 import {
   calculatePrayerTimes,
   formatTime,
@@ -39,6 +40,7 @@ import {
   type PrayerSlotId,
 } from "@/lib/prayer-times";
 import { hapticMedium, hapticSelection } from "@/lib/haptics";
+import { useNow } from "@/lib/use-now";
 
 const ease = Easing.bezier(0.22, 1, 0.36, 1);
 const tickEase = Easing.bezier(0.33, 1, 0.68, 1);
@@ -125,6 +127,146 @@ function CountdownUnit({
   );
 }
 
+type HeroChrome = (typeof themeColors)["light" | "dark"];
+
+/** Hero geri sayımı — saniyelik tik yalnız burada; ekranın geri kalanı dakikada bir render olur */
+function HeroCountdown({
+  target,
+  nextLabel,
+  timeLabel,
+  chrome,
+  dark,
+}: {
+  target: Date;
+  nextLabel: string;
+  timeLabel: string;
+  chrome: HeroChrome;
+  dark: boolean;
+}) {
+  const now = useNow(1000);
+  const remaining = getRemainingParts(target, now);
+  const separatorColor = dark ? "rgba(243,239,230,0.35)" : "rgba(26,47,37,0.28)";
+
+  return (
+    <View
+      accessible
+      accessibilityLabel={`${t("home.nextPrayer")}: ${nextLabel} ${timeLabel}. ${t("common.countdownA11y", { prayer: nextLabel, hours: remaining.hours, minutes: remaining.minutes })}`}
+    >
+      <Text
+        style={{
+          fontFamily: fonts.body,
+          fontSize: 13,
+          color: chrome.heroSubtitle,
+        }}
+      >
+        {t("home.nextPrayer")}
+      </Text>
+      <View
+        style={{
+          marginTop: 2,
+          flexDirection: "row",
+          alignItems: "baseline",
+          gap: 10,
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: fonts.displayBold,
+            fontSize: 26,
+            color: chrome.heroTitle,
+          }}
+        >
+          {nextLabel}
+        </Text>
+        <Text
+          style={{
+            fontFamily: fonts.body,
+            fontSize: 15,
+            color: chrome.heroEyebrow,
+          }}
+        >
+          {timeLabel}
+        </Text>
+      </View>
+      <Text
+        style={{
+          fontFamily: fonts.body,
+          marginTop: 10,
+          fontSize: 11,
+          letterSpacing: 2,
+          textTransform: "uppercase",
+          color: chrome.heroSubtitle,
+        }}
+      >
+        {t("home.untilPrayer")}
+      </Text>
+      <View
+        style={{
+          marginTop: 6,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: 2,
+        }}
+      >
+        <CountdownUnit
+          value={pad2(remaining.hours)}
+          label={t("home.hoursShort")}
+          color={chrome.heroTitle}
+          muted={chrome.heroSubtitle}
+        />
+        <Text
+          style={{
+            fontFamily: fonts.displayBold,
+            fontSize: 26,
+            color: separatorColor,
+            paddingBottom: 16,
+          }}
+        >
+          :
+        </Text>
+        <CountdownUnit
+          value={pad2(remaining.minutes)}
+          label={t("home.minutesShort")}
+          color={chrome.heroTitle}
+          muted={chrome.heroSubtitle}
+        />
+        <Text
+          style={{
+            fontFamily: fonts.displayBold,
+            fontSize: 26,
+            color: separatorColor,
+            paddingBottom: 16,
+          }}
+        >
+          :
+        </Text>
+        <CountdownUnit
+          value={pad2(remaining.seconds)}
+          label={t("home.secondsShort")}
+          color={chrome.heroTitle}
+          muted={chrome.heroSubtitle}
+        />
+      </View>
+    </View>
+  );
+}
+
+/** Collapsed bardaki "Öğle · 12:58 · 01:02:03" satırı */
+function CompactCountdownText({
+  target,
+  prefix,
+}: {
+  target: Date;
+  prefix: string;
+}) {
+  const now = useNow(1000);
+  const r = getRemainingParts(target, now);
+  return (
+    <>{`${prefix} · ${pad2(r.hours)}:${pad2(r.minutes)}:${pad2(r.seconds)}`}</>
+  );
+}
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { locale, city, resolvedTheme } = useAppSettings();
@@ -139,7 +281,9 @@ export default function HomeScreen() {
   const cityName = cityDisplayName(city, locale);
   const scrollY = useRef(new Animated.Value(0)).current;
   const fade = useRef(new Animated.Value(0)).current;
-  const [now, setNow] = useState(() => new Date());
+  // Vakit girişinde anında yenile; aksi halde dakika başında
+  const [wakeAt, setWakeAt] = useState<Date | null>(null);
+  const now = useNow(60_000, wakeAt);
   const [citySheetOpen, setCitySheetOpen] = useState(false);
   const reduceMotion = useReducedMotion();
 
@@ -158,21 +302,16 @@ export default function HomeScreen() {
     [times, tomorrowTimes.fajr, now],
   );
 
-  const remaining = useMemo(
-    () => (next ? getRemainingParts(next.at, now) : null),
-    [next, now],
-  );
+  const nextAtMs = next?.at.getTime();
+  useEffect(() => {
+    setWakeAt(nextAtMs != null ? new Date(nextAtMs) : null);
+  }, [nextAtMs]);
 
   const guideId = useMemo(
     () => getActiveGuideId(times, now, next),
     [times, now, next],
   );
   const guideName = getPrayerName(guideId);
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
 
   useEffect(() => {
     scrollY.setValue(0);
@@ -287,112 +426,14 @@ export default function HomeScreen() {
                 opacity: flexibleOpacity,
               }}
             >
-              {next && remaining ? (
-                <View
-                  accessible
-                  accessibilityLabel={`${t("home.nextPrayer")}: ${nextLabel} ${formatTime(next.at, locale)}. ${t("common.countdownA11y", { prayer: nextLabel, hours: remaining.hours, minutes: remaining.minutes })}`}
-                >
-                  <Text
-                    style={{
-                      fontFamily: fonts.body,
-                      fontSize: 13,
-                      color: chrome.heroSubtitle,
-                    }}
-                  >
-                    {t("home.nextPrayer")}
-                  </Text>
-                  <View
-                    style={{
-                      marginTop: 2,
-                      flexDirection: "row",
-                      alignItems: "baseline",
-                      gap: 10,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: fonts.displayBold,
-                        fontSize: 26,
-                        color: chrome.heroTitle,
-                      }}
-                    >
-                      {nextLabel}
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: fonts.body,
-                        fontSize: 15,
-                        color: chrome.heroEyebrow,
-                      }}
-                    >
-                      {formatTime(next.at, locale)}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      fontFamily: fonts.body,
-                      marginTop: 10,
-                      fontSize: 11,
-                      letterSpacing: 2,
-                      textTransform: "uppercase",
-                      color: chrome.heroSubtitle,
-                    }}
-                  >
-                    {t("home.untilPrayer")}
-                  </Text>
-                  <View
-                    style={{
-                      marginTop: 6,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      paddingHorizontal: 2,
-                    }}
-                  >
-                    <CountdownUnit
-                      value={pad2(remaining.hours)}
-                      label={t("home.hoursShort")}
-                      color={chrome.heroTitle}
-                      muted={chrome.heroSubtitle}
-                    />
-                    <Text
-                      style={{
-                        fontFamily: fonts.displayBold,
-                        fontSize: 26,
-                        color: dark
-                          ? "rgba(243,239,230,0.35)"
-                          : "rgba(26,47,37,0.28)",
-                        paddingBottom: 16,
-                      }}
-                    >
-                      :
-                    </Text>
-                    <CountdownUnit
-                      value={pad2(remaining.minutes)}
-                      label={t("home.minutesShort")}
-                      color={chrome.heroTitle}
-                      muted={chrome.heroSubtitle}
-                    />
-                    <Text
-                      style={{
-                        fontFamily: fonts.displayBold,
-                        fontSize: 26,
-                        color: dark
-                          ? "rgba(243,239,230,0.35)"
-                          : "rgba(26,47,37,0.28)",
-                        paddingBottom: 16,
-                      }}
-                    >
-                      :
-                    </Text>
-                    <CountdownUnit
-                      value={pad2(remaining.seconds)}
-                      label={t("home.secondsShort")}
-                      color={chrome.heroTitle}
-                      muted={chrome.heroSubtitle}
-                    />
-                  </View>
-                </View>
+              {next ? (
+                <HeroCountdown
+                  target={next.at}
+                  nextLabel={nextLabel}
+                  timeLabel={formatTime(next.at, locale)}
+                  chrome={chrome}
+                  dark={dark}
+                />
               ) : null}
             </Animated.View>
           </LinearGradient>
@@ -467,9 +508,14 @@ export default function HomeScreen() {
                 }}
                 numberOfLines={1}
               >
-                {next && remaining
-                  ? `${nextLabel} · ${formatTime(next.at, locale)} · ${pad2(remaining.hours)}:${pad2(remaining.minutes)}:${pad2(remaining.seconds)}`
-                  : " "}
+                {next ? (
+                  <CompactCountdownText
+                    target={next.at}
+                    prefix={`${nextLabel} · ${formatTime(next.at, locale)}`}
+                  />
+                ) : (
+                  " "
+                )}
               </Animated.Text>
             </Animated.View>
           </View>
@@ -528,6 +574,8 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={{ opacity: fade }}>
+          <IslandHomeCard dark={dark} />
+
           {/* Namaz vakitleri — tipografik grid */}
           <View className="mx-5 mt-5">
             <View className="mb-5 flex-row items-baseline justify-between">
@@ -644,7 +692,7 @@ export default function HomeScreen() {
             accessibilityRole="button"
             onPress={() => {
               hapticSelection();
-              router.push("/(tabs)/kible");
+              router.push("/kible");
             }}
             className="mx-5 mt-8 self-start active:opacity-70"
             hitSlop={8}
