@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import { Linking, Pressable, Switch, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Constants, { ExecutionEnvironment } from "expo-constants";
@@ -31,6 +32,7 @@ import { calculatePrayerTimes, formatTime } from "@/lib/prayer-times";
 import {
   availableSounds,
   previewSound,
+  stopPreview,
   type NotificationSound,
   type SoundKind,
 } from "@/lib/notification-sounds";
@@ -63,6 +65,9 @@ export default function SettingsScreen() {
   const cityName = cityDisplayName(city, locale);
   const days = scheduledDayCount(notifyPrefs);
   const [scheduledCount, setScheduledCount] = useState<number | null>(null);
+
+  // Sekmeden çıkınca önizleme sesi kesilsin
+  useFocusEffect(useCallback(() => stopPreview, []));
 
   // Geliştirme: kaç bildirimin planlandığını göster (yeniden planlama async)
   useEffect(() => {

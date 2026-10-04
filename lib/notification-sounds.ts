@@ -134,22 +134,50 @@ export async function ensureSoundChannels() {
   }
 }
 
-let previewPlayer: AudioPlayer | null = null;
+/** Önizleme yalnız bir kesit çalar; uzun sesler (ezan, alarm) sonuna kadar sürmesin */
+const PREVIEW_MS = 4500;
+const PREVIEW_FADE_MS = 700;
+const PREVIEW_VOLUME = 0.8;
 
-/** Ayarlar'da seçim yapılınca sesi dinlet (sistem/sessiz için çalmaz) */
-export function previewSound(sound: NotificationSound) {
-  const source = PREVIEWS[sound] ?? null;
+let previewPlayer: AudioPlayer | null = null;
+let previewTimers: ReturnType<typeof setTimeout>[] = [];
+
+/** Çalan önizlemeyi hemen durdur (ekrandan çıkınca, yeni seçimde) */
+export function stopPreview() {
+  previewTimers.forEach(clearTimeout);
+  previewTimers = [];
   try {
     previewPlayer?.remove();
   } catch {
     // ignore
   }
   previewPlayer = null;
+}
+
+/** Ayarlar'da seçim yapılınca sesi kısa dinlet (sistem/sessiz için çalmaz) */
+export function previewSound(sound: NotificationSound) {
+  stopPreview();
+  const source = PREVIEWS[sound] ?? null;
   if (!source) return;
   try {
-    previewPlayer = createAudioPlayer(source);
-    previewPlayer.volume = 0.8;
-    previewPlayer.play();
+    const player = createAudioPlayer(source);
+    previewPlayer = player;
+    player.volume = PREVIEW_VOLUME;
+    player.play();
+    // Kesitin sonunda sesi adım adım kısıp durdur
+    const steps = 7;
+    for (let i = 1; i <= steps; i++) {
+      previewTimers.push(
+        setTimeout(
+          () => {
+            if (previewPlayer !== player) return;
+            if (i === steps) stopPreview();
+            else player.volume = PREVIEW_VOLUME * (1 - i / steps);
+          },
+          PREVIEW_MS - PREVIEW_FADE_MS + (PREVIEW_FADE_MS / steps) * i,
+        ),
+      );
+    }
   } catch {
     // ses çalınamıyorsa sessizce geç
   }
