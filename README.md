@@ -1,22 +1,31 @@
 # Namaz Rehberim
 
-Expo + React Native + NativeWind mobil uygulaması.
+Expo (SDK 57) + React Native + NativeWind mobil uygulaması.
 
 ## Özellikler
 
-- Adım adım namaz rehberi (vakit değil, kılınış)
-- Her gün farklı dua
-- Onboarding (ilk açılış)
-- Dark / Light tema (varsayılan: sistem)
-- Türkçe / English (`expo-localization` + `i18n-js`)
-- Yerel Unsplash görselleri (`assets/images`)
+- Adım adım namaz rehberi ve sesli kıldırıcı (bölüm bölüm)
+- İl bazlı namaz vakitleri (Diyanet hesaplaması, cihazda) ve kıble bulucu
+- Vakit bildirimleri: vakit girince ezan, önceden hatırlatma (yerel, sunucusuz)
+- Günlük dua, namaz takibi ve paylaşılabilir rapor
+- Açık / koyu tema, Türkçe / English
 
 ## Çalıştırma
 
 ```bash
-npm start
+npm install
+npm start            # Expo Go (özel bildirim sesleri sistem sesine düşer)
+npx expo run:ios     # development build (tam özellik)
 ```
 
-## Ayarlar
+## Marka görselleri
 
-Uygulama içi **Ayarlar** sekmesinden tema ve dil değiştirilebilir.
+`assets/brand/source-emblem.png` kaynağından ikon, splash ve Android ikonları üretilir:
+
+```bash
+npm run brand:assets   # Pillow + numpy gerekir
+```
+
+## Yayın
+
+Kontrol listesi: [`docs/RELEASE.md`](docs/RELEASE.md) · Gizlilik: [`docs/privacy-policy.md`](docs/privacy-policy.md)
